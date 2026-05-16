@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Dashboard Test</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; }
+        
+        /* Test container */
+        .test-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .test-section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .test-section h2 { margin-bottom: 15px; color: #1e3a5f; font-size: 20px; }
+        .test-section p { color: #666; margin-bottom: 15px; font-size: 14px; }
+        
+        /* Color indicator */
+        .color-indicator { display: inline-block; width: 16px; height: 16px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+        
+        /* Test cards */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .stat-card .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+        .stat-card .stat-value { font-size: 28px; font-weight: 700; color: #1e3a5f; }
+        .stat-card .stat-label { font-size: 14px; color: #6c757d; }
+        
+        /* Test responsive table */
+        .table-responsive { overflow-x: auto; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #4a5568; }
+        
+        /* Mobile menu simulation */
+        .mobile-menu-sim { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 20px; text-align: center; }
+        .mobile-menu-sim .menu-item { display: flex; align-items: center; padding: 12px 15px; margin: 5px 0; background: #f7fafc; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .mobile-menu-sim .menu-item:hover { background: #edf2f7; }
+        .mobile-menu-sim .menu-icon { width: 22px; text-align: center; margin-right: 12px; }
+        
+        /* Breakpoint indicator */
+        .breakpoint-indicator { position: fixed; top: 10px; right: 10px; background: #1e3a5f; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 1000; }
+        
+        /* Touch target test */
+        .touch-test { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .touch-btn { padding: 12px 20px; background: #4f46e5; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .touch-btn:hover { background: #4338ca; transform: scale(1.02); }
+        .touch-btn:active { transform: scale(0.98); }
+        .touch-btn.large { min-height: 48px; padding: 14px 24px; font-size: 16px; }
+        
+        /* Form test */
+        .form-test { max-width: 400px; }
+        .form-test input, .form-test select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 16px; }
+        .form-test label { display: block; margin: 12px 0 4px; font-weight: 500; color: #4a5568; font-size: 14px; }
+        
+        /* Responsive utilities test */
+        .util-test { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+        .util-box { padding: 10px 15px; background: #edf2f7; border-radius: 6px; font-size: 13px; }
+        
+        @media (max-width: 767.98px) {
+            .d-mobile-hide { display: none !important; }
+            .util-box { font-size: 12px; padding: 8px 12px; }
+        }
+        @media (min-width: 768px) {
+            .d-desktop-hide { display: none !important; }
+        }
+        
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .stat-card, .touch-btn, .mobile-menu-sim .menu-item {
+                transition: none !important;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .breakpoint-indicator, .touch-test, .mobile-menu-sim {
+                display: none !important;
+            }
+            .test-container { padding: 0; }
+            .test-section { box-shadow: none; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+    <div class="breakpoint-indicator" id="bpIndicator">Desktop</div>
+    
+    <div class="test-container">
+        <!-- Test Section 1: Responsive Cards -->
+        <div class="test-section">
+            <h2><i class="fas fa-th-large"></i> Responsive Dashboard Cards</h2>
+            <p>Cards automatically stack on mobile devices. Grid layout uses <code>auto-fit</code> for optimal space usage.</p>
+            <div class="cards-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-value">1,284</div>
+                    <div class="stat-label">Total Requisitions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-value">47</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dcfce7; color: #15803d;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value">892</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef2f2; color: #dc2626;">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section 2: Responsive Table -->
+        <div class="test-section">
+            <h2><i class="fas fa-table"></i> Responsive Table</h2>
+            <p>Table becomes horizontally scrollable on small screens. Resize browser to test.</p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Vehicle Type</th>
+                            <th>Travel Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EMP001</td>
+                            <td>John Smith</td>
+                            <td>Operations</td>
+                            <td>Sedan</td>
+                            <td>2024-01-15</td>
+                            <td><span style="color:#10b981;font-weight:600">Approved</span></td>
+                            <td><button style="padding:4px 8px;border:none;background:#4f46e5;color:white;border-radius:4px;cursor:pointer">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>EMP002</td>
+                            <td>Sarah Johnson</td>
+                            <td>Sales</td>
+                            <td>SUV</td>
+                            <td>2024-01-16</td>
+                            <td><span style="color:#f59e0b;font-weight:600">Pending</span></td>
+                            <td><button style="padding:4px 8px;border:none;background:#4f46e5;color:white;border-radius:4px;cursor:pointer">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>EMP003</td>
+                            <td>Mike Chen</td>
+                            <td>Logistics</td>
+                            <td>Van</td>
+                            <td>2024-01-17</td>
+                            <td><span style="color:#10b981;font-weight:600">Approved</span></td>
+                            <td><button style="padding:4px 8px;border:none;background:#4f46e5;color:white;border-radius:4px;cursor:pointer">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Test Section 3: Mobile Navigation -->
+        <div class="test-section">
+            <h2><i class="fas fa-bars"></i> Mobile Navigation Menu</h2>
+            <p>Sidebar collapses to overlay on mobile. Menu items have increased touch targets (48px+).</p>
+            <div class="mobile-menu-sim">
+                <div class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-truck"></i></span>
+                    <span>Vehicles</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-users"></i></span>
+                    <span>Drivers</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span>Requisitions</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section 4: Form Elements -->
+        <div class="test-section">
+            <h2><i class="fas fa-edit"></i> Mobile Form Elements</h2>
+            <p>Font size 16px prevents iOS zoom. Larger touch targets for inputs and buttons.</p>
+            <div class="form-test">
+                <label for="test-name">Full Name</label>
+                <input type="text" id="test-name" placeholder="Enter your name" autocomplete="name">
+                
+                <label for="test-email">Email Address</label>
+                <input type="email" id="test-email" placeholder="your@email.com" autocomplete="email">
+                
+                <label for="test-role">Role</label>
+                <select id="test-role">
+                    <option>Employee</option>
+                    <option>Manager</option>
+                    <option>Transport</option>
+                    <option>Admin</option>
+                </select>
+                
+                <button class="touch-btn large" style="width:100%;margin-top:10px;">
+                    <i class="fas fa-paper-plane"></i> Submit Form
+                </button>
+            </div>
+        </div>
+        
+        <!-- Test Section 5: Touch Targets -->
+        <div class="test-section">
+            <h2><i class="fas fa-hand-pointer"></i> Touch Target Sizes</h2>
+            <p>Standard buttons are 40px min height. Large buttons are 48px+ for better mobile usability.</p>
+            <div class="touch-test">
+                <button class="touch-btn">Standard (40px)</button>
+                <button class="touch-btn large">Large (48px)</button>
+                <button class="touch-btn" style="padding:16px 24px;">Extra Large</button>
+            </div>
+            <p style="font-size:12px;color:#666;margin-top:10px;">
+                <i class="fas fa-info-circle"></i> Android recommends 48dp, iOS recommends 44px minimum touch targets.
+            </p>
+        </div>
+        
+        <!-- Test Section 6: Responsive Utilities -->
+        <div class="test-section">
+            <h2><i class="fas fa-magic"></i> Responsive Utility Classes</h2>
+            <p>Elements shown/hidden based on screen size. Resize to see changes.</p>
+            <div class="util-test">
+                <div class="util-box">Always Visible</div>
+                <div class="util-box d-mobile-hide">Hidden on Mobile</div>
+                <div class="util-box d-desktop-hide">Hidden on Desktop</div>
+            </div>
+            <p style="font-size:12px;color:#666;">
+                Current viewport: <strong id="viewportSize">-</strong>
+            </p>
+        </div>
+        
+        <!-- Test Section 7: Accessibility -->
+        <div class="test-section">
+            <h2><i class="fas fa-universal-access"></i> Accessibility Features</h2>
+            <p>Reduced motion support, focus indicators, and semantic HTML for screen readers.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button style="padding:12px 20px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;">
+                    Regular Focus
+                </button>
+                <button style="padding:12px 20px;background:#10b981;color:white;border:none;border-radius:8px;cursor:pointer;" tabindex="0">
+                    Tab Navigation
+                </button>
+            </div>
+            <p style="font-size:12px;color:#666;margin-top:15px;">
+                <i class="fas fa-eye"></i> Try tabbing through elements. Notice focus indicators.<br>
+                <i class="fas fa-moon"></i> Enable "Reduce Motion" in OS settings to see animations disabled.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Update breakpoint indicator
+        function updateBreakpoint() {
+            const width = window.innerWidth;
+            const indicator = document.getElementById('bpIndicator');
+            const viewportSize = document.getElementById('viewportSize');
+            
+            let label = '';
+            if (width < 576) label = 'XS Mobile (<576px)';
+            else if (width < 768) label = 'SM Mobile (≥576px)';
+            else if (width < 992) label = 'MD Tablet (≥768px)';
+            else if (width < 1200) label = 'LG Desktop (≥992px)';
+            else label = 'XL Desktop (≥1200px)';
+            
+            indicator.textContent = label;
+            if (viewportSize) viewportSize.textContent = width + 'px';
+        }
+        
+        // Initialize
+        updateBreakpoint();
+        window.addEventListener('resize', updateBreakpoint);
+        
+        // Test mobile menu toggle
+        document.querySelectorAll('.mobile-menu-sim .menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.background = '#c7d2fe';
+                setTimeout(() => {
+                    this.style.background = '';
+                }, 200);
+            });
+        });
+        
+        // Check for reduced motion preference
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (motionQuery.matches) {
+            console.log('Reduced motion: Enabled');
+            document.body.style.setProperty('--transition-duration', '0.01ms');
+        }
+    </script>
+</body>
+</html>

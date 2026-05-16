@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet & Transport Management System (Laravel)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .tagline {
+            background: rgba(74, 144, 226, 0.3);
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: 1px solid rgba(74, 144, 226, 0.5);
+        }
+        nav {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        nav h2 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4A90E2;
+        }
+        nav ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        nav ul li a {
+            display: block;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        nav ul li a:hover {
+            background: #4A90E2;
+            color: white;
+            transform: translateY(-2px);
+        }
+        section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        section h2 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        section h3 {
+            color: #4A90E2;
+            margin: 20px 0 10px;
+        }
+        section h4 {
+            color: #2d3748;
+            margin: 15px 0 8px;
+        }
+        section p {
+            margin-bottom: 15px;
+        }
+        section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        section ul li {
+            margin-bottom: 8px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #1a1a2e;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4A90E2;
+        }
+        .feature-card h4 {
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #1a1a2e;
+            color: white;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .approval-flow {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .approval-flow ol {
+            margin-left: 20px;
+        }
+        .approval-flow li {
+            margin-bottom: 10px;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .role-admin { background: #e74c3c; color: white; }
+        .role-employee { background: #3498db; color: white; }
+        .role-driver { background: #27ae60; color: white; }
+        .role-depthead { background: #9b59b6; color: white; }
+        .role-transport { background: #f39c12; color: white; }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        footer a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>গাড়িবন্ধু ৩৬০</h1>
+        <p>Fleet & Transport Management System (Laravel)</p>
+        <div class="tagline">Smart Logistics. Better Operations.</div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#features">Features Overview</a></li>
+                <li><a href="FEATURES.md">Detailed Features</a></li>
+                <li><a href="#user-roles">User Roles & Access</a></li>
+                <li><a href="#requirements">Requirements</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#usage">Usage Guide</a></li>
+                <li><a href="#modules">Module Details</a></li>
+                <li><a href="#notifications">Notification System</a></li>
+                <li><a href="#approvals">Approval System</a></li>
+                <li><a href="#api">API & Exports</a></li>
+                <li><a href="#support">Support</a></li>
+                <li><a href="#license">License</a></li>
+            </ul>
+        </nav>
+
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>Welcome to <strong>গাড়িবন্ধু ৩৬০</strong> documentation. This powerful Laravel-based solution is designed to streamline your organization's fleet and transport operations with an all-in-one management platform.</p>
+            <p>গাড়িবন্ধু ৩৬০ is a comprehensive fleet and transport automation system that helps you manage vehicles, drivers, requisitions, maintenance, and more - all in one place.</p>
+            <p><strong>Smart Logistics. Better Operations.</strong> - Our mission is to help you achieve operational excellence through intelligent automation.</p>
+        </section>
+
+        <section id="features">
+            <h2>Features Overview</h2>
+            <p>Click here for <a href="FEATURES.md"><strong>Detailed Feature Documentation</strong></a></p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Fleet Management</h4>
+                    <p>Complete vehicle fleet management with categorization, tracking, and availability status.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Driver Management</h4>
+                    <p>Driver registration, license tracking, document management, and performance monitoring.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Transport Management</h4>
+                    <p>Requisition system, trip sheets, vehicle assignment, and transport notifications.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>HR Module</h4>
+                    <p>Comprehensive employee management with departments, designations, and organizational hierarchy.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Maintenance System</h4>
+                    <p>Vehicle maintenance tracking, scheduling, requisitions, and vendor management.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Multi-Level Approvals</h4>
+                    <p>Employee, Department Head, and Transport Admin approval workflows.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Notification System</h4>
+                    <p>Push notifications, email templates, and comprehensive notification history.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Subscription & Payments</h4>
+                    <p>Subscription plan management, manual payment processing, and payment tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Reports & Analytics</h4>
+                    <p>Requisition, maintenance, trip fuel, vehicle utilization, and driver performance reports.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Multi-Language Support</h4>
+                    <p>Complete translation management system with dynamic content translation.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Email System</h4>
+                    <p>Customizable email templates, logging, resend functionality, and error tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Export Functions</h4>
+                    <p>Export data to PDF and Excel formats with one click.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="user-roles">
+            <h2>User Roles & Access Levels</h2>
+            <p>গাড়িবন্ধু ৩৬০ provides multiple user roles with specific permissions and approval capabilities:</p>
+            
+            <h3>User Types</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="role-badge role-admin">Admin</span> System Administrator</h4>
+                    <p>Full system access including settings, user management, and all modules.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="role-badge role-employee">Employee</span> Regular Employee</h4>
+                    <p>Can submit requisitions, view assigned vehicles and drivers, track trip status.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="role-badge role-driver">Driver</span> Driver</h4>
+                    <p>Access to personal dashboard, schedule, trips, fuel log, and availability management.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="role-badge role-depthead">Dept Head</span> Department Head</h4>
+                    <p>Can approve/reject requisitions from department members, view department statistics.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="role-badge role-transport">Transport Admin</span> Transport Admin</h4>
+                    <p>Final approval authority for transport requisitions, fleet management oversight.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="requirements">
+            <h2>System Requirements</h2>
+            <h3>Server Requirements</h3>
+            <table>
+                <tr>
+                    <th>Requirement</th>
+                    <th>Minimum Version</th>
+                </tr>
+                <tr>
+                    <td>PHP</td>
+                    <td>8.0 or higher</td>
+                </tr>
+                <tr>
+                    <td>Laravel</td>
+                    <td>9.x / 10.x</td>
+                </tr>
+                <tr>
+                    <td>MySQL</td>
+                    <td>8.0+ or MariaDB 10.2+</td>
+                </tr>
+                <tr>
+                    <td>Composer</td>
+                    <td>2.0+</td>
+                </tr>
+                <tr>
+                    <td>Node.js</td>
+                    <td>16+ (for frontend assets)</td>
+                </tr>
+            </table>
+
+            <h3>PHP Extensions Required</h3>
+            <ul>
+                <li>OpenSSL PHP Extension</li>
+                <li>PDO PHP Extension</li>
+                <li>Mbstring PHP Extension</li>
+                <li>Tokenizer PHP Extension</li>
+                <li>XML PHP Extension</li>
+                <li>Ctype PHP Extension</li>
+                <li>JSON Extension</li>
+                <li>BCMath Extension</li>
+                <li>Fileinfo Extension</li>
+                <li>CURL Extension</li>
+            </ul>
+
+            <div class="warning">
+                <strong>Important:</strong> Ensure your hosting environment meets all these requirements before installation.
+            </div>
+        </section>
+
+        <section id="installation">
+            <h2>Installation Guide</h2>
+
+            <h3>Step 1: Download and Setup</h3>
+            <p>Download the package and extract it to your web server directory (e.g., <code>public_html</code> or <code>htdocs</code>).</p>
+
+            <h3>Step 2: Install Dependencies</h3>
+            <p>Open your terminal and navigate to the project directory:</p>
+            <pre><code>cd /path/to/your/project
+composer install
+npm install</code></pre>
+
+            <h3>Step 3: Configure Environment</h3>
+            <p>Copy the example environment file:</p>
+            <pre><code>cp .env.example .env</code></pre>
+
+            <p>Edit the <code>.env</code> file with your database credentials:</p>
+            <pre><code>APP_NAME="Codeaycanon TMS"
+APP_URL=http://yourdomain.com
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_database_username
+DB_PASSWORD=your_database_password</code></pre>
+
+            <h3>Step 4: Generate Application Key</h3>
+            <pre><code>php artisan key:generate</code></pre>
+
+            <h3>Step 5: Run Database Migrations</h3>
+            <pre><code>php artisan migrate --seed</code></pre>
+
+            <h3>Step 6: Create Storage Link</h3>
+            <pre><code>php artisan storage:link</code></pre>
+
+            <h3>Step 7: Set File Permissions</h3>
+            <pre><code>chmod -R 775 storage/
+chmod -R 775 bootstrap/cache/</code></pre>
+
+            <div class="info">
+                <strong>Note:</strong> The permissions (775) may need to be adjusted based on your server configuration. Some servers require 755.
+            </div>
+
+            <div class="success">
+                <strong>Success!</strong> Your application should now be accessible at http://yourdomain.com
+            </div>
+        </section>
+
+        <section id="configuration">
+            <h2>Configuration</h2>
+
+            <h3>Email Configuration</h3>
+            <p>Configure your mail settings in the <code>.env</code> file:</p>
+            <pre><code>MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+MAIL_ENCRYPTION=tls</code></pre>
+
+            <p>Or configure through the admin panel: <strong>Settings > Email</strong></p>
+
+            <h3>Application Settings</h3>
+            <p>Access the admin panel to configure:</p>
+            <ul>
+                <li>General application settings</li>
+                <li>Language preferences</li>
+                <li>Email templates</li>
+                <li>Payment gateway settings</li>
+                <li>Notification preferences</li>
+            </ul>
+
+            <h3>Multi-Language Setup</h3>
+            <p>To add or configure languages:</p>
+            <ol>
+                <li>Go to <strong>Settings > Languages</strong> in the admin panel</li>
+                <li>Add new languages as needed</li>
+                <li>Configure translation strings</li>
+                <li>Set default language</li>
+            </ol>
+        </section>
+
+        <section id="usage">
+            <h2>Usage Guide</h2>
+
+            <h3>Default Login Credentials</h3>
+            <table>
+                <tr>
+                    <th>Role</th>
+                    <th>URL</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Approval Authority</th>
+                </tr>
+                <tr>
+                    <td><span class="role-badge role-admin">Admin</span></td>
+                    <td>/admin</td>
+                    <td>superadmin@vms.com</td>
+                    <td>password</td>
+                    <td>Full System Access</td>
+                </tr>
+                <tr>
+                    <td><span class="role-badge role-employee">Employee</span></td>
+                    <td>/employee/login</td>
+                    <td>employee@codeaycanon.com</td>
+                    <td>password</td>
+                    <td>Submit Requisitions Only</td>
+                </tr>
+                <tr>
+                    <td><span class="role-badge role-driver">Driver</span></td>
+                    <td>/driver/login</td>
+                    <td>driver@codeaycanon.com</td>
+                    <td>password</td>
+                    <td>View Assigned Trips</td>
+                </tr>
+                <tr>
+                    <td><span class="role-badge role-depthead">Dept Head</span></td>
+                    <td>/department-head/login</td>
+                    <td>depthead@codeaycanon.com</td>
+                    <td>password</td>
+                    <td>Department Approval</td>
+                </tr>
+                <tr>
+                    <td><span class="role-badge role-transport">Transport Admin</span></td>
+                    <td>/transport-admin/login</td>
+                    <td>transport@codeaycanon.com</td>
+                    <td>password</td>
+                    <td>Final Approval</td>
+                </tr>
+            </table>
+
+            <div class="warning">
+                <strong>Security Warning:</strong> Change all passwords immediately after first login!
+            </div>
+
+            <h3>Getting Started</h3>
+            <ol>
+                <li>Login to the admin panel</li>
+                <li>Navigate to <strong>Settings</strong> to configure basic options</li>
+                <li>Create departments and assign Department Heads</li>
+                <li>Add employees and assign roles (Employee, Driver, Transport Admin)</li>
+                <li>Add vehicles and drivers</li>
+                <li>Configure notification settings</li>
+                <li>Add initial data (if needed)</li>
+            </ol>
+        </section>
+
+        <section id="modules">
+            <h2>Module Details</h2>
+
+            <h3>HR Module - Employee Management</h3>
+            <p>The HR Module provides comprehensive employee management capabilities:</p>
+            <ul>
+                <li><strong>Employee Registration:</strong> Add and manage employee profiles with personal details</li>
+                <li><strong>Department Management:</strong> Create and manage organizational departments</li>
+                <li><strong>Designation Tracking:</strong> Manage job titles and positions</li>
+                <li><strong>Department Heads:</strong> Assign department heads for approval workflows</li>
+                <li><strong>Employee-Transport Linking:</strong> Link employees to transport requisition system</li>
+            </ul>
+
+            <h3>Fleet Management</h3>
+            <p>Manage your vehicle fleet with comprehensive features including vehicle registration, type categorization, document management, and real-time availability tracking.</p>
+
+            <h3>Driver Management</h3>
+            <p>Maintain driver profiles with license information, document tracking, and availability status for efficient driver assignment.</p>
+
+            <h3>Transport Management</h3>
+            <p>Handle transport requisitions with multi-level approval workflows, create trip sheets, assign vehicles and drivers, and track all transport activities.</p>
+
+            <h3>Maintenance System</h3>
+            <p>Schedule and track maintenance for vehicles and equipment, manage maintenance categories, and coordinate with vendors.</p>
+
+            <h3>Requisition System</h3>
+            <p>Submit requisitions with multi-level approval, track status changes, and maintain complete audit logs.</p>
+        </section>
+
+        <section id="notifications">
+            <h2>Notification System</h2>
+            <p>গাড়িবন্ধু ৩৬০ includes a comprehensive notification system with multiple channels:</p>
+
+            <h3>Push Notifications</h3>
+            <p>Real-time push notifications for immediate alerts:</p>
+            <ul>
+                <li>Requisition status updates</li>
+                <li>Approval/rejection notifications</li>
+                <li>Trip assignments for drivers</li>
+                <li>Maintenance reminders</li>
+            </ul>
+
+            <h3>Email Notifications</h3>
+            <p>Configurable email templates for automated communications:</p>
+            <ul>
+                <li>Requisition submission confirmations</li>
+                <li>Approval request emails to Department Heads</li>
+                <li>Final approval notifications</li>
+                <li>Trip sheet distributions</li>
+                <li>Maintenance alerts</li>
+            </ul>
+
+            <h3>Notification Settings</h3>
+            <p>Configure notification preferences in the admin panel:</p>
+            <ol>
+                <li>Navigate to <strong>Email & Notification > Notification Settings</strong></li>
+                <li>Enable/disable notification channels</li>
+                <li>Configure email recipients</li>
+                <li>Set notification frequency</li>
+            </ol>
+
+            <h3>Push Subscribers Management</h3>
+            <p>Manage push notification subscriptions:</p>
+            <ul>
+                <li>View all active subscribers</li>
+                <li>Manage notification preferences</li>
+                <li>Track subscription history</li>
+            </ul>
+
+            <h3>Email Templates</h3>
+            <p>Customize email templates for various notifications:</p>
+            <ul>
+                <li>Requisition approval templates</li>
+                <li>Driver assignment notifications</li>
+                <li>Maintenance alerts</li>
+                <li>System announcements</li>
+            </ul>
+
+            <h3>Email Log History</h3>
+            <p>Maintain a complete audit trail of all sent emails:</p>
+            <ul>
+                <li>View sent email history</li>
+                <li>Track delivery status</li>
+                <li>Resend failed emails</li>
+                <li>Export email logs for reporting</li>
+            </ul>
+        </section>
+
+        <section id="approvals">
+            <h2>Multi-Level Approval System</h2>
+            <p>গাড়িবন্ধু ৩৬০ implements a comprehensive multi-level approval workflow for transport requisitions:</p>
+
+            <h3>Approval Hierarchy</h3>
+            <div class="approval-flow">
+                <ol>
+                    <li><strong>Employee</strong> submits transport requisition</li>
+                    <li><strong>Department Head</strong> receives notification and reviews (First Approval Level)</li>
+                    <li><strong>Transport Admin</strong> receives notification and provides final approval (Final Approval Level)</li>
+                    <li><strong>System</strong> generates trip sheet and assigns vehicle/driver</li>
+                </ol>
+            </div>
+
+            <h3>User Roles in Approval Workflow</h3>
+            
+            <h4><span class="role-badge role-employee">Employee</span> Employee Login</h4>
+            <p>Employees can:</p>
+            <ul>
+                <li>Submit transport requisitions</li>
+                <li>View requisition history and status</li>
+                <li>Track trip progress</li>
+                <li>Cancel pending requisitions</li>
+            </ul>
+
+            <h4><span class="role-badge role-driver">Driver</span> Driver Login</h4>
+            <p>Drivers can:</p>
+            <ul>
+                <li>View assigned trips</li>
+                <li>Access personal dashboard</li>
+                <li>Manage availability status</li>
+                <li>Log fuel consumption</li>
+                <li>View schedule and calendar</li>
+            </ul>
+
+            <h4><span class="role-badge role-depthead">Dept Head</span> Department Head Login</h4>
+            <p>Department Heads have approval authority:</p>
+            <ul>
+                <li>View all requisitions from department employees</li>
+                <li><strong>Approve</strong> requisitions (first approval level)</li>
+                <li><strong>Reject</strong> requisitions with reason</li>
+                <li>View department transport statistics</li>
+                <li>Receive email and push notifications for pending approvals</li>
+            </ul>
+
+            <h4><span class="role-badge role-transport">Transport Admin</span> Transport Admin Login</h4>
+            <p>Transport Admins have final approval authority:</p>
+            <ul>
+                <li>View all approved requisitions from all departments</li>
+                <li><strong>Approve</strong> for final authorization (final approval level)</li>
+                <li><strong>Reject</strong> requisitions with reason</li>
+                <li>Assign vehicles and drivers to approved requisitions</li>
+                <li>Generate and manage trip sheets</li>
+                <li>View overall fleet utilization</li>
+            </ul>
+
+            <h3>Approval Status Tracking</h3>
+            <table>
+                <tr>
+                    <th>Status</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>Pending</td>
+                    <td>Submitted, awaiting Department Head approval</td>
+                </tr>
+                <tr>
+                    <td>Department Approved</td>
+                    <td>Approved by Department Head, awaiting Transport Admin</td>
+                </tr>
+                <tr>
+                    <td>Transport Approved</td>
+                    <td>Fully approved, trip sheet can be generated</td>
+                </tr>
+                <tr>
+                    <td>Rejected</td>
+                    <td>Rejected by Department Head or Transport Admin</td>
+                </tr>
+                <tr>
+                    <td>Cancelled</td>
+                    <td>Cancelled by the requester</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="api">
+            <h2>API & Exports</h2>
+
+            <h3>Export Functionality</h3>
+            <p>The system supports exporting data to various formats:</p>
+            <ul>
+                <li><strong>PDF Export:</strong> Using DomPDF for formatted document generation</li>
+                <li><strong>Excel Export:</strong> Using Maatwebsite Excel for spreadsheet generation</li>
+                <li><strong>CSV Support:</strong> Export data in CSV format</li>
+            </ul>
+
+            <h3>Available Exports</h3>
+            <ul>
+                <li>Vehicle fleet lists and reports</li>
+                <li>Driver records and performance reports</li>
+                <li>Maintenance records</li>
+                <li>Requisition reports</li>
+                <li>Trip sheets</li>
+                <li>Email log history</li>
+            </ul>
+        </section>
+
+        <section id="support">
+            <h2>Support</h2>
+            <p>We provide comprehensive support for our product:</p>
+            <ul>
+                <li><strong>Documentation:</strong> This complete guide covers all aspects of the system</li>
+                <li><strong>Email Support:</strong> Contact support@codeaycanon.com</li>
+                <li><strong>Updates:</strong> Regular updates to improve functionality and fix issues</li>
+            </ul>
+
+            <div class="info">
+                <strong>Before Contacting Support:</strong> Please check the FAQ section and documentation thoroughly. Most issues can be resolved by following the installation and configuration guides.
+            </div>
+        </section>
+
+        <section id="license">
+            <h2>License</h2>
+            <p>This is a commercial product licensed under proprietary terms:</p>
+            <ul>
+                <li><strong>Regular License:</strong> Use in a single end product (free or paid) where end users are not charged</li>
+                <li><strong>Extended License:</strong> Use in a single end product that you plan to sell</li>
+            </ul>
+            <p>For more details, please refer to your purchase agreement.</p>
+        </section>
+    </div>
+
+    <footer>
+        <p><strong>গাড়িবন্ধু ৩৬০</strong> – Fleet & Transport Management System (Laravel)</p>
+        <p>Smart Logistics. Better Operations.</p>
+        <p>Version 1.0.0 | &copy; 2025 গাড়িবন্ধু ৩৬০</p>
+    </footer>
+</body>
+</html>

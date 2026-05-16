@@ -1,0 +1,124 @@
+body {
+    background: #fff;
+}
+/* Header input & buttons spacing */
+.content-header .form-control {
+    height: 40px;
+    font-size: 1rem;
+}
+
+.content-header .btn {
+    height: 40px;
+    font-size: 0.95rem;
+}
+
+/* Small gap between input and buttons */
+.content-header .btn + .btn {
+    margin-left: 0.5rem;
+}
+
+/* Mobile: stack buttons */
+@media (max-width: 575px) {
+    .content-header .d-flex.flex-column.flex-md-row {
+        gap: 0.5rem;
+    }
+    .content-header .btn.ms-auto {
+        margin-left: 0 !important;
+    }
+}
+
+
+/* Toast */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    min-width: 260px;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    gap: 10px;
+    box-shadow: 0 15px 35px rgba(0,0,0,.2);
+    animation: slideIn .35s ease forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.hide {
+    animation: slideOut .35s ease forwards;
+}
+
+.toast::after {
+    content:'';
+    position:absolute;
+    bottom:0;
+    left:0;
+    height:3px;
+    width:100%;
+    background:rgba(255,255,255,.6);
+    animation: progress 2.5s linear forwards;
+}
+
+.spinner {
+    width:16px;
+    height:16px;
+    border:2px solid #fff;
+    border-top:2px solid transparent;
+    border-radius:50%;
+    animation: spin .8s linear infinite;
+}
+
+.translation-input.changed {
+    background:#eef2ff;
+    border-color:#2563eb;
+}
+
+@keyframes slideIn {
+    from {opacity:0; transform:translateX(120%);}
+    to {opacity:1; transform:translateX(0);}
+}
+@keyframes slideOut {
+    to {opacity:0; transform:translateX(120%);}
+}
+@keyframes progress {
+    from {width:100%;}
+    to {width:0;}
+}
+@keyframes spin {
+    to {transform:rotate(360deg);}
+}
+
+
+/* Shake animation */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.3s;
+}
+
+/* Green check icon */
+.valid-icon {
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    display: none;
+}
+
+.form-control.is-valid ~ .valid-icon {
+    display: inline-block;
+}
