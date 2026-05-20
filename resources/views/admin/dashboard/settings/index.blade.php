@@ -555,9 +555,6 @@
                 <div class="border-top pt-3">
                     <h5 class="mb-3">Quick Actions</h5>
                     <div class="d-flex gap-2 flex-wrap">
-                        <a href="{{ route('admin.email.test') }}" class="btn btn-outline-primary btn-sm">
-                            <i class="fa fa-paper-plane me-1"></i>Send Test Email
-                        </a>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearMailConfigCache()">
                             <i class="fa fa-trash me-1"></i>Clear Config Cache
                         </button>
