@@ -59,6 +59,12 @@ function closeSuccessModal() {
     #successModal.show .modal-backdrop {
         display: none !important;
     }
+
+    /* Payment Method Logo Badges */
+    /* Payment logo image sizing (optional overrides) */
+    .payment-methods img {
+        max-height: 32px;
+    }
 </style>
 
 <section class="content-body bg-white py-4">
@@ -197,10 +203,10 @@ function closeSuccessModal() {
 <!-- BANK -->
 <div class="col-md-6">
     <div class="border rounded-4 p-4 bg-light h-100">
-        <h4 class="fw-bold mb-4">
-            <i class="fa fa-bank text-primary me-2"></i>
-            Bank Transfer
-        </h4>
+        <div class="d-flex align-items-center mb-3">
+            <img src="{{ asset('storage/payment-logo/prime-nabk.png') }}" alt="Bank" style="height:28px; object-fit:contain; margin-right:8px;">
+            <h4 class="fw-bold mb-0">Bank Transfer</h4>
+        </div>
 
         <p class="mb-2"><strong>Bank Name:</strong> Prime Bank PLC</p>
         <p class="mb-3"><strong>Account Name:</strong> গাড়িবন্ধু ৩৬০</p>
@@ -229,9 +235,16 @@ function closeSuccessModal() {
             Mobile Banking
         </h4>
 
+        <!-- Real Payment Logos from storage -->
+        <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+            <img src="{{ asset('storage/payment-logo/bkash.jpg') }}" alt="bKash" style="height:32px; object-fit:contain;">
+            <img src="{{ asset('storage/payment-logo/nogod.svg') }}" alt="Nagad" style="height:32px; object-fit:contain;">
+            <img src="{{ asset('storage/payment-logo/rocket.png') }}" alt="Rocket" style="height:32px; object-fit:contain;">
+        </div>
+
         <div class="copy-row">
-            <span>
-                <strong>bKash:</strong>
+            <span class="d-flex align-items-center gap-2">
+                <img src="{{ asset('storage/payment-logo/bkash.jpg') }}" alt="bKash" style="height:22px; object-fit:contain;">
                 <span id="bkash">01918329829</span>
             </span>
             <button type="button"
@@ -242,8 +255,8 @@ function closeSuccessModal() {
         </div>
 
         <div class="copy-row">
-            <span>
-                <strong>Nagad:</strong>
+            <span class="d-flex align-items-center gap-2">
+                <img src="{{ asset('storage/payment-logo/nogod.svg') }}" alt="Nagad" style="height:22px; object-fit:contain;">
                 <span id="nagad">01918329829</span>
             </span>
             <button type="button"
@@ -254,8 +267,8 @@ function closeSuccessModal() {
         </div>
 
         <div class="copy-row">
-            <span>
-                <strong>Rocket:</strong>
+            <span class="d-flex align-items-center gap-2">
+                <img src="{{ asset('storage/payment-logo/rocket.png') }}" alt="Rocket" style="height:22px; object-fit:contain;">
                 <span id="rocket">01918329829</span>
             </span>
             <button type="button"
