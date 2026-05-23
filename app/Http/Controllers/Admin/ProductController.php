@@ -52,6 +52,9 @@ class ProductController extends Controller
             'tags' => 'nullable|string',
             'file_url' => 'nullable|url',
             'preview_url' => 'nullable|url',
+            'video_type' => 'nullable|string|in:none,youtube,upload',
+            'video_url' => 'nullable|string',
+            'video_file' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov|max:51200',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
@@ -80,6 +83,17 @@ class ProductController extends Controller
                 $images[] = $image->store('products/images', 'public');
             }
             $data['images'] = $images;
+        }
+
+        // Handle video
+        $data['video_type'] = $request->input('video_type', 'none');
+        if ($data['video_type'] === 'youtube') {
+            $data['video_url'] = $request->input('video_url');
+        } elseif ($data['video_type'] === 'upload' && $request->hasFile('video_file')) {
+            $data['video_url'] = $request->file('video_file')->store('products/videos', 'public');
+        } else {
+            $data['video_type'] = 'none';
+            $data['video_url'] = null;
         }
 
         Product::create($data);
@@ -140,6 +154,9 @@ class ProductController extends Controller
             'tags' => 'nullable|string',
             'file_url' => 'nullable|url',
             'preview_url' => 'nullable|url',
+            'video_type' => 'nullable|string|in:none,youtube,upload',
+            'video_url' => 'nullable|string',
+            'video_file' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov|max:51200',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
@@ -180,6 +197,29 @@ class ProductController extends Controller
                 $images[] = $image->store('products/images', 'public');
             }
             $data['images'] = $images;
+        }
+
+        // Handle video
+        $data['video_type'] = $request->input('video_type', 'none');
+        if ($data['video_type'] === 'youtube') {
+            $data['video_url'] = $request->input('video_url');
+            // optionally delete old uploaded video if switching from upload
+            if ($product->video_type === 'upload' && $product->video_url && Storage::disk('public')->exists($product->video_url)) {
+                Storage::disk('public')->delete($product->video_url);
+            }
+        } elseif ($data['video_type'] === 'upload' && $request->hasFile('video_file')) {
+            // delete old video file
+            if ($product->video_url && Storage::disk('public')->exists($product->video_url)) {
+                Storage::disk('public')->delete($product->video_url);
+            }
+            $data['video_url'] = $request->file('video_file')->store('products/videos', 'public');
+        } else {
+            // none or switching away
+            if ($product->video_url && Storage::disk('public')->exists($product->video_url) && $product->video_type === 'upload') {
+                Storage::disk('public')->delete($product->video_url);
+            }
+            $data['video_type'] = 'none';
+            $data['video_url'] = null;
         }
 
         $product->update($data);

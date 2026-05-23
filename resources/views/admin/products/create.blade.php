@@ -1,28 +1,28 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
-<section role="main" class="content-body" style="background-color: #fff; padding: 20px;">
+<section role="main" class="content-body" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 30px;">
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1"><i class="fa fa-plus-circle text-primary me-2"></i>Create New Product</h2>
-                    <p class="text-muted mb-0">Add a new product to your digital marketplace</p>
+                    <h2 class="mb-1" style="font-weight: 700; letter-spacing: -0.5px;"><i class="fa fa-plus-circle text-primary me-2"></i>Create New Product</h2>
+                    <p class="text-muted mb-0" style="font-size: 1.05rem;">Add a premium product to your digital marketplace with rich media</p>
                 </div>
-                <a class="btn btn-secondary" href="{{ route('admin.products.index') }}">
+                <a class="btn btn-outline-secondary btn-lg px-4" href="{{ route('admin.products.index') }}" style="border-radius: 50px;">
                     <i class="fa fa-arrow-left me-2"></i>Back to Products
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Main Form Card -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fa fa-box me-2"></i>Product Information</h5>
+    <!-- Main Form Card - Premium Design -->
+    <div class="card" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); overflow: hidden;">
+        <div class="card-header" style="background: linear-gradient(90deg, #007bff, #0056b3); color: white; padding: 1.25rem 1.5rem; border: none;">
+            <h5 class="mb-0" style="font-weight: 600; font-size: 1.25rem;"><i class="fa fa-box me-2"></i>Product Information</h5>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4" style="background: #fff;">
             <!-- Alert Container -->
             <div id="formAlert"></div>
 
@@ -141,10 +141,11 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
-                    <!-- Detailed Description -->
-                    <div class="col-md-6">
-                        <label for="detailed_description" class="form-label fw-bold">Detailed Description</label>
-                        <textarea class="form-control" id="detailed_description" name="detailed_description" rows="3" placeholder="Detailed product information, features, etc."></textarea>
+                    <!-- Detailed Description with WYSIWYG -->
+                    <div class="col-12">
+                        <label for="detailed_description" class="form-label fw-bold">Detailed Description <span class="text-muted">(Rich Text Editor)</span></label>
+                        <textarea class="form-control" id="detailed_description" name="detailed_description" rows="6" placeholder="Detailed product information, features, benefits, usage guide..."></textarea>
+                        <div class="form-text">Use the rich text editor for formatted content, lists, links, images, etc.</div>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -208,16 +209,17 @@
                     </div>
                 </div>
 
-                <!-- Digital Product Settings -->
-                <div class="row g-3 mb-4 digital-options" style="display: block;">
+                <!-- Digital Product Settings - Premium -->
+                <div class="row g-3 mb-4 digital-options" style="display: block; background: linear-gradient(135deg, #f0f7ff 0%, #f8f9fa 100%); border-radius: 16px; border: 1px solid #e3e8f0;">
                     <div class="col-12">
-                        <h6 class="text-primary mb-3"><i class="fa fa-download me-2"></i>Digital Product Settings</h6>
+                        <h6 class="text-primary mb-3" style="border-bottom-color: #007bff;"><i class="fa fa-download me-2"></i>Digital Product Settings</h6>
+                        <p class="text-muted small mb-3">Configure delivery options. Download URL is optional - you can deliver manually after purchase.</p>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="file_url" class="form-label fw-bold">Download File URL</label>
+                        <label for="file_url" class="form-label fw-bold">Download File URL <span class="badge bg-secondary">Optional</span></label>
                         <input type="url" class="form-control" id="file_url" name="file_url" placeholder="https://example.com/download/file.zip">
-                        <div class="form-text">URL where customers can download the product</div>
+                        <div class="form-text">Direct download link for customers (not required)</div>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -226,6 +228,36 @@
                         <input type="url" class="form-control" id="preview_url" name="preview_url" placeholder="https://example.com/preview/demo.mp4">
                         <div class="form-text">URL for product preview/demo</div>
                         <div class="invalid-feedback"></div>
+                    </div>
+
+                    <!-- Video Add Options - Premium Feature -->
+                    <div class="col-12 mt-4 pt-3" style="border-top: 1px dashed #ced4da;">
+                        <h6 class="text-success mb-3"><i class="fa fa-video-camera me-2"></i>Product Video <span class="badge bg-success">New</span></h6>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="video_type" class="form-label fw-bold">Video Type</label>
+                                <select name="video_type" id="video_type" class="form-control">
+                                    <option value="none">No Video</option>
+                                    <option value="youtube">YouTube Link</option>
+                                    <option value="upload">Upload Video File (Manual)</option>
+                                </select>
+                            </div>
+
+                            <!-- YouTube Section -->
+                            <div class="col-md-8" id="youtube_section" style="display: none;">
+                                <label for="video_url_youtube" class="form-label fw-bold">YouTube Video URL</label>
+                                <input type="url" class="form-control" id="video_url_youtube" name="video_url" placeholder="https://www.youtube.com/watch?v=xxxxxxxx">
+                                <div class="form-text">Full YouTube video link (embed will be auto-generated)</div>
+                            </div>
+
+                            <!-- Manual Upload Section -->
+                            <div class="col-md-8" id="upload_section" style="display: none;">
+                                <label for="video_file" class="form-label fw-bold">Upload Video File</label>
+                                <input type="file" class="form-control" id="video_file" name="video_file" accept="video/*">
+                                <div class="form-text">MP4, WebM, MOV, AVI supported. Max size 50MB. Video will be hosted on your server.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -257,8 +289,8 @@
         </div>
     </div>
 
-    <!-- Progress Bar -->
-    <div id="progressContainer" class="d-none position-fixed bottom-0 end-0 p-3" style="z-index: 10000;">
+    <!-- Progress Bar - Force hidden on page load to prevent showing default -->
+    <div id="progressContainer" class="d-none position-fixed bottom-0 end-0 p-3" style="z-index: 10000; display: none;">
         <div class="bg-white rounded shadow p-2">
             <div class="progress mb-2" style="width: 300px; height: 20px;">
                 <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
@@ -273,6 +305,9 @@
 
 <!-- SweetAlert2 for success notifications -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- CKEditor 5 WYSIWYG - Premium Rich Text Editor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
 
 <!-- Bootstrap Tags Input -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
@@ -406,9 +441,69 @@
             justify-content: center !important;
         }
     }
+
+    /* ========== PREMIUM UI ENHANCEMENTS ========== */
+    .form-control, .form-select {
+        border-radius: 10px !important;
+        padding: 0.65rem 0.9rem;
+        border: 1px solid #d1d9e0;
+        transition: all 0.2s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .digital-options {
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.08);
+    }
+
+    #detailed_description {
+        border-radius: 12px;
+    }
+
+    /* Video sections premium */
+    #youtube_section, #upload_section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 25px 70px rgba(0,0,0,0.1);
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.6em;
+    }
+
+    /* CKEditor premium look */
+    .ck-editor__editable {
+        border-radius: 0 0 12px 12px !important;
+    }
+    .ck.ck-editor__top .ck-toolbar {
+        border-radius: 12px 12px 0 0 !important;
+        background: #f8f9fa !important;
+    }
+
+    /* Section headers premium */
+    h6 {
+        font-size: 1rem;
+        letter-spacing: 0.3px;
+    }
 </style>
 <script>
 $(document).ready(function() {
+    // Force hide progress bar on initial page load (prevents default visible state)
+    $('#progressContainer').addClass('d-none').css('display', 'none');
+
     // Custom validation functions
     window.customValidators = {
         validateRequired: function(value, fieldName) {
@@ -640,23 +735,16 @@ $(document).ready(function() {
             }
         }
 
-        // Validate digital product fields if digital
-        if ($('#digital').val() == '1') {
-            const fileUrlResult = window.customValidators.validateRequired($('#file_url').val(), 'Download URL');
-            if (!fileUrlResult.valid) {
-                errors.push(fileUrlResult.message);
-                showFieldError('#file_url', fileUrlResult.message);
+        // Note: Download file URL is now optional for digital products
+        // Validate URL format only if provided
+        if ($('#file_url').val()) {
+            const urlPattern = /^https?:\/\/.+/;
+            if (!urlPattern.test($('#file_url').val())) {
+                errors.push('Download URL must be a valid URL starting with http:// or https://');
+                showFieldError('#file_url', 'Please enter a valid URL');
                 isValid = false;
             } else {
-                // Basic URL validation
-                const urlPattern = /^https?:\/\/.+/;
-                if (!urlPattern.test($('#file_url').val())) {
-                    errors.push('Download URL must be a valid URL starting with http:// or https://');
-                    showFieldError('#file_url', 'Please enter a valid URL');
-                    isValid = false;
-                } else {
-                    $('#file_url').addClass('is-valid');
-                }
+                $('#file_url').addClass('is-valid');
             }
         }
 
@@ -682,6 +770,26 @@ $(document).ready(function() {
         // Initialize Tags Input
         $('#tags').tagsinput();
 
+        // Initialize Premium WYSIWYG Editor (CKEditor 5)
+        if (typeof ClassicEditor !== 'undefined') {
+            ClassicEditor
+                .create(document.querySelector('#detailed_description'), {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                    placeholder: 'Enter detailed product description with rich formatting...'
+                })
+                .then(editor => {
+                    window.detailedEditor = editor;
+                    // Premium editor styling
+                    editor.ui.view.editable.element.style.minHeight = '220px';
+                    editor.ui.view.editable.element.style.borderRadius = '8px';
+                })
+                .catch(error => {
+                    console.warn('CKEditor failed to initialize, falling back to textarea:', error);
+                });
+        } else {
+            console.log('CKEditor not loaded, using plain textarea for detailed_description');
+        }
+
         // Auto-generate slug from name
         $('#name').on('input', function() {
             var name = $(this).val();
@@ -702,9 +810,40 @@ $(document).ready(function() {
             }
         });
 
+        // Video type toggle - premium video options
+        $('#video_type').on('change', function() {
+            const type = $(this).val();
+            $('#youtube_section').hide();
+            $('#upload_section').hide();
+            $('#video_url_youtube').prop('required', false);
+            $('#video_file').prop('required', false);
+
+            if (type === 'youtube') {
+                $('#youtube_section').slideDown(200);
+                // clear upload if switching
+                $('#video_file').val('');
+            } else if (type === 'upload') {
+                $('#upload_section').slideDown(200);
+                $('#video_url_youtube').val('');
+            }
+        });
+
+        // Initialize video type UI on load (if editing values in future)
+        const initialVideoType = $('#video_type').val();
+        if (initialVideoType === 'youtube') {
+            $('#youtube_section').show();
+        } else if (initialVideoType === 'upload') {
+            $('#upload_section').show();
+        }
+
         // Form submission with custom validation
         $('#productForm').on('submit', function(e) {
             e.preventDefault();
+
+            // Sync WYSIWYG editor content before validation/submit
+            if (window.detailedEditor) {
+                $('#detailed_description').val(window.detailedEditor.getData());
+            }
 
             // Validate the form
             const validation = validateProductForm();
@@ -771,25 +910,39 @@ $(document).ready(function() {
                     const submitBtn = $("button[type='submit']");
                     submitBtn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-2"></i>Creating Product...');
 
-                    // Show progress bar
-                    $('#progressContainer').removeClass('d-none');
+                    // Show progress bar (force visible)
+                    $('#progressContainer').removeClass('d-none').css('display', 'block');
                     $('#progressBar').css('width', '0%').text('0%');
                 },
                 success: function(response) {
                     $('#loadingOverlay').css('display', 'none');
 
-                    // Success animation
-                    $('#progressBar').addClass('bg-success').css('width', '100%').text('Complete!');
+                    // Clean success state for progress bar (remove default striped/animated)
+                    $('#progressBar')
+                        .removeClass('progress-bar-striped progress-bar-animated bg-danger')
+                        .addClass('bg-success')
+                        .css('width', '100%')
+                        .text('100% - Complete!');
 
+                    // Hide progress bar cleanly and quickly on success, then show Swal
                     setTimeout(() => {
-                        // Show success message using SweetAlert2 if available, otherwise redirect
+                        $('#progressContainer').addClass('d-none').css('display', 'none');
+
+                        // Reset bar for any future use
+                        $('#progressBar')
+                            .removeClass('bg-success')
+                            .addClass('progress-bar-striped progress-bar-animated')
+                            .css('width', '0%')
+                            .text('0%');
+
+                        // Show success Swal
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 html: '<div class="text-center"><i class="fa fa-check-circle" style="font-size:56px;color:#28a745"></i><h3 style="margin-top:8px;margin-bottom:6px;">Success!</h3><div>Product created successfully.</div></div>',
                                 showConfirmButton: true,
                                 confirmButtonText: 'View Products',
                                 customClass: { popup: 'shadow-lg rounded-3' },
-                                timer: 3000,
+                                timer: 2800,
                                 timerProgressBar: true
                             }).then(() => {
                                 window.location.href = '{{ route("admin.products.index") }}';
@@ -797,7 +950,7 @@ $(document).ready(function() {
                         } else {
                             window.location.href = '{{ route("admin.products.index") }}';
                         }
-                    }, 500);
+                    }, 650);
                 },
                 error: function(xhr) {
                     $('#loadingOverlay').css('display', 'none');
@@ -845,9 +998,9 @@ $(document).ready(function() {
                     const submitBtn = $("button[type='submit']");
                     submitBtn.prop("disabled", false).html('<i class="fa fa-save me-2"></i>Create Product');
 
-                    // Hide progress after a delay
+                    // Hide progress after a delay (force hidden)
                     setTimeout(() => {
-                        $('#progressContainer').addClass('d-none');
+                        $('#progressContainer').addClass('d-none').css('display', 'none');
                     }, 2000);
                 }
             });

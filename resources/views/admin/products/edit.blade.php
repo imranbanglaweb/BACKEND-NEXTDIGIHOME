@@ -185,10 +185,11 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
-                    {{-- Detailed Description --}}
+                    {{-- Detailed Description with Premium WYSIWYG --}}
                     <div class="col-md-12">
-                        <label for="detailed_description" class="form-label"><strong>Detailed Description</strong></label>
-                        <textarea class="form-control" id="detailed_description" name="detailed_description" rows="5" placeholder="Detailed product information, features, etc.">{{ old('detailed_description', $product->detailed_description) }}</textarea>
+                        <label for="detailed_description" class="form-label"><strong>Detailed Description</strong> <span class="text-muted small">(Rich Editor)</span></label>
+                        <textarea class="form-control" id="detailed_description" name="detailed_description" rows="6" placeholder="Detailed product information, features, etc.">{{ old('detailed_description', $product->detailed_description) }}</textarea>
+                        <small class="form-text text-muted">Use rich text formatting for professional product pages</small>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -256,16 +257,17 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
-                    {{-- Digital Product Options --}}
-                    <div class="col-md-12 digital-options" style="{{ old('digital', $product->digital) ? 'display: block;' : 'display: none;' }}">
+                    {{-- Digital Product Options - Premium with Video --}}
+                    <div class="col-md-12 digital-options" style="{{ old('digital', $product->digital) ? 'display: block;' : 'display: none;' }}; background: linear-gradient(135deg, #f0f7ff 0%, #f8f9fa 100%); border-radius: 16px; border: 1px solid #e3e8f0; padding: 15px;">
                         <hr>
                         <h5 class="text-primary"><i class="fa fa-download"></i> Digital Product Settings</h5>
+                        <p class="text-muted small">Download URL is now optional.</p>
 
                         <div class="row">
                             <div class="col-md-6">
-                                <label for="file_url" class="form-label"><strong>Download File URL</strong></label>
+                                <label for="file_url" class="form-label"><strong>Download File URL</strong> <span class="badge bg-secondary">Optional</span></label>
                                 <input type="url" class="form-control" id="file_url" name="file_url" value="{{ old('file_url', $product->file_url) }}" placeholder="https://example.com/download/file.zip">
-                                <small class="form-text text-muted">URL where customers can download the product</small>
+                                <small class="form-text text-muted">URL where customers can download the product (not mandatory)</small>
                                 <div class="invalid-feedback"></div>
                             </div>
 
@@ -274,6 +276,32 @@
                                 <input type="url" class="form-control" id="preview_url" name="preview_url" value="{{ old('preview_url', $product->preview_url) }}" placeholder="https://example.com/preview/demo.mp4">
                                 <small class="form-text text-muted">URL for product preview/demo</small>
                                 <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Video Section for Edit -->
+                        <div class="row mt-4 pt-3" style="border-top:1px dashed #ced4da;">
+                            <div class="col-12">
+                                <h6 class="text-success mb-2"><i class="fa fa-video-camera"></i> Product Video <span class="badge bg-success">New</span></h6>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="video_type" class="form-label"><strong>Video Type</strong></label>
+                                <select name="video_type" id="video_type" class="form-control">
+                                    <option value="none" {{ old('video_type', $product->video_type) == 'none' ? 'selected' : '' }}>No Video</option>
+                                    <option value="youtube" {{ old('video_type', $product->video_type) == 'youtube' ? 'selected' : '' }}>YouTube Link</option>
+                                    <option value="upload" {{ old('video_type', $product->video_type) == 'upload' ? 'selected' : '' }}>Upload Video File</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8" id="youtube_section" style="display: {{ old('video_type', $product->video_type) == 'youtube' ? 'block' : 'none' }};">
+                                <label class="form-label"><strong>YouTube Video URL</strong></label>
+                                <input type="url" class="form-control" id="video_url_youtube" name="video_url" value="{{ old('video_url', $product->video_type == 'youtube' ? $product->video_url : '') }}" placeholder="https://www.youtube.com/watch?v=...">
+                            </div>
+                            <div class="col-md-8" id="upload_section" style="display: {{ old('video_type', $product->video_type) == 'upload' ? 'block' : 'none' }};">
+                                <label class="form-label"><strong>Upload New Video (replaces existing)</strong></label>
+                                <input type="file" class="form-control" name="video_file" id="video_file" accept="video/*">
+                                @if($product->video_type === 'upload' && $product->video_url)
+                                    <small class="text-success">Current video: {{ basename($product->video_url) }} — upload new to replace</small>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -437,10 +465,28 @@
         border-color: #ffc107 !important;
         box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
     }
+
+    /* Premium enhancements for edit */
+    .form-control, .form-select {
+        border-radius: 10px;
+        transition: all 0.2s;
+    }
+    .digital-options {
+        box-shadow: 0 8px 25px rgba(0,123,255,0.07);
+    }
+    #youtube_section, #upload_section {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+    }
+    .ck-editor__editable { min-height: 180px; }
 </style>
 
 <!-- Additional Scripts for Enhanced Forms -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- CKEditor 5 for WYSIWYG -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" />
 
@@ -460,6 +506,19 @@ function initializeProductForm() {
 
     // Initialize Tags Input
     $('#tags').tagsinput();
+
+    // Initialize Premium WYSIWYG (CKEditor 5) for detailed description
+    if (typeof ClassicEditor !== 'undefined') {
+        ClassicEditor
+            .create(document.querySelector('#detailed_description'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'undo', 'redo']
+            })
+            .then(editor => {
+                window.detailedEditor = editor;
+                editor.ui.view.editable.element.style.minHeight = '200px';
+            })
+            .catch(err => console.warn('CKEditor init failed in edit:', err));
+    }
 
     // Auto-generate slug from name with AJAX validation
     $('#name').on('input', function() {
@@ -534,7 +593,20 @@ function initializeProductForm() {
         }
     });
 
+    // Video type toggle handler (premium video options)
+    $('#video_type').on('change', function() {
+        const type = $(this).val();
+        $('#youtube_section').hide();
+        $('#upload_section').hide();
 
+        if (type === 'youtube') {
+            $('#youtube_section').slideDown(180);
+            $('#video_file').val('');
+        } else if (type === 'upload') {
+            $('#upload_section').slideDown(180);
+            $('#video_url_youtube').val('');
+        }
+    });
 
     // Custom form validation and submission
         },
@@ -570,6 +642,11 @@ function initializeProductForm() {
     // Custom form submission handler (works regardless of jQuery Validate)
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
+
+        // Sync WYSIWYG content to textarea
+        if (window.detailedEditor) {
+            $('#detailed_description').val(window.detailedEditor.getData());
+        }
 
         // Validate the form
         const validation = validateProductForm();
@@ -965,23 +1042,15 @@ function initializeProductForm() {
             }
         }
 
-        // Validate digital product fields if digital
-        if ($('input[name="digital"]:checked').val() == '1') {
-            const fileUrlResult = window.customValidators.validateRequired($('#file_url').val(), 'Download URL');
-            if (!fileUrlResult.valid) {
-                errors.push(fileUrlResult.message);
-                showFieldError('#file_url', fileUrlResult.message);
+        // Download URL is optional - only validate format if filled
+        if ($('#file_url').val()) {
+            const urlPattern = /^https?:\/\/.+/;
+            if (!urlPattern.test($('#file_url').val())) {
+                errors.push('Download URL must be a valid URL starting with http:// or https://');
+                showFieldError('#file_url', 'Please enter a valid URL');
                 isValid = false;
             } else {
-                // Basic URL validation
-                const urlPattern = /^https?:\/\/.+/;
-                if (!urlPattern.test($('#file_url').val())) {
-                    errors.push('Download URL must be a valid URL starting with http:// or https://');
-                    showFieldError('#file_url', 'Please enter a valid URL');
-                    isValid = false;
-                } else {
-                    $('#file_url').addClass('is-valid');
-                }
+                $('#file_url').addClass('is-valid');
             }
         }
 
@@ -1026,6 +1095,67 @@ if (window.jQueryValidationLoaded) {
         }
     }, 3000);
 }
+</script>
+
+<!-- Robust CKEditor 5 initialization for Edit Product page -->
+<script>
+(function() {
+    function initCKEditorEdit() {
+        const textarea = document.getElementById('detailed_description');
+        if (!textarea) {
+            console.warn('[Edit Product] #detailed_description textarea not found');
+            return;
+        }
+
+        // Prevent double initialization
+        if (textarea.classList.contains('ck-editor__editable')) {
+            console.log('[Edit Product] CKEditor already initialized');
+            return;
+        }
+
+        if (typeof ClassicEditor === 'undefined') {
+            console.error('[Edit Product] ClassicEditor is not loaded. Check CDN.');
+            return;
+        }
+
+        // Destroy previous instance if any
+        if (window.detailedEditor && typeof window.detailedEditor.destroy === 'function') {
+            window.detailedEditor.destroy().catch(() => {});
+            window.detailedEditor = null;
+        }
+
+        ClassicEditor
+            .create(textarea, {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', '|',
+                    'blockQuote', 'insertTable', '|',
+                    'undo', 'redo'
+                ]
+            })
+            .then(editor => {
+                window.detailedEditor = editor;
+                editor.ui.view.editable.element.style.minHeight = '220px';
+                editor.ui.view.editable.element.style.border = '1px solid #ced4da';
+                console.log('%c[Edit Product] WYSIWYG (CKEditor 5) initialized successfully', 'color: #28a745; font-weight: bold');
+            })
+            .catch(error => {
+                console.error('[Edit Product] Failed to initialize CKEditor 5:', error);
+            });
+    }
+
+    // Run as soon as possible after DOM + scripts
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCKEditorEdit);
+    } else {
+        // DOM already ready, but wait a tick for other scripts
+        setTimeout(initCKEditorEdit, 300);
+    }
+
+    // Extra safety net in case of late loading
+    setTimeout(initCKEditorEdit, 1500);
+})();
 </script>
 
 @endsection

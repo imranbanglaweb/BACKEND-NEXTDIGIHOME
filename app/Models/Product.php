@@ -21,6 +21,8 @@ class Product extends Model
         'digital',
         'file_url',
         'preview_url',
+        'video_type',
+        'video_url',
         'category',
         'tags',
         'thumbnail',
