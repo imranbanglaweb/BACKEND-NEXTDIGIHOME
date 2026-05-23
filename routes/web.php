@@ -33,7 +33,6 @@ use App\Http\Controllers\DriverController;
 // use App\Http\Controllers\EmailLogController;
 // use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\GpsDeviceController;
 use App\Http\Controllers\GpsTrackingController;
 use App\Http\Controllers\HomeController;
 // Reports
@@ -122,14 +121,19 @@ Route::get('/service-worker.js', function () {
 // Web Push Subscription Route (uses existing controller)
 Route::middleware('web')->post('/api/push/subscribe', [PushSubscriptionController::class, 'store']);
 
+// Root route must be public (outside auth) so unauthenticated users can access it
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('home');
+    }
+    return redirect()->route('login');
+});
+
 Route::middleware(['auth'])->group(function () {
     // Home route - show backend dashboard for authenticated users
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-    // Root path - redirect to home
-    Route::get('/', function () {
-        return redirect()->route('home');
-    });
+
 
     // Admin dashboard
     Route::get('/admin/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');
@@ -151,15 +155,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/gps-tracking/trip/{tripId}', [GpsTrackingController::class, 'showTrip'])->name('admin.gps-tracking.trip');
 
-    // GPS Device Management
-    Route::get('/gps-devices', [GpsDeviceController::class, 'index'])->name('admin.gps-devices.index');
-    Route::get('/gps-devices/data', [GpsDeviceController::class, 'data'])->name('admin.gps-devices.data');
-    Route::get('/gps-devices/create', [GpsDeviceController::class, 'create'])->name('admin.gps-devices.create');
-    Route::post('/gps-devices', [GpsDeviceController::class, 'store'])->name('admin.gps-devices.store');
-    Route::get('/gps-devices/{gpsDevice}', [GpsDeviceController::class, 'show'])->name('admin.gps-devices.show');
-    Route::get('/gps-devices/{gpsDevice}/edit', [GpsDeviceController::class, 'edit'])->name('admin.gps-devices.edit');
-    Route::put('/gps-devices/{gpsDevice}', [GpsDeviceController::class, 'update'])->name('admin.gps-devices.update');
-    Route::delete('/gps-devices/{gpsDevice}', [GpsDeviceController::class, 'destroy'])->name('admin.gps-devices.destroy');
+    // GPS Device Management routes DISABLED
+    // (GpsDeviceController class is missing — uncomment after implementing the controller)
 
 });
 
