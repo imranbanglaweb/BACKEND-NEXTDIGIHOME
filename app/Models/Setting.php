@@ -41,5 +41,22 @@ class Setting extends Model
         'welcome_email_template',
         'order_confirmation_template',
         'password_reset_template',
+        // SEO Settings
+        'seo_enabled',
+        'seo_meta_title',
+        'seo_meta_description',
+        'seo_meta_keywords',
+        'seo_og_title',
+        'seo_og_description',
+        'seo_og_image',
+        'seo_twitter_title',
+        'seo_twitter_description',
+        'seo_twitter_image',
+        'google_analytics_id',
+        'google_search_console_verification',
+        'bing_webmaster_verification',
+        'robots_meta',
+        'canonical_url',
+        'custom_head_scripts',
     ];
 }

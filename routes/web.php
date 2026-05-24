@@ -494,6 +494,10 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     Route::post('settings/notifications/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::get('settings/security', [App\Http\Controllers\Admin\SettingsController::class, 'security'])->name('settings.security');
     Route::post('settings/security/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateSecurity'])->name('settings.security.update');
+
+    // SEO Management for Frontend Site (under marketing for menu compatibility)
+    Route::get('marketing/seo', [App\Http\Controllers\Admin\SettingsController::class, 'seo'])->name('marketing.seo');
+    Route::post('marketing/seo/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateSeo'])->name('marketing.seo.update');
     Route::resource('purchases', PurchaseController::class);
     Route::resource('categories', CategoryController::class);
     Route::get('categories-data', [CategoryController::class, 'getData'])->name('categories.getData')->withoutMiddleware(['auth']);

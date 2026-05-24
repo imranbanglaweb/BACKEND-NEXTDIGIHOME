@@ -14,7 +14,13 @@ class SettingsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:settings-manage');
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            if (!$user || (!$user->can('settings-manage') && !$user->can('seo-manage'))) {
+                abort(403, 'You do not have permission to manage settings or SEO.');
+            }
+            return $next($request);
+        });
     }
 
     /**
@@ -276,6 +282,82 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to update security settings: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Failed to update security settings'], 500);
+        }
+    }
+
+    /**
+     * Display SEO settings.
+     */
+    public function seo()
+    {
+        $settings = DB::table('settings')->where('id', 1)->first();
+        return view('admin.marketing.seo', compact('settings'));
+    }
+
+    /**
+     * Update SEO settings for frontend site.
+     */
+    public function updateSeo(Request $request)
+    {
+        try {
+            $data = [
+                'seo_enabled' => $request->seo_enabled ? 1 : 0,
+                'seo_meta_title' => $request->seo_meta_title,
+                'seo_meta_description' => $request->seo_meta_description,
+                'seo_meta_keywords' => $request->seo_meta_keywords,
+                'seo_og_title' => $request->seo_og_title,
+                'seo_og_description' => $request->seo_og_description,
+                'seo_twitter_title' => $request->seo_twitter_title,
+                'seo_twitter_description' => $request->seo_twitter_description,
+                'google_analytics_id' => $request->google_analytics_id,
+                'google_search_console_verification' => $request->google_search_console_verification,
+                'bing_webmaster_verification' => $request->bing_webmaster_verification,
+                'robots_meta' => $request->robots_meta ?? 'index, follow',
+                'canonical_url' => $request->canonical_url,
+                'custom_head_scripts' => $request->custom_head_scripts,
+                'updated_at' => now(),
+            ];
+
+            // Handle OG image upload
+            if ($request->hasFile('seo_og_image')) {
+                $imageDirectory = public_path('admin_resource/assets/images');
+                if (!file_exists($imageDirectory)) {
+                    mkdir($imageDirectory, 0755, true);
+                }
+
+                $imageName = 'og_' . time() . '.' . $request->seo_og_image->extension();
+                $request->seo_og_image->move($imageDirectory, $imageName);
+                $data['seo_og_image'] = $imageName;
+            }
+
+            // Handle Twitter image upload
+            if ($request->hasFile('seo_twitter_image')) {
+                $imageDirectory = public_path('admin_resource/assets/images');
+                if (!file_exists($imageDirectory)) {
+                    mkdir($imageDirectory, 0755, true);
+                }
+
+                $imageName = 'twitter_' . time() . '.' . $request->seo_twitter_image->extension();
+                $request->seo_twitter_image->move($imageDirectory, $imageName);
+                $data['seo_twitter_image'] = $imageName;
+            }
+
+            $setting = DB::table('settings')->where('id', 1)->first();
+            if ($setting) {
+                DB::table('settings')->where('id', 1)->update($data);
+            } else {
+                $data['id'] = 1;
+                $data['created_at'] = now();
+                DB::table('settings')->insert($data);
+            }
+
+            // Clear settings cache
+            Cache::forget('site_settings');
+
+            return response()->json(['success' => true, 'message' => 'SEO settings updated successfully']);
+        } catch (\Exception $e) {
+            Log::error('Failed to update SEO settings: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to update SEO settings: ' . $e->getMessage()], 500);
         }
     }
 }

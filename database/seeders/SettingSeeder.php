@@ -39,6 +39,13 @@ class SettingSeeder extends Seeder
                 'mail_encryption' => 'tls',
                 'mail_from_address' => 'noreply@nextdigihome.com',
                 'mail_from_name' => 'Next Digi Home',
+                // SEO Defaults
+                'seo_enabled' => 1,
+                'seo_meta_title' => 'Next Digi Home - Premium Digital Products Marketplace',
+                'seo_meta_description' => 'Discover and buy premium digital products, software, templates, and courses. High-quality downloads from trusted creators.',
+                'seo_meta_keywords' => 'digital products, premium software, templates, online courses, marketplace',
+                'robots_meta' => 'index, follow',
+                'canonical_url' => 'https://nextdigihome.com',
             ]
         );
     }

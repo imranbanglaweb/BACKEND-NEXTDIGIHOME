@@ -307,6 +307,13 @@ Route::get('/settings', function () {
         'admin_title' => $settings->admin_title ?? 'Admin Panel',
         'site_description' => $settings->site_description ?? 'Premium Digital Products',
         'admin_description' => $settings->admin_description ?? 'Admin Panel',
+        // SEO for frontend
+        'seo_enabled' => (bool) ($settings->seo_enabled ?? true),
+        'seo_meta_title' => $settings->seo_meta_title ?? $settings->site_title ?? 'Next Digi Home',
+        'seo_meta_description' => $settings->seo_meta_description ?? $settings->site_description ?? '',
+        'seo_meta_keywords' => $settings->seo_meta_keywords ?? '',
+        'seo_og_image' => $settings->seo_og_image ? asset('public/admin_resource/assets/images/' . $settings->seo_og_image) : null,
+        'google_analytics_id' => $settings->google_analytics_id ?? null,
     ]);
 });
 

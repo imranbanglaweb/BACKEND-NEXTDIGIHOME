@@ -110,81 +110,105 @@
                             <!-- General SEO Settings -->
                             <div class="tab-pane fade show active" id="general" role="tabpanel">
                                 <h5 class="mb-3">General SEO Settings</h5>
-                                <form>
+                                <form id="seoGeneralForm" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="seo_section" value="general">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Site Title</label>
-                                            <input type="text" class="form-control" value="Next Digi Home - Digital Marketplace">
+                                            <label class="form-label">SEO Meta Title</label>
+                                            <input type="text" class="form-control" name="seo_meta_title" value="{{ $settings->seo_meta_title ?? 'Next Digi Home - Premium Digital Products Marketplace' }}">
+                                            <small class="text-muted">Recommended: 50-60 characters</small>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Site Description</label>
-                                            <input type="text" class="form-control" value="Premium digital products marketplace">
+                                            <label class="form-label">SEO Meta Description</label>
+                                            <textarea class="form-control" name="seo_meta_description" rows="2">{{ $settings->seo_meta_description ?? 'Discover premium digital products, software, templates and courses at Next Digi Home.' }}</textarea>
+                                            <small class="text-muted">Recommended: 150-160 characters</small>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Default Meta Keywords</label>
-                                            <input type="text" class="form-control" value="digital products, software, templates, marketplace">
+                                            <input type="text" class="form-control" name="seo_meta_keywords" value="{{ $settings->seo_meta_keywords ?? 'digital products, software, templates, marketplace, online courses' }}">
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Robots Meta Tag</label>
-                                            <select class="form-select">
-                                                <option>index, follow</option>
-                                                <option>noindex, follow</option>
-                                                <option>index, nofollow</option>
-                                                <option>noindex, nofollow</option>
+                                            <select class="form-select" name="robots_meta">
+                                                <option value="index, follow" {{ ($settings->robots_meta ?? 'index, follow') == 'index, follow' ? 'selected' : '' }}>index, follow</option>
+                                                <option value="noindex, follow" {{ ($settings->robots_meta ?? '') == 'noindex, follow' ? 'selected' : '' }}>noindex, follow</option>
+                                                <option value="index, nofollow" {{ ($settings->robots_meta ?? '') == 'index, nofollow' ? 'selected' : '' }}>index, nofollow</option>
+                                                <option value="noindex, nofollow" {{ ($settings->robots_meta ?? '') == 'noindex, nofollow' ? 'selected' : '' }}>noindex, nofollow</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Canonical URL</label>
-                                        <input type="url" class="form-control" value="https://nextdigihome.com">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Canonical URL</label>
+                                            <input type="url" class="form-control" name="canonical_url" value="{{ $settings->canonical_url ?? 'https://nextdigihome.com' }}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="seo_enabled" name="seo_enabled" value="1" {{ ($settings->seo_enabled ?? 1) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="seo_enabled">
+                                                    Enable SEO for Frontend Site
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        <button type="button" class="btn btn-outline-secondary">Reset to Defaults</button>
+                                        <button type="button" onclick="saveSeoSettings('seoGeneralForm')" class="btn btn-primary">Save General SEO</button>
+                                        <button type="button" onclick="resetForm(this)" class="btn btn-outline-secondary">Reset</button>
                                     </div>
                                 </form>
                             </div>
 
-                            <!-- Meta Tags Settings -->
+                            <!-- Social Media / OG Tags -->
                             <div class="tab-pane fade" id="meta" role="tabpanel">
-                                <h5 class="mb-3">Meta Tags Management</h5>
-                                <div class="mb-3">
-                                    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addMetaModal">
-                                        <i class="fas fa-plus me-2"></i>Add Meta Tag
-                                    </button>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Page/Section</th>
-                                                <th>Meta Title</th>
-                                                <th>Meta Description</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Home Page</td>
-                                                <td>Next Digi Home - Premium Digital Products</td>
-                                                <td>Discover amazing digital products...</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Products Page</td>
-                                                <td>Browse Digital Products - Next Digi Home</td>
-                                                <td>Explore our collection of digital products...</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <h5 class="mb-3">Open Graph & Social Media Tags</h5>
+                                <form id="seoSocialForm" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">OG Title</label>
+                                            <input type="text" class="form-control" name="seo_og_title" value="{{ $settings->seo_og_title ?? ($settings->seo_meta_title ?? '') }}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">OG Description</label>
+                                            <textarea class="form-control" name="seo_og_description" rows="2">{{ $settings->seo_og_description ?? ($settings->seo_meta_description ?? '') }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">OG Image (1200x630 recommended)</label>
+                                            @if(!empty($settings->seo_og_image))
+                                                <div class="mb-2">
+                                                    <img src="{{ asset('public/admin_resource/assets/images/'.$settings->seo_og_image) }}" alt="OG Image" class="img-thumbnail" style="max-height: 120px;">
+                                                </div>
+                                            @endif
+                                            <input type="file" class="form-control" name="seo_og_image" accept="image/*">
+                                            <small class="text-muted">Used for Facebook, LinkedIn shares etc.</small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Twitter Card Title</label>
+                                            <input type="text" class="form-control" name="seo_twitter_title" value="{{ $settings->seo_twitter_title ?? ($settings->seo_meta_title ?? '') }}">
+                                            <label class="form-label mt-2">Twitter Description</label>
+                                            <textarea class="form-control" name="seo_twitter_description" rows="2">{{ $settings->seo_twitter_description ?? ($settings->seo_meta_description ?? '') }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Twitter Image (1200x600)</label>
+                                            @if(!empty($settings->seo_twitter_image))
+                                                <div class="mb-2">
+                                                    <img src="{{ asset('public/admin_resource/assets/images/'.$settings->seo_twitter_image) }}" alt="Twitter Image" class="img-thumbnail" style="max-height: 100px;">
+                                                </div>
+                                            @endif
+                                            <input type="file" class="form-control" name="seo_twitter_image" accept="image/*">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" onclick="saveSeoSettings('seoSocialForm')" class="btn btn-primary">Save Social SEO</button>
+                                    </div>
+                                </form>
                             </div>
 
                             <!-- Sitemap Settings -->
@@ -249,42 +273,31 @@
                             <!-- Analytics Settings -->
                             <div class="tab-pane fade" id="analytics" role="tabpanel">
                                 <h5 class="mb-3">Analytics & Tracking</h5>
-                                <form>
+                                <form id="seoAnalyticsForm">
+                                    @csrf
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Google Analytics ID</label>
-                                            <input type="text" class="form-control" placeholder="GA4-MEASUREMENT-ID">
+                                            <label class="form-label">Google Analytics ID (GA4)</label>
+                                            <input type="text" class="form-control" name="google_analytics_id" value="{{ $settings->google_analytics_id ?? '' }}" placeholder="G-XXXXXXXXXX">
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Google Search Console</label>
-                                            <input type="text" class="form-control" placeholder="Verification Code">
+                                            <label class="form-label">Google Search Console Verification</label>
+                                            <input type="text" class="form-control" name="google_search_console_verification" value="{{ $settings->google_search_console_verification ?? '' }}" placeholder="Verification meta content">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Facebook Pixel ID</label>
-                                            <input type="text" class="form-control" placeholder="Pixel ID">
+                                            <label class="form-label">Bing Webmaster Tools Verification</label>
+                                            <input type="text" class="form-control" name="bing_webmaster_verification" value="{{ $settings->bing_webmaster_verification ?? '' }}" placeholder="Verification code">
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Bing Webmaster Tools</label>
-                                            <input type="text" class="form-control" placeholder="Verification Code">
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" checked>
-                                            <label class="form-check-label">Enable Enhanced E-commerce Tracking</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" checked>
-                                            <label class="form-check-label">Track 404 Errors</label>
+                                            <label class="form-label">Custom Head Scripts (e.g. verification pixels)</label>
+                                            <textarea class="form-control" name="custom_head_scripts" rows="3" placeholder="Paste additional meta tags or scripts here (will be output in <head>)">{{ $settings->custom_head_scripts ?? '' }}</textarea>
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">Save Analytics Settings</button>
-                                        <button type="button" class="btn btn-outline-info">Test Tracking Code</button>
+                                        <button type="button" onclick="saveSeoSettings('seoAnalyticsForm')" class="btn btn-primary">Save Analytics Settings</button>
+                                        <button type="button" onclick="testTracking()" class="btn btn-outline-info">Test Tracking Code</button>
                                     </div>
                                 </form>
                             </div>
@@ -296,51 +309,89 @@
     </div>
 </section>
 
-<!-- Add Meta Tag Modal -->
-<div class="modal fade" id="addMetaModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Meta Tag</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">Page/Section</label>
-                        <select class="form-select">
-                            <option>Home Page</option>
-                            <option>Products Page</option>
-                            <option>About Page</option>
-                            <option>Contact Page</option>
-                            <option>Custom Page</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Meta Title</label>
-                        <input type="text" class="form-control" placeholder="Enter meta title">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Meta Description</label>
-                        <textarea class="form-control" rows="3" placeholder="Enter meta description"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Meta Keywords</label>
-                        <input type="text" class="form-control" placeholder="Enter keywords separated by commas">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Add Meta Tag</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 function runSeoAudit() {
-    alert('SEO Audit feature coming soon! This will analyze your site for SEO improvements.');
+    const btn = event.currentTarget;
+    Swal.fire({
+        title: 'SEO Audit',
+        text: 'SEO Audit feature coming soon! This will analyze your site for SEO improvements.',
+        icon: 'info',
+        confirmButtonText: 'OK'
+    });
 }
+
+function saveSeoSettings(formId) {
+    const form = document.getElementById(formId);
+    if (!form) {
+        console.error('Form not found:', formId);
+        return;
+    }
+
+    const formData = new FormData(form);
+    const url = '{{ route("admin.marketing.seo.update") }}';
+
+    // Show loading
+    const submitBtns = form.querySelectorAll('button[type="button"]');
+    submitBtns.forEach(btn => btn.disabled = true);
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message || 'SEO settings saved successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            // Optionally reload to show updated images etc.
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Failed to save settings.'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred while saving SEO settings.'
+        });
+    })
+    .finally(() => {
+        submitBtns.forEach(btn => btn.disabled = false);
+    });
+}
+
+function resetForm(element) {
+    const form = element.closest('form');
+    if (form) form.reset();
+}
+
+function testTracking() {
+    Swal.fire({
+        title: 'Testing Tracking',
+        text: 'In a real implementation this would validate your Google Analytics / Search Console setup.',
+        icon: 'info'
+    });
+}
+
+// Enable tab persistence if needed
+document.addEventListener('DOMContentLoaded', function() {
+    // Any init code
+    console.log('%c[SEO] Frontend SEO Management panel initialized', 'color:#667eea');
+});
 </script>
 @endsection
