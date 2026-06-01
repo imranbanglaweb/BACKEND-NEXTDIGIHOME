@@ -87,9 +87,9 @@ class SettingController extends Controller
         if ($request->file('favicon')) {
             $faviconPath = $request->file('favicon');
             $request->validate([
-                'favicon' => 'required|image|mimes:png,ico|max:5048',
+                'favicon' => 'required|file|mimes:ico|max:5048',
             ]);
-            $favicon = time().'.'.$request->favicon->extension();
+            $favicon = time().'.ico';
             $request->favicon->move($imageDirectory, $favicon);
         }
 

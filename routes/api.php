@@ -300,9 +300,12 @@ Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'apiLog
 Route::get('/settings', function () {
     $settings = DB::table('settings')->where('id', 1)->first();
 
+    $baseUrl = config('app.url');
+    
     return response()->json([
         'site_logo' => $settings->site_logo ?? null,
         'admin_logo' => $settings->admin_logo ?? null,
+        'favicon' => $settings->favicon ? $baseUrl . '/public/admin_resource/assets/images/' . $settings->favicon : null,
         'site_title' => $settings->site_title ?? 'Next Digi Home',
         'admin_title' => $settings->admin_title ?? 'Admin Panel',
         'site_description' => $settings->site_description ?? 'Premium Digital Products',
@@ -312,7 +315,7 @@ Route::get('/settings', function () {
         'seo_meta_title' => $settings->seo_meta_title ?? $settings->site_title ?? 'Next Digi Home',
         'seo_meta_description' => $settings->seo_meta_description ?? $settings->site_description ?? '',
         'seo_meta_keywords' => $settings->seo_meta_keywords ?? '',
-        'seo_og_image' => $settings->seo_og_image ? asset('public/admin_resource/assets/images/' . $settings->seo_og_image) : null,
+        'seo_og_image' => $settings->seo_og_image ? $baseUrl . '/public/admin_resource/assets/images/' . $settings->seo_og_image : null,
         'google_analytics_id' => $settings->google_analytics_id ?? null,
     ]);
 });
@@ -364,6 +367,16 @@ Route::middleware(['auth'])->group(function () {
                 $adminLogo = time() . '_admin.' . $request->admin_logo->extension();
                 $request->admin_logo->move($imageDirectory, $adminLogo);
                 $setting->admin_logo = $adminLogo;
+            }
+
+            // Handle favicon upload
+            if ($request->file('favicon')) {
+                $request->validate([
+                    'favicon' => 'required|file|mimes:ico,png,jpg,jpeg,svg|max:5048',
+                ]);
+                $favicon = time() . '.ico';
+                $request->favicon->move($imageDirectory, $favicon);
+                $setting->favicon = $favicon;
             }
 
             // Update text fields
