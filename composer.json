@@ -7,9 +7,8 @@
     "require": {
         "php": "^8.0",
         "barryvdh/laravel-dompdf": "^2.2",
-        "beyondcode/laravel-websockets": "^2.0@beta",
+        "beyondcode/laravel-websockets": "^1.0",
         "doctrine/dbal": "^3.6",
-        "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.10",
         "laravel-notification-channels/webpush": "9.0",
         "laravel/framework": "^9.0|^10.0",
