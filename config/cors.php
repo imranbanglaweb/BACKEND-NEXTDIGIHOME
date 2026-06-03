@@ -21,11 +21,12 @@ return [
 
     'allowed_origins' => [
         'http://localhost:3000', 
-        'http://localhost:3001', 
         'http://localhost:56374',
         'http://127.0.0.1:3000', 
-        'http://127.0.0.1:3001',
         'https://nextdigihome.com',
+        'https://backend.nextdigihome.com',
+        'http://localhost/BACKEND-NEXTDIGIHOME'
+        
     ],
 
     'allowed_origins_patterns' => [

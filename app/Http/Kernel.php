@@ -16,7 +16,6 @@ class Kernel extends HttpKernel
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
-        // \Fruitcake\Cors\HandleCors::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
@@ -73,7 +72,6 @@ class Kernel extends HttpKernel
         'subscription.active' => \App\Http\Middleware\EnsureActiveSubscription::class,
         'quota' => \App\Http\Middleware\CheckQuota::class,
         'LanguageSwitcher' => \App\Http\Middleware\LanguageSwitcher::class,
-        // 'cors' => \Fruitcake\Cors\HandleCors::class,
         'cors' => \Illuminate\Http\Middleware\HandleCors::class,
     ];
 }

@@ -10,7 +10,6 @@ php_value memory_limit 555M
     </IfModule>
 
     RewriteEngine On
-    RewriteBase /NEXTDIGIHOMEBACKEND/
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
