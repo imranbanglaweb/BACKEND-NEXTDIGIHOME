@@ -498,7 +498,6 @@
 // Wait for jQuery Validation to be ready
 function initializeProductForm() {
     $(document).ready(function() {
-        try {
     // Initialize Select2 if not already initialized
     if (!$('.select2').hasClass("select2-offscreen")) {
         $('.select2').select2({
@@ -1083,13 +1082,7 @@ function initializeProductForm() {
         setTimeout(() => {
             field.closest('.col-md-6, .col-md-12, .col-md-4').removeClass('shake');
         }, 500);
-    });
-    } catch (error) {
-        console.error('Product form initialization error:', error);
-        // Fallback: basic form submission
-        console.log('Falling back to basic form submission');
     }
-    });
 }
 
 // Initialize when jQuery Validation is ready, or fallback after timeout
