@@ -194,6 +194,7 @@
                             <img id="thumbnailPreview" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=="
                                  class="img-thumbnail rounded" style="width: 150px; height: 150px; object-fit: cover; border: 2px dashed #dee2e6;">
                         </div>
+                        <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*" onchange="previewThumbnail(this);">
                         <input type="hidden" id="selected_thumbnail_path" name="selected_thumbnail_path" value="">
                         <div class="form-text">Recommended: 500x500px, JPG, PNG (Max: 2MB) or select from gallery below</div>
                         <div class="invalid-feedback"></div>
@@ -706,13 +707,15 @@ $(document).ready(function() {
         }
 
         // Validate thumbnail
-        const thumbnailResult = window.customValidators.validateRequired($('#thumbnail')[0], 'Thumbnail image');
-        if (!thumbnailResult.valid) {
-            errors.push(thumbnailResult.message);
-            showFieldError('#thumbnail', thumbnailResult.message);
+        const hasThumbnailFile = $('#thumbnail')[0] && $('#thumbnail')[0].files && $('#thumbnail')[0].files.length > 0;
+        const hasGalleryThumbnail = $('#selected_thumbnail_path').val() !== '';
+        
+        if (!hasThumbnailFile && !hasGalleryThumbnail) {
+            errors.push('Thumbnail image is required');
+            showFieldError('#thumbnail', 'Please select a thumbnail image or choose from gallery below');
             isValid = false;
-        } else {
-            // Check file size and extension
+        } else if (hasThumbnailFile) {
+            // Check file size and extension only when file is uploaded
             const sizeResult = window.customValidators.validateFileSize($('#thumbnail')[0], 2*1024*1024);
             if (!sizeResult.valid) {
                 errors.push(sizeResult.message);
@@ -728,6 +731,9 @@ $(document).ready(function() {
                     $('#thumbnail').addClass('is-valid');
                 }
             }
+        } else if (hasGalleryThumbnail) {
+            // Valid - thumbnail selected from gallery
+            $('#thumbnail').addClass('is-valid');
         }
 
         // Validate gallery images (optional)
@@ -936,46 +942,31 @@ $(document).ready(function() {
                 success: function(response) {
                     $('#loadingOverlay').css('display', 'none');
 
-                    // Clean success state for progress bar (remove default striped/animated)
                     $('#progressBar')
                         .removeClass('progress-bar-striped progress-bar-animated bg-danger')
                         .addClass('bg-success')
                         .css('width', '100%')
                         .text('100% - Complete!');
 
-                    // Hide progress bar cleanly and quickly on success, then show Swal
                     setTimeout(() => {
                         $('#progressContainer').addClass('d-none').css('display', 'none');
 
-                        // Reset bar for any future use
                         $('#progressBar')
                             .removeClass('bg-success')
                             .addClass('progress-bar-striped progress-bar-animated')
                             .css('width', '0%')
                             .text('0%');
 
-                        // Show success Swal
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                html: '<div class="text-center"><i class="fa fa-check-circle" style="font-size:56px;color:#28a745"></i><h3 style="margin-top:8px;margin-bottom:6px;">Success!</h3><div>Product created successfully.</div></div>',
-                                showConfirmButton: true,
-                                confirmButtonText: 'View Products',
-                                customClass: { popup: 'shadow-lg rounded-3' },
-                                timer: 2800,
-                                timerProgressBar: true
-                            }).then(() => {
-                                window.location.href = '{{ route("admin.products.index") }}';
-                            });
-                        } else {
+                        toastr.success('Product created successfully.', 'Success!');
+                        setTimeout(() => {
                             window.location.href = '{{ route("admin.products.index") }}';
-                        }
+                        }, 1500);
                     }, 650);
                 },
                 error: function(xhr) {
                     $('#loadingOverlay').css('display', 'none');
 
                     if(xhr.status === 422){
-                        // Server validation errors
                         let errors = xhr.responseJSON.errors;
                         let errorCount = 0;
 
@@ -985,11 +976,9 @@ $(document).ready(function() {
                             if (!input.length) {
                                 input = $(`[name="${field}[]"]`);
                             }
-
                             showFieldError(`[name="${field}"]`, messages[0]);
                         });
 
-                        // Show summary alert
                         if (errorCount > 0) {
                             $('#formAlert').html('<div class="alert alert-danger alert-dismissible fade show">' +
                                 '<i class="fa fa-times-circle"></i>' +
@@ -997,12 +986,10 @@ $(document).ready(function() {
                                 '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
                                 '</div>').fadeIn(300);
                         }
-
-                        // Update progress bar to show error
+                        toastr.error('Please fix the validation errors.', 'Validation Failed');
                         $('#progressBar').addClass('bg-danger').css('width', '100%').text('Validation Failed');
-
                     } else {
-                        // Server error
+                        toastr.error(xhr.responseJSON?.message || 'Something went wrong. Please try again.', 'Server Error');
                         $('#progressBar').addClass('bg-danger').css('width', '100%').text('Server Error');
 
                         $('#formAlert').html('<div class="alert alert-danger alert-dismissible fade show">' +
@@ -1039,6 +1026,9 @@ $(document).ready(function() {
         if (file && previewImg.length) {
             // Show loading indicator for preview
             previewImg.css('opacity', '0.5');
+
+            // Clear gallery selection when uploading file
+            document.getElementById('selected_thumbnail_path').value = '';
 
             const reader = new FileReader();
             reader.onload = function(e) {

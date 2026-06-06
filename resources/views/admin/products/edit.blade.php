@@ -52,7 +52,7 @@
             <!-- Alert Container -->
             <div id="formAlert"></div>
 
-            <form id="productForm" action="{{ route('admin.products.update', $product) }}" method="post" enctype="multipart/form-data">
+            <form id="productForm" action="{{ route('admin.products.update', $product) }}" method="post" enctype="multipart/form-data" data-has-existing-thumbnail="{{ $product->thumbnail ? 'true' : 'false' }}">
                 @csrf
                 @method('PUT')
 
@@ -611,37 +611,7 @@ function initializeProductForm() {
         }
     });
 
-    // Custom form validation and submission
-        },
-        errorPlacement: function(error, element) {
-            const feedbackEl = element.closest('.col-md-6, .col-md-12, .col-md-4').find('.invalid-feedback');
-            feedbackEl.html(error).fadeIn(300);
-        },
-        highlight: function(element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
-            // Add shake animation
-            $(element).closest('.col-md-6, .col-md-12, .col-md-4').addClass('shake');
-            setTimeout(() => {
-                $(element).closest('.col-md-6, .col-md-12, .col-md-4').removeClass('shake');
-            }, 500);
-        },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
-        },
-        success: function(label, element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
-            $(element).closest('.col-md-6, .col-md-12, .col-md-4').find('.invalid-feedback').html('');
-        },
-        submitHandler: function(form) {
-            // This won't be called since we're not using jQuery Validate anymore
-        }
-    });
-
-    } else {
-        // Fallback: basic form submission without enhanced validation
-        console.log('jQuery Validate not available, using basic validation');
-    }
-
+    // Custom form submission handler
     // Custom form submission handler (works regardless of jQuery Validate)
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
@@ -687,7 +657,7 @@ function initializeProductForm() {
         const formData = new FormData(form);
 
         // Show loading overlay
-        showLoadingOverlay();
+        $('#loadingOverlay').css('display', 'flex');
 
         $.ajax({
             url: $(form).attr("action"),
@@ -700,7 +670,7 @@ function initializeProductForm() {
                 xhr.upload.addEventListener("progress", function(evt) {
                     if (evt.lengthComputable) {
                         var percentComplete = (evt.loaded / evt.total) * 100;
-                        updateProgressBar(percentComplete);
+                        $('#progressBar').css('width', percentComplete + '%').text(Math.round(percentComplete) + '%');
                     }
                 }, false);
                 return xhr;
@@ -718,43 +688,30 @@ function initializeProductForm() {
                 $('#progressBar').css('width', '0%').text('0%');
             },
             success: function(response) {
-                hideLoadingOverlay();
+                $('#loadingOverlay').css('display', 'none');
 
-                // Success animation
                 $('#progressBar').addClass('bg-success').css('width', '100%').text('Complete!');
 
                 setTimeout(() => {
-                    Swal.fire({
-                        html: '<div class="text-center"><i class="fa fa-check-circle" style="font-size:56px;color:#28a745"></i><h3 style="margin-top:8px;margin-bottom:6px;">Success!</h3><div>Product updated successfully.</div></div>',
-                        showConfirmButton: true,
-                        confirmButtonText: 'View Products',
-                        customClass: { popup: 'shadow-lg rounded-3' },
-                        timer: 3000,
-                        timerProgressBar: true
-                    }).then(() => {
+                    $('#progressContainer').fadeOut();
+                    toastr.success('Product updated successfully.', 'Success!');
+                    setTimeout(() => {
                         window.location.href = '{{ route("admin.products.index") }}';
-                    });
+                    }, 1500);
                 }, 500);
             },
             error: function(xhr) {
-                hideLoadingOverlay();
+                $('#loadingOverlay').css('display', 'none');
 
                 if(xhr.status === 422){
-                    // Server validation errors
                     let errors = xhr.responseJSON.errors;
                     let errorCount = 0;
 
                     $.each(errors, function(field, messages){
                         errorCount++;
-                        let input = $(`[name="${field}"]`);
-                        if (!input.length) {
-                            input = $(`[name="${field}[]"]`);
-                        }
-
                         showFieldError(`[name="${field}"]`, messages[0]);
                     });
 
-                    // Show summary alert
                     if (errorCount > 0) {
                         $('#formAlert').html(`<div class="alert alert-danger alert-dismissible fade show">
                             <i class="fa fa-times-circle"></i>
@@ -762,17 +719,17 @@ function initializeProductForm() {
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>`).fadeIn(300);
                     }
-
-                    // Update progress bar to show error
+                    toastr.error('Please fix the validation errors.', 'Validation Failed');
                     $('#progressBar').addClass('bg-danger').css('width', '100%').text('Validation Failed');
 
                 } else {
-                    // Server error
+                    const msg = xhr.responseJSON?.message || 'Something went wrong. Please try again.';
+                    toastr.error(msg, 'Server Error');
                     $('#progressBar').addClass('bg-danger').css('width', '100%').text('Server Error');
 
                     $('#formAlert').html(`<div class="alert alert-danger alert-dismissible fade show">
                         <i class="fa fa-times-circle"></i>
-                        <strong>Server Error:</strong> ${xhr.responseJSON?.message || 'Something went wrong. Please try again.'}
+                        <strong>Server Error:</strong> ${msg}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>`).fadeIn(300);
                 }
@@ -995,18 +952,22 @@ function initializeProductForm() {
         }
 
         // Validate digital type
-        const digitalResult = window.customValidators.validateRequired($('input[name="digital"]:checked').val(), 'Product type');
+        const digitalResult = window.customValidators.validateRequired($('#digital').val(), 'Product type');
         if (!digitalResult.valid) {
             errors.push(digitalResult.message);
-            showFieldError('input[name="digital"]', digitalResult.message);
+            showFieldError('#digital', digitalResult.message);
             isValid = false;
+        } else {
+            $('#digital').addClass('is-valid');
         }
 
         // Validate thumbnail (from file upload or gallery selection)
         const hasThumbnailFile = $('#thumbnail')[0] && $('#thumbnail')[0].files && $('#thumbnail')[0].files.length > 0;
         const hasGalleryThumbnail = $('#selected_thumbnail_path').val() !== '';
+        const hasExistingThumbnail = $('#productForm').data('has-existing-thumbnail') === true;
         
-        if (!hasThumbnailFile && !hasGalleryThumbnail && !$('#productForm').data('thumbnail-optional')) {
+        // On edit page, if product already has thumbnail, it's optional
+        if (!hasThumbnailFile && !hasGalleryThumbnail && !hasExistingThumbnail) {
             errors.push('Thumbnail image is required');
             showFieldError('#thumbnail', 'Please select a thumbnail image');
             isValid = false;
@@ -1027,6 +988,9 @@ function initializeProductForm() {
                 }
             }
         } else if (hasGalleryThumbnail) {
+            $('#thumbnail').addClass('is-valid');
+        } else if (hasExistingThumbnail) {
+            // Product has existing thumbnail - validation passes, keep current
             $('#thumbnail').addClass('is-valid');
         }
 
@@ -1083,6 +1047,7 @@ function initializeProductForm() {
             field.closest('.col-md-6, .col-md-12, .col-md-4').removeClass('shake');
         }, 500);
     }
+    });
 }
 
 // Initialize when jQuery Validation is ready, or fallback after timeout
@@ -1103,30 +1068,32 @@ if (window.jQueryValidationLoaded) {
 }
 
 window.previewThumbnail = function(input) {
-    if (!input || !input.files || input.files.length === 0) return;
+     if (!input || !input.files || input.files.length === 0) return;
 
-    const file = input.files[0];
-    const previewImg = $("#thumbnailPreview");
+     const file = input.files[0];
+     const previewImg = $("#thumbnailPreview");
 
-    if (file && previewImg.length) {
-        previewImg.css('opacity', '0.5');
+     if (file && previewImg.length) {
+         previewImg.css('opacity', '0.5');
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewImg.attr("src", e.target.result).css('opacity', '1');
+         // Clear gallery selection when uploading new file
+         document.getElementById('selected_thumbnail_path').value = '';
 
-            if (file.size > 2*1024*1024) {
-                $(input).addClass('is-invalid');
-                $(input).closest('.col-md-6').find('.invalid-feedback').html('<i class="fa fa-exclamation-triangle"></i> File size must be less than 2MB');
-            } else {
-                $(input).removeClass('is-invalid').addClass('is-valid');
-                $(input).closest('.col-md-6').find('.invalid-feedback').html('');
-                document.getElementById('selected_thumbnail_path').value = '';
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-};
+         const reader = new FileReader();
+         reader.onload = function(e) {
+             previewImg.attr("src", e.target.result).css('opacity', '1');
+
+             if (file.size > 2*1024*1024) {
+                 $(input).addClass('is-invalid');
+                 $(input).closest('.col-md-6').find('.invalid-feedback').html('<i class="fa fa-exclamation-triangle"></i> File size must be less than 2MB');
+             } else {
+                 $(input).removeClass('is-invalid').addClass('is-valid');
+                 $(input).closest('.col-md-6').find('.invalid-feedback').html('');
+             }
+         };
+         reader.readAsDataURL(file);
+     }
+ };
 
 window.previewGallery = function(input) {
     if (!input || !input.files) return;

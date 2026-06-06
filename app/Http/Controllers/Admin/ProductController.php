@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -155,7 +156,12 @@ class ProductController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:products,slug',
+            'slug' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('products', 'slug')->ignore($product->id),
+            ],
             'description' => 'nullable|string',
             'detailed_description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
