@@ -194,8 +194,8 @@
                             <img id="thumbnailPreview" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=="
                                  class="img-thumbnail rounded" style="width: 150px; height: 150px; object-fit: cover; border: 2px dashed #dee2e6;">
                         </div>
-                        <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*" onchange="previewThumbnail(this);">
-                        <div class="form-text">Recommended: 500x500px, JPG, PNG (Max: 2MB)</div>
+                        <input type="hidden" id="selected_thumbnail_path" name="selected_thumbnail_path" value="">
+                        <div class="form-text">Recommended: 500x500px, JPG, PNG (Max: 2MB) or select from gallery below</div>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -361,6 +361,25 @@
         object-fit: cover;
         border-radius: 0.375rem;
         border: 1px solid #dee2e6;
+    }
+
+    .gallery-image-item {
+        display: inline-block;
+        position: relative;
+        margin: 3px;
+        transition: transform 0.2s;
+    }
+
+    .gallery-image-item:hover {
+        transform: scale(1.05);
+    }
+
+    .gallery-image-item img {
+        cursor: pointer;
+    }
+
+    .gallery-image-item img:hover {
+        opacity: 0.8;
     }
 
     /* Digital Options */
@@ -1054,7 +1073,6 @@ $(document).ready(function() {
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
 
-                    // Check file size (5MB limit)
                     if (file.size > 5*1024*1024) {
                         invalidFiles++;
                         continue;
@@ -1062,13 +1080,16 @@ $(document).ready(function() {
 
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        galleryPreview.append(`<img src="${e.target.result}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">`);
+                        const imgHtml = `<div class="position-relative gallery-image-item" data-index="${i}">
+                            <img src="${e.target.result}" class="img-thumbnail set-as-thumbnail" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" title="Click to set as thumbnail" onclick="setAsThumbnailFromGallery(this)">
+                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="font-size: 10px; cursor: pointer;" onclick="event.stopPropagation(); removeGalleryImage(this);">&times;</span>
+                        </div>`;
+                        galleryPreview.append(imgHtml);
                     };
                     reader.readAsDataURL(file);
                     validFiles++;
                 }
 
-                // Show validation feedback
                 const feedbackEl = $(input).closest('.col-md-6').find('.invalid-feedback');
                 if (invalidFiles > 0) {
                     $(input).addClass('is-invalid');
@@ -1079,6 +1100,29 @@ $(document).ready(function() {
                 }
             }
         }
+    };
+
+    window.setAsThumbnailFromGallery = function(element) {
+        const previewImg = $("#thumbnailPreview");
+        const hiddenInput = $("#selected_thumbnail_path");
+        
+        const dataUrl = $(element).attr('src');
+        previewImg.attr("src", dataUrl);
+        
+        const index = $(element).closest('.gallery-image-item').data('index');
+        hiddenInput.val('gallery_index_' + index);
+        
+        $('.gallery-image-item').removeClass('border border-warning border-2');
+        $(element).closest('.gallery-image-item').addClass('border border-warning border-2');
+        
+        const thumbnailInput = $("#thumbnail");
+        thumbnailInput.val('');
+        thumbnailInput.removeClass('is-invalid is-valid');
+    };
+
+    window.removeGalleryImage = function(button) {
+        event.stopPropagation();
+        $(button).closest('.gallery-image-item').remove();
     };
 });
 

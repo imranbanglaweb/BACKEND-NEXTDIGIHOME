@@ -55,7 +55,8 @@ class ProductController extends Controller
             'video_type' => 'nullable|string|in:none,youtube,upload',
             'video_url' => 'nullable|string',
             'video_file' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov|max:51200',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'selected_thumbnail_path' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
@@ -71,18 +72,29 @@ class ProductController extends Controller
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['featured'] = $request->has('featured') ? 1 : 0;
 
-        // Handle thumbnail upload
-        if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
-        }
-
-        // Handle images upload
+        // Handle images upload first (needed for gallery thumbnail selection)
         if ($request->hasFile('images')) {
             $images = [];
             foreach ($request->file('images') as $image) {
                 $images[] = $image->store('products/images', 'public');
             }
             $data['images'] = $images;
+        }
+
+        // Handle thumbnail from gallery selection or file upload
+        if ($request->filled('selected_thumbnail_path')) {
+            $thumbnailPath = $request->input('selected_thumbnail_path');
+            if (strpos($thumbnailPath, 'gallery_index_') === 0) {
+                $index = intval(str_replace('gallery_index_', '', $thumbnailPath));
+                $galleryImages = is_string($data['images'] ?? null) ? json_decode($data['images'], true) : ($data['images'] ?? null);
+                if (is_array($galleryImages) && isset($galleryImages[$index])) {
+                    $data['thumbnail'] = $galleryImages[$index];
+                }
+            } else {
+                $data['thumbnail'] = $thumbnailPath;
+            }
+        } elseif ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
         }
 
         // Handle video
@@ -143,7 +155,7 @@ class ProductController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:products,slug,'.$id,
+            'slug' => 'required|string|max:255|unique:products,slug',
             'description' => 'nullable|string',
             'detailed_description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -158,8 +170,17 @@ class ProductController extends Controller
             'video_url' => 'nullable|string',
             'video_file' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov|max:51200',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'selected_thumbnail_path' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // Ensure thumbnail is provided either as file or from gallery (only if product doesn't already have one)
+        if (!$product->thumbnail && !$request->hasFile('thumbnail') && !$request->filled('selected_thumbnail_path')) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Please provide a thumbnail image by uploading a file or selecting from gallery.'], 422);
+            }
+            return redirect()->back()->withInput()->with('error', 'Please provide a thumbnail image by uploading a file or selecting from gallery.');
+        }
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->slug);
@@ -173,8 +194,20 @@ class ProductController extends Controller
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['featured'] = $request->has('featured') ? 1 : 0;
 
-        // Handle thumbnail upload
-        if ($request->hasFile('thumbnail')) {
+        // Handle thumbnail from gallery selection or file upload
+        if ($request->filled('selected_thumbnail_path')) {
+            $thumbnailPath = $request->input('selected_thumbnail_path');
+            if (strpos($thumbnailPath, 'gallery_index_') === 0) {
+                $index = intval(str_replace('gallery_index_', '', $thumbnailPath));
+                $galleryImages = $data['images'] ?? $product->images;
+                $galleryImages = is_string($galleryImages) ? json_decode($galleryImages, true) : $galleryImages;
+                if (is_array($galleryImages) && isset($galleryImages[$index])) {
+                    $data['thumbnail'] = $galleryImages[$index];
+                }
+            } else {
+                $data['thumbnail'] = $thumbnailPath;
+            }
+        } elseif ($request->hasFile('thumbnail')) {
             // Delete old thumbnail
             if ($product->thumbnail && Storage::disk('public')->exists($product->thumbnail)) {
                 Storage::disk('public')->delete($product->thumbnail);

@@ -224,8 +224,9 @@
                     <div class="col-md-6">
                         <label class="form-label"><strong>Product Thumbnail</strong></label>
                         <div class="text-center mb-3">
-                            <img id="thumbnailPreview" src="{{ $product->thumbnail ? asset('public/storage/products/thumbnails/' . $product->thumbnail) : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==' }}" class="img-thumbnail" style="width: 150px; height: 150px; object-fit: cover; border: 2px dashed #dee2e6;">
+                            <img id="thumbnailPreview" src="{{ $product->thumbnail ? asset('public/storage/' . $product->thumbnail) : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==' }}" class="img-thumbnail" style="width: 150px; height: 150px; object-fit: cover; border: 2px dashed #dee2e6;">
                         </div>
+                        <input type="hidden" id="selected_thumbnail_path" name="selected_thumbnail_path" value="{{ $product->thumbnail }}">
                         <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*" onchange="previewThumbnail(this);">
                         <small class="form-text text-muted">
                             Leave empty to keep current image. Recommended: 500x500px, JPG, PNG (Max: 2MB)
@@ -237,22 +238,25 @@
                     <div class="col-md-6">
                         <label class="form-label"><strong>Gallery Images</strong></label>
                         <input type="file" class="form-control" id="images" name="images[]" accept="image/*" multiple onchange="previewGallery(this);">
-                        <small class="form-text text-muted">
-                            Multiple images allowed. Leave empty to keep current images (Max: 5MB each)
-                        </small>
-                         @php
-                             $images = is_string($product->images) ? json_decode($product->images, true) : $product->images;
-                         @endphp
-                         @if($images && is_array($images))
-                             <div class="mt-2">
-                                 <small class="text-muted">Current images:</small>
-                                 <div class="d-flex flex-wrap">
-                                     @foreach($images as $image)
-                                        <img src="{{ asset('public/storage/' . $image) }}" class="img-thumbnail me-2 mb-2" style="width: 60px; height: 60px; object-fit: cover;">
-                                     @endforeach
-                                </div>
-                            </div>
-                        @endif
+                         <small class="form-text text-muted">
+                             Multiple images allowed. Leave empty to keep current images (Max: 5MB each)
+                         </small>
+                          @php
+                              $images = is_string($product->images) ? json_decode($product->images, true) : $product->images;
+                          @endphp
+                          @if($images && is_array($images))
+                              <div class="mt-2">
+                                  <small class="text-muted">Current images (click to set as thumbnail):</small>
+                                  <div class="d-flex flex-wrap">
+                                       @foreach($images as $index => $image)
+                                          <div class="position-relative me-2 mb-2 gallery-image-item {{ $product->thumbnail == $image ? 'border border-warning border-2' : '' }}" data-image-path="{{ $image }}" data-index="{{ $index }}">
+                                              <img src="{{ asset('public/storage/' . $image) }}" class="img-thumbnail set-as-thumbnail" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;" title="Click to set as thumbnail" onclick="setAsThumbnail('{{ $image }}', this)">
+                                              <span class="badge bg-warning position-absolute top-0 start-100 translate-middle" style="font-size: 10px; cursor: pointer;" onclick="event.stopPropagation(); removeGalleryImage(this, '{{ $image }}');">&times;</span>
+                                          </div>
+                                       @endforeach
+                                     </div>
+                              </div>
+                          @endif
                         <div id="galleryPreview" class="mt-2"></div>
                         <div class="invalid-feedback"></div>
                     </div>
@@ -494,7 +498,6 @@
 // Wait for jQuery Validation to be ready
 function initializeProductForm() {
     $(document).ready(function() {
-        try {
     // Initialize Select2 if not already initialized
     if (!$('.select2').hasClass("select2-offscreen")) {
         $('.select2').select2({
@@ -999,8 +1002,15 @@ function initializeProductForm() {
             isValid = false;
         }
 
-        // Validate thumbnail (only if a new file is selected)
-        if ($('#thumbnail')[0] && $('#thumbnail')[0].files && $('#thumbnail')[0].files.length > 0) {
+        // Validate thumbnail (from file upload or gallery selection)
+        const hasThumbnailFile = $('#thumbnail')[0] && $('#thumbnail')[0].files && $('#thumbnail')[0].files.length > 0;
+        const hasGalleryThumbnail = $('#selected_thumbnail_path').val() !== '';
+        
+        if (!hasThumbnailFile && !hasGalleryThumbnail && !$('#productForm').data('thumbnail-optional')) {
+            errors.push('Thumbnail image is required');
+            showFieldError('#thumbnail', 'Please select a thumbnail image');
+            isValid = false;
+        } else if (hasThumbnailFile) {
             const sizeResult = window.customValidators.validateFileSize($('#thumbnail')[0], 2*1024*1024); // 2MB
             if (!sizeResult.valid) {
                 errors.push(sizeResult.message);
@@ -1016,6 +1026,8 @@ function initializeProductForm() {
                     $('#thumbnail').addClass('is-valid');
                 }
             }
+        } else if (hasGalleryThumbnail) {
+            $('#thumbnail').addClass('is-valid');
         }
 
         // Validate gallery images (optional)
@@ -1070,13 +1082,7 @@ function initializeProductForm() {
         setTimeout(() => {
             field.closest('.col-md-6, .col-md-12, .col-md-4').removeClass('shake');
         }, 500);
-    });
-    } catch (error) {
-        console.error('Product form initialization error:', error);
-        // Fallback: basic form submission
-        console.log('Falling back to basic form submission');
     }
-    });
 }
 
 // Initialize when jQuery Validation is ready, or fallback after timeout
@@ -1095,6 +1101,107 @@ if (window.jQueryValidationLoaded) {
         }
     }, 3000);
 }
+
+window.previewThumbnail = function(input) {
+    if (!input || !input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const previewImg = $("#thumbnailPreview");
+
+    if (file && previewImg.length) {
+        previewImg.css('opacity', '0.5');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.attr("src", e.target.result).css('opacity', '1');
+
+            if (file.size > 2*1024*1024) {
+                $(input).addClass('is-invalid');
+                $(input).closest('.col-md-6').find('.invalid-feedback').html('<i class="fa fa-exclamation-triangle"></i> File size must be less than 2MB');
+            } else {
+                $(input).removeClass('is-invalid').addClass('is-valid');
+                $(input).closest('.col-md-6').find('.invalid-feedback').html('');
+                document.getElementById('selected_thumbnail_path').value = '';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+window.previewGallery = function(input) {
+    if (!input || !input.files) return;
+
+    const files = input.files;
+    const galleryPreview = $('#galleryPreview');
+
+    if (galleryPreview.length) {
+        galleryPreview.empty();
+
+        if (files.length > 0) {
+            let validFiles = 0;
+            let invalidFiles = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                if (file.size > 5*1024*1024) {
+                    invalidFiles++;
+                    continue;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    galleryPreview.append(`<img src="${e.target.result}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">`);
+                };
+                reader.readAsDataURL(file);
+                validFiles++;
+            }
+
+            const feedbackEl = $(input).closest('.col-md-6').find('.invalid-feedback');
+            if (invalidFiles > 0) {
+                $(input).addClass('is-invalid');
+                feedbackEl.html('<i class="fa fa-exclamation-triangle"></i> ' + invalidFiles + ' file' + (invalidFiles > 1 ? 's' : '') + ' exceed the 5MB limit');
+            } else if (validFiles > 0) {
+                $(input).removeClass('is-invalid').addClass('is-valid');
+                feedbackEl.html('');
+            }
+        }
+    }
+};
+
+window.setAsThumbnail = function(imagePath, element) {
+    const previewImg = $("#thumbnailPreview");
+    const hiddenInput = $("#selected_thumbnail_path");
+    
+    previewImg.attr("src", "{{ asset('public/storage/') }}/" + imagePath);
+    hiddenInput.val(imagePath);
+    
+    $('.gallery-image-item').removeClass('border border-warning border-2');
+    $(element).closest('.gallery-image-item').addClass('border border-warning border-2');
+    
+    const thumbnailInput = $("#thumbnail");
+    thumbnailInput.val('');
+    thumbnailInput.removeClass('is-invalid is-valid');
+};
+
+window.removeGalleryImage = function(button, imagePath) {
+    event.stopPropagation();
+    
+    const hiddenInput = $("#selected_thumbnail_path");
+    
+    if (hiddenInput.val() === imagePath) {
+        hiddenInput.val('');
+        const previewImg = $("#thumbnailPreview");
+        if (previewImg.length && !$('#thumbnail')[0].files.length) {
+            const currentThumb = '{{ $product->thumbnail }}';
+            if (currentThumb && currentThumb !== imagePath) {
+                previewImg.attr("src", "{{ asset('public/storage/' . $product->thumbnail) }}");
+            }
+        }
+    }
+    
+    $(button).closest('.gallery-image-item').remove();
+};
 </script>
 
 <!-- Robust CKEditor 5 initialization for Edit Product page -->
