@@ -392,8 +392,14 @@
          var sidebar = document.querySelector('.sidebar-left');
          var overlay = document.querySelector('.sidebar-overlay');
          
+         if (!sidebar) {
+             return;
+         }
+         
          sidebar.classList.toggle('show');
-         overlay.classList.toggle('show');
+         if (overlay) {
+             overlay.classList.toggle('show', sidebar.classList.contains('show'));
+         }
          
          // Prevent body scroll when sidebar is open
          if (sidebar.classList.contains('show')) {
@@ -408,6 +414,10 @@
          var sidebar = document.querySelector('.sidebar-left');
          var overlay = document.querySelector('.sidebar-overlay');
          var toggleBtn = document.querySelector('.mobile-sidebar-toggle');
+         
+         if (!sidebar || !toggleBtn) {
+             return;
+         }
          
          if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
              if (sidebar.classList.contains('show')) {

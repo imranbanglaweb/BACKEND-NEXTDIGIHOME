@@ -7,6 +7,81 @@
     <!-- Meta Pixel Tracking Component -->
     @include('components.metapixel')
 
+    <script>
+        (function() {
+            function isOpenDialogPresent() {
+                return document.querySelector('.modal.show, .modal.in, .swal2-popup.swal2-show, .mfp-wrap.mfp-ready');
+            }
+
+            function removeElement(element) {
+                if (element && element.parentNode) {
+                    element.parentNode.removeChild(element);
+                }
+            }
+
+            function disableStaleFullScreenBlockers() {
+                var loader = document.getElementById('loader');
+                var sidebar = document.querySelector('.sidebar-left');
+                var overlay = document.querySelector('.sidebar-overlay');
+                var hasOpenDialog = isOpenDialogPresent();
+
+                if (loader) {
+                    loader.style.pointerEvents = 'none';
+                    loader.classList.add('fade-out', 'is-hidden');
+                }
+
+                if (overlay && (!sidebar || !sidebar.classList.contains('show'))) {
+                    overlay.classList.remove('show');
+                    overlay.style.pointerEvents = 'none';
+                }
+
+                if (!hasOpenDialog) {
+                    if (document.body) {
+                        document.body.classList.remove('modal-open', 'swal2-shown', 'swal2-height-auto');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+                    document.documentElement.classList.remove('mfp-ready', 'mfp-removing');
+
+                    document.querySelectorAll('.modal-backdrop, .swal2-container, .mfp-bg, .mfp-wrap').forEach(removeElement);
+                }
+
+                document.querySelectorAll('[id*="overlay" i], [id*="loader" i], [id*="preloader" i], [class*="overlay" i], [class*="loader" i], [class*="preloader" i], [class*="backdrop" i]').forEach(function(element) {
+                    if (element.closest('.sidebar-left, .modal.show, .modal.in, .swal2-popup.swal2-show, .mfp-wrap.mfp-ready')) {
+                        return;
+                    }
+
+                    var style = window.getComputedStyle(element);
+                    var rect = element.getBoundingClientRect();
+                    var coversPage = style.position === 'fixed'
+                        && rect.width >= window.innerWidth * 0.75
+                        && rect.height >= window.innerHeight * 0.75;
+
+                    if (coversPage || element.id === 'loader' || element.classList.contains('sidebar-overlay')) {
+                        element.style.pointerEvents = 'none';
+                        element.style.display = 'none';
+                        element.classList.remove('show', 'in', 'active');
+                    }
+                });
+            }
+
+            window.recoverDashboardInput = disableStaleFullScreenBlockers;
+            disableStaleFullScreenBlockers();
+            document.addEventListener('DOMContentLoaded', disableStaleFullScreenBlockers);
+            window.addEventListener('load', disableStaleFullScreenBlockers);
+            window.addEventListener('pageshow', disableStaleFullScreenBlockers);
+
+            var attempts = 0;
+            var recoveryTimer = setInterval(function() {
+                attempts += 1;
+                disableStaleFullScreenBlockers();
+                if (attempts >= 20) {
+                    clearInterval(recoveryTimer);
+                }
+            }, 500);
+        })();
+    </script>
+
     <!-- Responsive Dashboard CSS -->
     <link href="{{ asset('public/css/responsive-dashboard.css') }}" rel="stylesheet">
 
@@ -511,6 +586,19 @@
         #loader.fade-out {
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
+        }
+        
+        #loader.is-hidden {
+            display: none !important;
+        }
+        
+        .sidebar-overlay:not(.show),
+        .modal-backdrop:not(.show),
+        .swal2-container:empty,
+        .mfp-bg:not(.mfp-ready),
+        .mfp-wrap:not(.mfp-ready) {
+            pointer-events: none !important;
         }
         
         .animate_loader {
@@ -1208,28 +1296,97 @@
     @stack('scripts')
     
     <script>
-        // Loader - with fallback for cases where load event might not fire
+        // Loader - defensive cleanup so it never blocks dashboard clicks.
         function hideLoader() {
             var loader = document.getElementById('loader');
             if (loader) {
+                if (loader.classList.contains('is-hidden')) {
+                    return;
+                }
+                loader.style.pointerEvents = 'none';
                 loader.classList.add('fade-out');
                 setTimeout(function() {
-                    loader.style.display = 'none';
+                    loader.classList.add('is-hidden');
                 }, 400);
             }
         }
         
-        // Try window load event first
+        function unlockDashboardOverlays() {
+            var loader = document.getElementById('loader');
+            var sidebar = document.querySelector('.sidebar-left');
+            var overlay = document.querySelector('.sidebar-overlay');
+            var hasOpenModal = document.querySelector('.modal.show, .modal.in');
+            var hasOpenSwal = document.querySelector('.swal2-popup.swal2-show');
+            var hasOpenMagnific = document.querySelector('.mfp-wrap.mfp-ready');
+            
+            if (loader) {
+                loader.style.pointerEvents = 'none';
+            }
+            
+            if (sidebar && !sidebar.classList.contains('show')) {
+                document.body.style.overflow = '';
+                if (overlay) {
+                    overlay.classList.remove('show');
+                }
+            }
+            
+            if (!hasOpenModal) {
+                document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                    backdrop.parentNode.removeChild(backdrop);
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.paddingRight = '';
+            }
+            
+            if (!hasOpenSwal) {
+                document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+                document.querySelectorAll('.swal2-container').forEach(function(container) {
+                    if (!container.querySelector('.swal2-popup.swal2-show')) {
+                        container.parentNode.removeChild(container);
+                    }
+                });
+            }
+            
+            if (!hasOpenMagnific) {
+                document.documentElement.classList.remove('mfp-ready', 'mfp-removing');
+                document.querySelectorAll('.mfp-bg, .mfp-wrap').forEach(function(popupLayer) {
+                    popupLayer.parentNode.removeChild(popupLayer);
+                });
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            unlockDashboardOverlays();
+            setTimeout(hideLoader, 300);
+        });
+        
         window.addEventListener('load', function() {
             setTimeout(hideLoader, 500);
         });
         
-        // Fallback: hide loader after a timeout even if load event doesn't fire
+        window.addEventListener('pageshow', function() {
+            unlockDashboardOverlays();
+            hideLoader();
+        });
+        
         setTimeout(hideLoader, 2000);
+        setTimeout(unlockDashboardOverlays, 2500);
+        setTimeout(unlockDashboardOverlays, 5000);
         
         // Sidebar Toggle for Mobile
         function toggleSidebar() {
-            document.querySelector('.sidebar-left').classList.toggle('show');
+            var sidebar = document.querySelector('.sidebar-left');
+            var overlay = document.querySelector('.sidebar-overlay');
+            
+            if (!sidebar) {
+                return;
+            }
+            
+            sidebar.classList.toggle('show');
+            if (overlay) {
+                overlay.classList.toggle('show', sidebar.classList.contains('show'));
+            }
+            document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
         }
         
         // Sidebar Collapse
