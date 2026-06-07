@@ -3,6 +3,15 @@ php_value suhosin.get.max_vars 10000
 php_value suhosin.post.max_vars 10000
 php_value suhosin.request.max_vars 10000
 php_value memory_limit 555M
+php_value upload_max_filesize 64M
+php_value post_max_size 128M
+php_value max_file_uploads 30
+php_value max_execution_time 300
+php_value max_input_time 300
+
+<IfModule core.c>
+    LimitRequestBody 134217728
+</IfModule>
 
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
