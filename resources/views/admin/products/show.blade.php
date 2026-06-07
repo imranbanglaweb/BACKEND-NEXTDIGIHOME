@@ -167,18 +167,58 @@
             </section>
         @endif
 
-        <section class="preview-section details-grid">
+        <section class="preview-section details-grid product-story-section">
             <div class="product-description-panel">
-                <div class="section-heading">
-                    <span>Overview</span>
-                    <h3>Product Details</h3>
+                <div class="section-heading description-heading">
+                    <div>
+                        <span>Product Story</span>
+                        <h3>Everything customers need to know</h3>
+                    </div>
+                    <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fa fa-pen me-1"></i> Improve Content
+                    </a>
                 </div>
+
+                <div class="description-summary-card">
+                    <div class="summary-icon">
+                        <i class="fa fa-star"></i>
+                    </div>
+                    <div>
+                        <h4>{{ $product->name }}</h4>
+                        <p>{{ $product->description ?: 'Add a short product description to create a stronger first impression for customers.' }}</p>
+                    </div>
+                </div>
+
+                <div class="description-highlights">
+                    <div>
+                        <i class="fa fa-check-circle"></i>
+                        <strong>Ready to use</strong>
+                        <span>Clear product assets and instructions for faster customer onboarding.</span>
+                    </div>
+                    <div>
+                        <i class="fa fa-layer-group"></i>
+                        <strong>Reusable format</strong>
+                        <span>Works for eBooks, SaaS, source code, templates, AI prompts, and digital kits.</span>
+                    </div>
+                    <div>
+                        <i class="fa fa-truck-fast"></i>
+                        <strong>{{ $product->digital ? 'Instant digital delivery' : 'Managed delivery' }}</strong>
+                        <span>{{ $product->digital ? 'Customers can receive access or files quickly after purchase.' : 'Delivery can be handled manually after order confirmation.' }}</span>
+                    </div>
+                </div>
+
                 @if($renderedDetailedDescription)
-                    <div class="product-template-preview">
+                    <div class="product-template-preview content-card">
                         {!! $renderedDetailedDescription !!}
                     </div>
                 @else
-                    <p class="empty-copy">No detailed description has been added yet. Use the premium template on the edit page to create a complete product page quickly.</p>
+                    <div class="empty-copy">
+                        <h4>Detailed content is missing</h4>
+                        <p>Use the premium template on the edit page to add benefits, included files, delivery steps, FAQs, and product-specific guidance.</p>
+                        <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-primary btn-sm">
+                            <i class="fa fa-layer-group me-1"></i> Add Premium Template
+                        </a>
+                    </div>
                 @endif
             </div>
 
@@ -427,6 +467,16 @@
         grid-template-columns: minmax(0, 1fr) 320px;
         gap: 24px;
     }
+    .product-story-section {
+        align-items: start;
+    }
+    .description-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
     .section-heading span {
         color: #2563eb;
         font-weight: 800;
@@ -435,7 +485,7 @@
         letter-spacing: 0.08em;
     }
     .section-heading h3 {
-        margin: 4px 0 18px;
+        margin: 4px 0 0;
         font-weight: 820;
         color: #111827;
     }
@@ -454,19 +504,112 @@
     }
     .product-template-preview {
         color: #334155;
-        line-height: 1.75;
+        font-size: 1rem;
+        line-height: 1.82;
+    }
+    .content-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 28px;
+        background: #ffffff;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+    }
+    .description-summary-card {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 16px;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #bfdbfe;
+        background: linear-gradient(135deg, #eff6ff 0%, #ffffff 74%);
+    }
+    .summary-icon {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        color: #fff;
+        background: #2563eb;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+    }
+    .description-summary-card h4 {
+        margin: 0 0 6px;
+        color: #0f172a;
+        font-weight: 820;
+    }
+    .description-summary-card p {
+        margin: 0;
+        color: #475569;
+        line-height: 1.7;
+    }
+    .description-highlights {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .description-highlights div {
+        min-height: 132px;
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+    .description-highlights i {
+        display: inline-flex;
+        margin-bottom: 10px;
+        color: #16a34a;
+        font-size: 1.15rem;
+    }
+    .description-highlights strong,
+    .description-highlights span {
+        display: block;
+    }
+    .description-highlights strong {
+        color: #111827;
+        margin-bottom: 5px;
+        font-size: 0.95rem;
+    }
+    .description-highlights span {
+        color: #64748b;
+        line-height: 1.55;
+        font-size: 0.9rem;
     }
     .product-template-preview h2,
     .product-template-preview h3,
     .product-template-preview h4 {
-        margin-top: 1.1rem;
+        margin-top: 1.35rem;
         margin-bottom: 0.75rem;
         font-weight: 800;
         color: #111827;
     }
+    .product-template-preview h2:first-child,
+    .product-template-preview h3:first-child,
+    .product-template-preview h4:first-child {
+        margin-top: 0;
+    }
+    .product-template-preview p {
+        margin-bottom: 1rem;
+    }
     .product-template-preview ul,
     .product-template-preview ol {
         padding-left: 1.35rem;
+        margin-bottom: 1.1rem;
+    }
+    .product-template-preview li {
+        margin-bottom: 0.45rem;
+    }
+    .product-template-preview blockquote {
+        margin: 1.2rem 0;
+        padding: 1rem 1.2rem;
+        border-left: 4px solid #2563eb;
+        border-radius: 0 10px 10px 0;
+        background: #eff6ff;
+        color: #1e3a8a;
     }
     .product-template-preview pre {
         background: #111827;
@@ -488,8 +631,17 @@
         color: #64748b;
         background: #f8fafc;
         border: 1px dashed #cbd5e1;
-        border-radius: 10px;
-        padding: 18px;
+        border-radius: 14px;
+        padding: 22px;
+    }
+    .empty-copy h4 {
+        margin: 0 0 8px;
+        color: #111827;
+        font-weight: 800;
+    }
+    .empty-copy p {
+        margin: 0 0 14px;
+        line-height: 1.65;
     }
     .info-card {
         border: 1px solid #e5e7eb;
@@ -521,6 +673,9 @@
         .details-grid {
             grid-template-columns: 1fr;
         }
+        .description-highlights {
+            grid-template-columns: 1fr;
+        }
     }
     @media (max-width: 768px) {
         .product-preview-page {
@@ -540,6 +695,15 @@
         .trust-grid,
         .cta-stack {
             grid-template-columns: 1fr;
+        }
+        .description-heading {
+            flex-direction: column;
+        }
+        .description-summary-card {
+            grid-template-columns: 1fr;
+        }
+        .content-card {
+            padding: 20px;
         }
     }
 </style>
