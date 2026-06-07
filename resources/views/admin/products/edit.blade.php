@@ -86,13 +86,25 @@
                         <label for="category" class="form-label fw-bold">
                             Category <span class="text-danger">*</span>
                         </label>
+                        @php
+                            $selectedCategory = (string) old('category', $product->category);
+                            $categories = \App\Models\Category::orderBy('category_name')->get();
+                            $selectedCategoryExists = $categories->contains(function ($category) use ($selectedCategory) {
+                                return $selectedCategory === (string) $category->category_name
+                                    || $selectedCategory === (string) $category->id
+                                    || $selectedCategory === (string) $category->category_slug;
+                            });
+                        @endphp
                         <select name="category" id="category" class="form-control">
                             <option value="">Select Category</option>
-                            @foreach(\App\Models\Category::orderBy('category_name')->get() as $category)
-                                <option value="{{ $category->category_name }}" {{ old('category', $product->category) == $category->category_name ? 'selected' : '' }}>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->category_name }}" {{ in_array($selectedCategory, [(string) $category->category_name, (string) $category->id, (string) $category->category_slug], true) ? 'selected' : '' }}>
                                     {{ $category->category_name }}
                                 </option>
                             @endforeach
+                            @if($selectedCategory !== '' && !$selectedCategoryExists)
+                                <option value="{{ $selectedCategory }}" selected>{{ $selectedCategory }}</option>
+                            @endif
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
@@ -149,34 +161,6 @@
                         <div class="invalid-feedback"></div>
                     </div>
                 </div>
-
-                    {{-- Category --}}
-                    <div class="col-md-6">
-                        <label for="category" class="form-label"><strong>Category <span class="text-danger">*</span></strong></label>
-                        <select name="category" id="category" class="form-control select2">
-                            <option value="">Select Category</option>
-                            <option value="Education" {{ old('category', $product->category) == 'Education' ? 'selected' : '' }}>Education</option>
-                            <option value="Templates" {{ old('category', $product->category) == 'Templates' ? 'selected' : '' }}>Templates</option>
-                            <option value="Electronics" {{ old('category', $product->category) == 'Electronics' ? 'selected' : '' }}>Electronics</option>
-                            <option value="Graphics" {{ old('category', $product->category) == 'Graphics' ? 'selected' : '' }}>Graphics</option>
-                            <option value="Software" {{ old('category', $product->category) == 'Software' ? 'selected' : '' }}>Software</option>
-                            <option value="Books" {{ old('category', $product->category) == 'Books' ? 'selected' : '' }}>Books</option>
-                            <option value="Music" {{ old('category', $product->category) == 'Music' ? 'selected' : '' }}>Music</option>
-                            <option value="Video" {{ old('category', $product->category) == 'Video' ? 'selected' : '' }}>Video</option>
-                        </select>
-                        <div class="invalid-feedback"></div>
-                    </div>
-
-                    {{-- Product Type --}}
-                    <div class="col-md-6">
-                        <label for="digital" class="form-label"><strong>Product Type <span class="text-danger">*</span></strong></label>
-                        <select name="digital" id="digital" class="form-control select2">
-                            <option value="1" {{ old('digital', $product->digital) == '1' ? 'selected' : '' }}>Digital Product</option>
-                            <option value="0" {{ old('digital', $product->digital) == '0' ? 'selected' : '' }}>Physical Product</option>
-                        </select>
-                        <small class="form-text text-muted">Digital products are delivered via download</small>
-                        <div class="invalid-feedback"></div>
-                    </div>
 
                     {{-- Description --}}
                     <div class="col-md-12">
