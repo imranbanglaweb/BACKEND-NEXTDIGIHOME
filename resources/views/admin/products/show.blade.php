@@ -157,8 +157,11 @@
                     @if($product->detailed_description)
                         <div class="mb-3">
                             <h6 class="text-muted mb-2">Detailed Description:</h6>
-                            <div class="border rounded p-3 bg-light">
-                                {!! nl2br(e($product->detailed_description)) !!}
+                            @php
+                                $allowedProductHtml = '<p><br><strong><b><em><i><u><s><sub><sup><code><pre><blockquote><ul><ol><li><h2><h3><h4><table><thead><tbody><tr><th><td><a><hr><span>';
+                            @endphp
+                            <div class="border rounded p-3 bg-light product-template-preview">
+                                {!! strip_tags($product->detailed_description, $allowedProductHtml) !!}
                             </div>
                         </div>
                     @endif
@@ -248,6 +251,37 @@
     }
     .table-borderless td {
         padding: 0.25rem 0;
+    }
+    .product-template-preview {
+        line-height: 1.7;
+    }
+    .product-template-preview h2,
+    .product-template-preview h3,
+    .product-template-preview h4 {
+        margin-top: 1rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    .product-template-preview ul,
+    .product-template-preview ol {
+        padding-left: 1.35rem;
+    }
+    .product-template-preview pre {
+        background: #111827;
+        color: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    .product-template-preview code {
+        background: #eef2ff;
+        border-radius: 4px;
+        padding: 0.15rem 0.35rem;
+    }
+    .product-template-preview pre code {
+        background: transparent;
+        padding: 0;
     }
 </style>
 

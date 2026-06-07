@@ -143,9 +143,14 @@
 
                     <!-- Detailed Description with WYSIWYG -->
                     <div class="col-12">
-                        <label for="detailed_description" class="form-label fw-bold">Detailed Description <span class="text-muted">(Rich Text Editor)</span></label>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                            <label for="detailed_description" class="form-label fw-bold mb-0">Detailed Description <span class="text-muted">(Rich Text Editor)</span></label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="applyPremiumProductTemplate(false)">
+                                <i class="fa fa-layer-group me-1"></i> Apply Premium Template
+                            </button>
+                        </div>
                         <textarea class="form-control" id="detailed_description" name="detailed_description" rows="6" placeholder="Detailed product information, features, benefits, usage guide..."></textarea>
-                        <div class="form-text">Use the rich text editor for formatted content, lists, links, images, etc.</div>
+                        <div class="form-text">Use one reusable premium structure for eBooks, SaaS, source code, templates, AI prompts, and other digital products.</div>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -308,7 +313,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- CKEditor 5 WYSIWYG - Premium Rich Text Editor -->
-<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
 
 <!-- Bootstrap Tags Input -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
@@ -519,7 +524,75 @@
         letter-spacing: 0.3px;
     }
 </style>
+@include('admin.products.partials.premium-description-template')
 <script>
+function getProductEditorConstructor() {
+    return (window.CKEDITOR && window.CKEDITOR.ClassicEditor) ? window.CKEDITOR.ClassicEditor : window.ClassicEditor;
+}
+
+function getProductEditorConfig(placeholder) {
+    return {
+        placeholder: placeholder,
+        toolbar: {
+            items: [
+                'showBlocks', 'findAndReplace', 'selectAll', '|',
+                'heading', 'style', '|',
+                'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+                'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'code', 'removeFormat', '|',
+                'alignment', 'outdent', 'indent', '|',
+                'bulletedList', 'numberedList', 'todoList', '|',
+                'link', 'blockQuote', 'codeBlock', 'insertTable', 'mediaEmbed', 'horizontalLine', 'specialCharacters', '|',
+                'undo', 'redo'
+            ],
+            shouldNotGroupWhenFull: true
+        },
+        codeBlock: {
+            languages: [
+                { language: 'plaintext', label: 'Plain text' },
+                { language: 'html', label: 'HTML' },
+                { language: 'css', label: 'CSS' },
+                { language: 'javascript', label: 'JavaScript' },
+                { language: 'php', label: 'PHP' },
+                { language: 'json', label: 'JSON' }
+            ]
+        },
+        table: {
+            contentToolbar: [
+                'tableColumn', 'tableRow', 'mergeTableCells',
+                'tableProperties', 'tableCellProperties'
+            ]
+        },
+        removePlugins: [
+            'AIAssistant',
+            'CKBox',
+            'CKFinder',
+            'EasyImage',
+            'ExportPdf',
+            'ExportWord',
+            'ImportWord',
+            'RealTimeCollaborativeComments',
+            'RealTimeCollaborativeTrackChanges',
+            'RealTimeCollaborativeRevisionHistory',
+            'PresenceList',
+            'Comments',
+            'TrackChanges',
+            'TrackChangesData',
+            'RevisionHistory',
+            'Pagination',
+            'WProofreader',
+            'MathType',
+            'MultiLevelList',
+            'PasteFromOfficeEnhanced',
+            'CaseChange',
+            'SlashCommand',
+            'Template',
+            'DocumentOutline',
+            'FormatPainter',
+            'TableOfContents'
+        ]
+    };
+}
+
 $(document).ready(function() {
     // Force hide progress bar on initial page load (prevents default visible state)
     $('#progressContainer').addClass('d-none').css('display', 'none');
@@ -796,12 +869,11 @@ $(document).ready(function() {
         $('#tags').tagsinput();
 
         // Initialize Premium WYSIWYG Editor (CKEditor 5)
-        if (typeof ClassicEditor !== 'undefined') {
-            ClassicEditor
-                .create(document.querySelector('#detailed_description'), {
-                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
-                    placeholder: 'Enter detailed product description with rich formatting...'
-                })
+        const ProductEditor = getProductEditorConstructor();
+        const detailedDescription = document.querySelector('#detailed_description');
+        if (ProductEditor && detailedDescription) {
+            ProductEditor
+                .create(detailedDescription, getProductEditorConfig('Enter detailed product description with rich formatting, code blocks, tables, and embeds...'))
                 .then(editor => {
                     window.detailedEditor = editor;
                     // Premium editor styling

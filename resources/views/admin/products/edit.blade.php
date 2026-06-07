@@ -187,9 +187,14 @@
 
                     {{-- Detailed Description with Premium WYSIWYG --}}
                     <div class="col-md-12">
-                        <label for="detailed_description" class="form-label"><strong>Detailed Description</strong> <span class="text-muted small">(Rich Editor)</span></label>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                            <label for="detailed_description" class="form-label mb-0"><strong>Detailed Description</strong> <span class="text-muted small">(Rich Editor)</span></label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="applyPremiumProductTemplate(false)">
+                                <i class="fa fa-layer-group me-1"></i> Apply Premium Template
+                            </button>
+                        </div>
                         <textarea class="form-control" id="detailed_description" name="detailed_description" rows="6" placeholder="Detailed product information, features, etc.">{{ old('detailed_description', $product->detailed_description) }}</textarea>
-                        <small class="form-text text-muted">Use rich text formatting for professional product pages</small>
+                        <small class="form-text text-muted">Use one reusable premium structure for eBooks, SaaS, source code, templates, AI prompts, and other digital products.</small>
                         <div class="invalid-feedback"></div>
                     </div>
 
@@ -490,11 +495,80 @@
 <!-- Additional Scripts for Enhanced Forms -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- CKEditor 5 for WYSIWYG -->
-<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" />
 
+@include('admin.products.partials.premium-description-template')
+
 <script>
+function getProductEditorConstructor() {
+    return (window.CKEDITOR && window.CKEDITOR.ClassicEditor) ? window.CKEDITOR.ClassicEditor : window.ClassicEditor;
+}
+
+function getProductEditorConfig(placeholder) {
+    return {
+        placeholder: placeholder,
+        toolbar: {
+            items: [
+                'showBlocks', 'findAndReplace', 'selectAll', '|',
+                'heading', 'style', '|',
+                'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+                'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'code', 'removeFormat', '|',
+                'alignment', 'outdent', 'indent', '|',
+                'bulletedList', 'numberedList', 'todoList', '|',
+                'link', 'blockQuote', 'codeBlock', 'insertTable', 'mediaEmbed', 'horizontalLine', 'specialCharacters', '|',
+                'undo', 'redo'
+            ],
+            shouldNotGroupWhenFull: true
+        },
+        codeBlock: {
+            languages: [
+                { language: 'plaintext', label: 'Plain text' },
+                { language: 'html', label: 'HTML' },
+                { language: 'css', label: 'CSS' },
+                { language: 'javascript', label: 'JavaScript' },
+                { language: 'php', label: 'PHP' },
+                { language: 'json', label: 'JSON' }
+            ]
+        },
+        table: {
+            contentToolbar: [
+                'tableColumn', 'tableRow', 'mergeTableCells',
+                'tableProperties', 'tableCellProperties'
+            ]
+        },
+        removePlugins: [
+            'AIAssistant',
+            'CKBox',
+            'CKFinder',
+            'EasyImage',
+            'ExportPdf',
+            'ExportWord',
+            'ImportWord',
+            'RealTimeCollaborativeComments',
+            'RealTimeCollaborativeTrackChanges',
+            'RealTimeCollaborativeRevisionHistory',
+            'PresenceList',
+            'Comments',
+            'TrackChanges',
+            'TrackChangesData',
+            'RevisionHistory',
+            'Pagination',
+            'WProofreader',
+            'MathType',
+            'MultiLevelList',
+            'PasteFromOfficeEnhanced',
+            'CaseChange',
+            'SlashCommand',
+            'Template',
+            'DocumentOutline',
+            'FormatPainter',
+            'TableOfContents'
+        ]
+    };
+}
+
 // Wait for jQuery Validation to be ready
 function initializeProductForm() {
     $(document).ready(function() {
@@ -511,14 +585,14 @@ function initializeProductForm() {
     $('#tags').tagsinput();
 
     // Initialize Premium WYSIWYG (CKEditor 5) for detailed description
-    if (typeof ClassicEditor !== 'undefined') {
-        ClassicEditor
-            .create(document.querySelector('#detailed_description'), {
-                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'undo', 'redo']
-            })
+    const ProductEditor = getProductEditorConstructor();
+    const detailedDescription = document.querySelector('#detailed_description');
+    if (ProductEditor && detailedDescription && !window.detailedEditor) {
+        ProductEditor
+            .create(detailedDescription, getProductEditorConfig('Update detailed product description with rich formatting, code blocks, tables, and embeds...'))
             .then(editor => {
                 window.detailedEditor = editor;
-                editor.ui.view.editable.element.style.minHeight = '200px';
+                editor.ui.view.editable.element.style.minHeight = '220px';
             })
             .catch(err => console.warn('CKEditor init failed in edit:', err));
     }
@@ -1187,27 +1261,18 @@ window.removeGalleryImage = function(button, imagePath) {
             return;
         }
 
-        if (typeof ClassicEditor === 'undefined') {
+        const ProductEditor = getProductEditorConstructor();
+        if (!ProductEditor) {
             console.error('[Edit Product] ClassicEditor is not loaded. Check CDN.');
             return;
         }
 
-        // Destroy previous instance if any
-        if (window.detailedEditor && typeof window.detailedEditor.destroy === 'function') {
-            window.detailedEditor.destroy().catch(() => {});
-            window.detailedEditor = null;
+        if (window.detailedEditor) {
+            return;
         }
 
-        ClassicEditor
-            .create(textarea, {
-                toolbar: [
-                    'heading', '|',
-                    'bold', 'italic', 'link',
-                    'bulletedList', 'numberedList', '|',
-                    'blockQuote', 'insertTable', '|',
-                    'undo', 'redo'
-                ]
-            })
+        ProductEditor
+            .create(textarea, getProductEditorConfig('Update detailed product description with rich formatting, code blocks, tables, and embeds...'))
             .then(editor => {
                 window.detailedEditor = editor;
                 editor.ui.view.editable.element.style.minHeight = '220px';
