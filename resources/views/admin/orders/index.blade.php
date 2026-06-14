@@ -1,187 +1,198 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
-<section role="main" class="content-body" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); min-height: 100vh; padding: 30px 0;">
+<section role="main" class="content-body orders-page">
     <div class="container-fluid">
-        <!-- Header Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
+        <div class="orders-header">
+            <div>
+                <div class="orders-eyebrow">Commerce</div>
+                <h2>Order List</h2>
+                <p>Track orders, verify payments, update fulfillment status, and export filtered data.</p>
+            </div>
+            <div class="orders-header-actions">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <button type="button" class="btn btn-primary" id="exportBtn">
+                    <i class="fas fa-download me-2"></i>Export CSV
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="order-stat-card">
+                    <span class="stat-icon stat-blue"><i class="fas fa-shopping-bag"></i></span>
                     <div>
-                        <h2 class="text-white mb-1">
-                            <i class="fas fa-shopping-cart me-3"></i>All Orders Management
-                        </h2>
-                        <p class="text-white-50 mb-0">Comprehensive order management and tracking system</p>
+                        <small>Total Orders</small>
+                        <strong>{{ number_format($stats['total'] ?? 0) }}</strong>
                     </div>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="order-stat-card">
+                    <span class="stat-icon stat-green"><i class="fas fa-dollar-sign"></i></span>
+                    <div>
+                        <small>Paid Revenue</small>
+                        <strong>$ {{ number_format($stats['revenue'] ?? 0, 2) }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="order-stat-card">
+                    <span class="stat-icon stat-amber"><i class="fas fa-clock"></i></span>
+                    <div>
+                        <small>Pending Review</small>
+                        <strong>{{ number_format($stats['pending'] ?? 0) }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="order-stat-card">
+                    <span class="stat-icon stat-cyan"><i class="fas fa-truck"></i></span>
+                    <div>
+                        <small>Shipped Today</small>
+                        <strong>{{ number_format($stats['shipped_today'] ?? 0) }}</strong>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-shopping-cart text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-primary mb-1">1,247</h3>
-                        <p class="text-muted mb-0">Total Orders</p>
-                    </div>
+        <div class="orders-panel mb-3">
+            <div class="orders-panel-title">
+                <div>
+                    <h5>Filters</h5>
+                    <p>Use filters to narrow the list and export exactly what is visible.</p>
                 </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">
+                    <i class="fas fa-undo me-1"></i>Reset
+                </button>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-dollar-sign text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-success mb-1">$45,678</h3>
-                        <p class="text-muted mb-0">Total Revenue</p>
-                    </div>
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
                 </div>
-            </div>
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-clock text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-warning mb-1">23</h3>
-                        <p class="text-muted mb-0">Pending Orders</p>
-                    </div>
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Payment</label>
+                    <select class="form-control" id="paymentFilter">
+                        <option value="">All Methods</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="stripe">Stripe</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="bkash">Bkash</option>
+                        <option value="nagad">Nagad</option>
+                        <option value="rocket">Rocket</option>
+                    </select>
                 </div>
-            </div>
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-info d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-truck text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-info mb-1">89</h3>
-                        <p class="text-muted mb-0">Shipped Today</p>
-                    </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label">From</label>
+                    <input type="date" class="form-control" id="dateFromFilter">
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label">To</label>
+                    <input type="date" class="form-control" id="dateToFilter">
+                </div>
+                <div class="col-lg-2 col-md-12 d-flex align-items-end">
+                    <button type="button" class="btn btn-dark w-100" id="applyFiltersBtn">
+                        <i class="fas fa-filter me-2"></i>Apply
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Orders Table -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-lg" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-header bg-white border-0" style="border-radius: 15px 15px 0 0;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 text-primary">
-                                <i class="fas fa-list me-2"></i>All Orders
-                            </h5>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-success btn-sm" id="exportBtn">
-                                    <i class="fas fa-download me-2"></i>Export
-                                </button>
-                                <button class="btn btn-info btn-sm" id="filterBtn">
-                                    <i class="fas fa-filter me-2"></i>Filter
-                                </button>
-                                <button class="btn btn-warning btn-sm" id="refreshBtn">
-                                    <i class="fas fa-sync-alt me-2"></i>Refresh
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0" id="ordersTable">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="border-0 px-4 py-3">#</th>
-                                        <th class="border-0 px-4 py-3">Order ID</th>
-                                        <th class="border-0 px-4 py-3">Customer</th>
-                                        <th class="border-0 px-4 py-3">Product</th>
-                                        <th class="border-0 px-4 py-3">Qty</th>
-                                        <th class="border-0 px-4 py-3">Amount</th>
-                                        <th class="border-0 px-4 py-3">Payment</th>
-                                        <th class="border-0 px-4 py-3">Status</th>
-                                        <th class="border-0 px-4 py-3">Date</th>
-                                        <th class="border-0 px-4 py-3 text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
+        <div class="orders-panel">
+            <div class="orders-panel-title">
+                <div>
+                    <h5>Orders</h5>
+                    <p>Review customer, payment, status, and fulfillment details.</p>
                 </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="refreshBtn">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table order-table" id="ordersTable" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
 </section>
 
-<!-- View Order Modal -->
 <div class="modal fade" id="viewOrderModal" tabindex="-1" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div class="modal-header bg-gradient-primary text-white" style="border-radius: 15px 15px 0 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h5 class="modal-title" id="viewOrderModalLabel">
-                    <i class="fas fa-eye me-2"></i>Order Details
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content order-modal">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="viewOrderModalLabel">Order Details</h5>
+                    <small class="text-muted">Customer, payment, and product information</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4" id="viewOrderContent">
-                <!-- Order details will be loaded here -->
-            </div>
+            <div class="modal-body" id="viewOrderContent"></div>
         </div>
     </div>
 </div>
 
-<!-- Edit Order Modal -->
 <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div class="modal-header bg-gradient-warning text-white" style="border-radius: 15px 15px 0 0; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <h5 class="modal-title" id="editOrderModalLabel">
-                    <i class="fas fa-edit me-2"></i>Update Order Status
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content order-modal">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="editOrderModalLabel">Update Order</h5>
+                    <small class="text-muted">Change fulfillment status and internal notes</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4">
+            <div class="modal-body">
                 <form id="editOrderForm">
                     @csrf
                     <input type="hidden" id="editOrderId" name="order_id">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="editStatus" class="form-label fw-bold">Order Status</label>
-                                <select class="form-select" id="editStatus" name="status" required>
-                                    <option value="pending">Pending</option>
-                                    <option value="processing">Processing</option>
-                                    <option value="shipped">Shipped</option>
-                                    <option value="delivered">Delivered</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="failed">Failed</option>
-                                    <option value="refunded">Refunded</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="editNotes" class="form-label fw-bold">Notes</label>
-                                <textarea class="form-control" id="editNotes" name="notes" rows="3" placeholder="Add any notes..."></textarea>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="editStatus" class="form-label">Status</label>
+                        <select class="form-control" id="editStatus" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                            <option value="refunded">Refunded</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNotes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="editNotes" name="notes" rows="4" placeholder="Add internal notes for this order"></textarea>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-warning">Update Status</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
                     </div>
                 </form>
             </div>
@@ -190,400 +201,473 @@
 </div>
 
 <style>
-    .card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .orders-page {
+        background: #f6f8fb;
+        min-height: calc(100vh - 70px);
+        padding: 24px;
     }
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-    }
-    .rounded-circle {
-        border-radius: 50% !important;
-    }
-    .badge-primary {
-        background-color: #007bff;
-    }
-    .bg-primary { background-color: #007bff !important; }
-    .bg-success { background-color: #28a745 !important; }
-    .bg-warning { background-color: #ffc107 !important; }
-    .bg-info { background-color: #17a2b8 !important; }
-    .text-primary { color: #007bff !important; }
-    .text-success { color: #28a745 !important; }
-    .text-warning { color: #ffc107 !important; }
-    .text-info { color: #17a2b8 !important; }
-    .text-muted { color: #6c757d !important; }
-    .text-white { color: #ffffff !important; }
-    .text-white-50 { color: rgba(255,255,255,0.5) !important; }
 
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
+    .orders-header {
         align-items: center;
+        background: #111827;
+        border-radius: 8px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 22px 24px;
+    }
+
+    .orders-header h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    .orders-header p,
+    .orders-panel-title p {
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .orders-header p {
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    .orders-eyebrow {
+        color: #60a5fa;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+    }
+
+    .orders-header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .order-stat-card,
+    .orders-panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .order-stat-card {
+        align-items: center;
+        display: flex;
+        gap: 14px;
+        min-height: 102px;
+        padding: 18px;
+    }
+
+    .order-stat-card small {
+        color: #6b7280;
+        display: block;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .order-stat-card strong {
+        color: #111827;
+        display: block;
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    .stat-icon {
+        align-items: center;
+        border-radius: 8px;
+        display: inline-flex;
+        flex: 0 0 46px;
+        height: 46px;
         justify-content: center;
-        font-weight: bold;
-        font-size: 16px;
+        width: 46px;
+    }
+
+    .stat-blue { background: #dbeafe; color: #1d4ed8; }
+    .stat-green { background: #dcfce7; color: #15803d; }
+    .stat-amber { background: #fef3c7; color: #b45309; }
+    .stat-cyan { background: #cffafe; color: #0e7490; }
+
+    .orders-panel {
+        padding: 18px;
+    }
+
+    .orders-panel-title {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .orders-panel-title h5 {
+        color: #111827;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 3px;
+    }
+
+    .orders-page .form-label {
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .orders-page .form-control {
+        border-color: #d1d5db;
+        border-radius: 6px;
+        min-height: 38px;
+    }
+
+    .order-table {
+        margin-bottom: 0 !important;
+    }
+
+    .order-table thead th {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        color: #4b5563;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+        padding: 13px 12px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .order-table tbody td {
+        border-top: 1px solid #edf0f4;
+        color: #1f2937;
+        padding: 13px 12px;
+        vertical-align: middle;
+    }
+
+    .avatar,
+    .avatar-initial {
+        align-items: center;
+        display: flex;
+        height: 34px;
+        justify-content: center;
+        width: 34px;
     }
 
     .avatar-initial {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
+        background: #2563eb !important;
+        font-size: 13px;
+        font-weight: 700;
     }
 
-    .table th {
-        font-weight: 600;
-        text-transform: uppercase;
+    .order-table .btn {
+        border-radius: 6px;
+        height: 32px;
+        width: 32px;
+    }
+
+    .order-modal {
+        border: 0;
+        border-radius: 8px;
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+    }
+
+    .order-modal .modal-header {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 18px 20px;
+    }
+
+    .order-detail-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 14px;
+    }
+
+    .detail-box span {
+        color: #6b7280;
+        display: block;
         font-size: 12px;
-        letter-spacing: 0.5px;
+        margin-bottom: 3px;
     }
 
-    .btn-group .btn {
-        border-radius: 8px !important;
-        margin: 0 1px;
+    .detail-box strong {
+        color: #111827;
+        font-size: 15px;
     }
 
-    .modal-content {
-        border: none;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
+    @media (max-width: 767px) {
+        .orders-page {
+            padding: 14px;
+        }
 
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+        .orders-header,
+        .orders-panel-title {
+            align-items: flex-start;
+            flex-direction: column;
+        }
 
-    .bg-gradient-warning {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .orders-header-actions,
+        .orders-header-actions .btn {
+            width: 100%;
+        }
+
+        .order-detail-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
 <script>
 $(document).ready(function() {
-    // Initialize DataTable
+    const csrfToken = '{{ csrf_token() }}';
+    const showUrlTemplate = '{{ route("admin.orders.show", ":id") }}';
+    const updateUrlTemplate = '{{ route("admin.orders.update", ":id") }}';
+    const approveUrlTemplate = '{{ route("admin.orders.approve", ":id") }}';
+    const rejectUrlTemplate = '{{ route("admin.orders.reject", ":id") }}';
+    const exportUrl = '{{ route("admin.orders.export.csv") }}';
+
+    function buildUrl(template, id) {
+        return template.replace(':id', id);
+    }
+
+    function activeFilters() {
+        return {
+            status: $('#statusFilter').val(),
+            payment_method: $('#paymentFilter').val(),
+            date_from: $('#dateFromFilter').val(),
+            date_to: $('#dateToFilter').val()
+        };
+    }
+
     const ordersTable = $('#ordersTable').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
+        pageLength: 15,
+        order: [[8, 'desc']],
         ajax: {
             url: '{{ route("admin.orders.data") }}',
-            type: 'GET'
+            type: 'GET',
+            data: function(data) {
+                return $.extend(data, activeFilters());
+            }
         },
         columns: [
             { data: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
-            { data: 'order_id', className: 'fw-bold' },
+            { data: 'order_id', name: 'id', className: 'fw-bold text-nowrap' },
             { data: 'customer', orderable: false },
-            { data: 'product_name' },
-            { data: 'quantity', className: 'text-center' },
-            { data: 'amount', className: 'text-right' },
-            { data: 'payment_method', className: 'text-center' },
-            { data: 'status', className: 'text-center' },
-            { data: 'created_at', className: 'text-center' },
-            { data: 'action', orderable: false, searchable: false, className: 'text-center' }
+            { data: 'product_name', orderable: false },
+            { data: 'quantity', name: 'quantity', className: 'text-center' },
+            { data: 'amount', name: 'total', className: 'text-nowrap' },
+            { data: 'payment_method', name: 'payment_method', className: 'text-nowrap' },
+            { data: 'status', name: 'status', className: 'text-center text-nowrap' },
+            { data: 'created_at', name: 'created_at', className: 'text-nowrap' },
+            { data: 'action', orderable: false, searchable: false, className: 'text-center text-nowrap' }
         ],
-        pageLength: 15,
-        responsive: true,
         language: {
-            processing: '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>',
-            search: "Search orders:",
-            lengthMenu: "Show _MENU_ orders per page",
-            info: "Showing _START_ to _END_ of _TOTAL_ orders",
-            paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
-            }
+            processing: '<div class="py-4 text-center"><div class="spinner-border text-primary" role="status"></div><div class="mt-2 text-muted">Loading orders...</div></div>',
+            search: 'Search',
+            lengthMenu: 'Show _MENU_',
+            info: 'Showing _START_ to _END_ of _TOTAL_ orders',
+            emptyTable: 'No orders found',
+            zeroRecords: 'No matching orders found'
         },
         drawCallback: function() {
-            // Reinitialize tooltips after table draw
-            $('[title]').tooltip();
+            if ($.fn.tooltip) {
+                $('[title]').tooltip();
+            }
         }
     });
 
-    // View Order Details
-    $(document).on('click', '.viewBtn', function() {
-        const orderId = $(this).data('id');
-
-        // Show loading modal
-        $('#viewOrderModal').modal('show');
-        $('#viewOrderContent').html(`
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3 text-muted">Loading order details...</p>
-            </div>
-        `);
-
-        // Fetch order details
-        $.ajax({
-            url: `{{ url('/admin/orders') }}/${orderId}`,
-            type: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    const order = response.order;
-                    const product = order.product || {};
-                    const user = order.user || {};
-
-                    $('#viewOrderContent').html(`
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3"><i class="fas fa-shopping-cart me-2"></i>Order Information</h6>
-                                <table class="table table-sm">
-                                    <tr><td class="fw-bold">Order ID:</td><td>${order.id}</td></tr>
-                                    <tr><td class="fw-bold">Product:</td><td>${product.name || 'N/A'}</td></tr>
-                                    <tr><td class="fw-bold">Quantity:</td><td>${order.quantity}</td></tr>
-                                    <tr><td class="fw-bold">Total:</td><td class="text-success fw-bold">$ ${parseFloat(order.total).toFixed(2)}</td></tr>
-                                    <tr><td class="fw-bold">Status:</td><td><span class="badge bg-${getStatusColor(order.status)}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td></tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Customer Information</h6>
-                                <table class="table table-sm">
-                                    <tr><td class="fw-bold">Name:</td><td>${user.name || order.customer_name || 'N/A'}</td></tr>
-                                    <tr><td class="fw-bold">Email:</td><td>${user.email || order.customer_email || 'N/A'}</td></tr>
-                                    <tr><td class="fw-bold">Payment:</td><td>${order.payment_method ? order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1).replace('_', ' ') : 'N/A'}</td></tr>
-                                    <tr><td class="fw-bold">Date:</td><td>${new Date(order.created_at).toLocaleString()}</td></tr>
-                                </table>
-                            </div>
-                        </div>
-                        ${order.notes ? `<div class="row mt-3"><div class="col-12"><h6 class="text-primary"><i class="fas fa-sticky-note me-2"></i>Notes</h6><p class="text-muted">${order.notes}</p></div></div>` : ''}
-                    `);
-                } else {
-                    $('#viewOrderContent').html('<div class="alert alert-danger">Failed to load order details.</div>');
-                }
-            },
-            error: function() {
-                $('#viewOrderContent').html('<div class="alert alert-danger">Error loading order details.</div>');
-            }
-        });
+    $('#applyFiltersBtn').on('click', function() {
+        ordersTable.ajax.reload();
     });
 
-    // Edit Order Status
+    $('#statusFilter, #paymentFilter, #dateFromFilter, #dateToFilter').on('change', function() {
+        ordersTable.ajax.reload();
+    });
+
+    $('#resetFiltersBtn').on('click', function() {
+        $('#statusFilter, #paymentFilter, #dateFromFilter, #dateToFilter').val('');
+        ordersTable.ajax.reload();
+    });
+
+    $('#refreshBtn').on('click', function() {
+        const icon = $(this).find('i');
+        icon.addClass('fa-spin');
+        ordersTable.ajax.reload(function() {
+            icon.removeClass('fa-spin');
+        }, false);
+    });
+
+    $('#exportBtn').on('click', function() {
+        const params = $.param(activeFilters());
+        window.location.href = exportUrl + (params ? '?' + params : '');
+    });
+
+    $(document).on('click', '.viewBtn', function() {
+        const orderId = $(this).data('id');
+        $('#viewOrderContent').html('<div class="py-5 text-center"><div class="spinner-border text-primary" role="status"></div><div class="mt-3 text-muted">Loading order details...</div></div>');
+        $('#viewOrderModal').modal('show');
+
+        $.get(buildUrl(showUrlTemplate, orderId))
+            .done(function(response) {
+                const order = response.order || {};
+                const product = order.product || {};
+                const user = order.user || {};
+                const customerName = user.name || order.customer_name || 'Guest Customer';
+                const customerEmail = user.email || order.customer_email || 'No email';
+                const total = Number(order.total || 0).toFixed(2);
+                const createdAt = order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A';
+
+                $('#viewOrderContent').html(`
+                    <div class="order-detail-grid">
+                        <div class="detail-box"><span>Order ID</span><strong>#ORD-${String(order.id).padStart(4, '0')}</strong></div>
+                        <div class="detail-box"><span>Status</span><strong>${formatText(order.status || 'N/A')}</strong></div>
+                        <div class="detail-box"><span>Customer</span><strong>${escapeHtml(customerName)}</strong></div>
+                        <div class="detail-box"><span>Email</span><strong>${escapeHtml(customerEmail)}</strong></div>
+                        <div class="detail-box"><span>Product</span><strong>${escapeHtml(product.name || 'N/A')}</strong></div>
+                        <div class="detail-box"><span>Quantity</span><strong>${order.quantity || 0}</strong></div>
+                        <div class="detail-box"><span>Total</span><strong>$ ${total}</strong></div>
+                        <div class="detail-box"><span>Payment</span><strong>${formatText(order.payment_method || 'N/A')}</strong></div>
+                        <div class="detail-box"><span>Created</span><strong>${createdAt}</strong></div>
+                        <div class="detail-box"><span>Transaction ID</span><strong>${escapeHtml(order.transaction_id || 'N/A')}</strong></div>
+                    </div>
+                    ${order.notes ? `<div class="detail-box mt-3"><span>Notes</span><strong>${escapeHtml(order.notes)}</strong></div>` : ''}
+                `);
+            })
+            .fail(function() {
+                $('#viewOrderContent').html('<div class="alert alert-danger mb-0">Unable to load order details.</div>');
+            });
+    });
+
     $(document).on('click', '.editBtn', function() {
         const orderId = $(this).data('id');
 
-        // Fetch current order data
-        $.ajax({
-            url: `{{ url('/admin/orders') }}/${orderId}`,
-            type: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    const order = response.order;
-                    $('#editOrderId').val(order.id);
-                    $('#editStatus').val(order.status);
-                    $('#editNotes').val(order.notes || '');
-                    $('#editOrderModal').modal('show');
-                }
-            }
-        });
+        $.get(buildUrl(showUrlTemplate, orderId))
+            .done(function(response) {
+                const order = response.order || {};
+                $('#editOrderId').val(order.id);
+                $('#editStatus').val(order.status);
+                $('#editNotes').val(order.notes || '');
+                $('#editOrderModal').modal('show');
+            })
+            .fail(function() {
+                showAlert('error', 'Unable to load order for editing.');
+            });
     });
 
-    // Submit Edit Order Form
-    $('#editOrderForm').on('submit', function(e) {
-        e.preventDefault();
-
+    $('#editOrderForm').on('submit', function(event) {
+        event.preventDefault();
         const orderId = $('#editOrderId').val();
-        const formData = new FormData(this);
-
-        Swal.fire({
-            title: 'Updating Order...',
-            text: 'Please wait while we update the order status.',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-                Swal.showLoading();
-            }
-        });
 
         $.ajax({
-            url: `{{ url('/admin/orders') }}/${orderId}`,
-            type: 'PUT',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-HTTP-Method-Override': 'PUT'
-            },
+            url: buildUrl(updateUrlTemplate, orderId),
+            type: 'POST',
+            data: $(this).serialize() + '&_method=PUT',
+            headers: { 'X-CSRF-TOKEN': csrfToken },
             success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-
                 $('#editOrderModal').modal('hide');
-                ordersTable.ajax.reload();
+                showAlert('success', response.message || 'Order updated successfully.');
+                ordersTable.ajax.reload(null, false);
             },
             error: function(xhr) {
-                const errorMsg = xhr.responseJSON?.message || 'An error occurred while updating the order.';
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: errorMsg
-                });
+                showAlert('error', xhr.responseJSON?.message || 'Failed to update order.');
             }
         });
     });
 
-    // Approve Order
     $(document).on('click', '.approveBtn', function() {
         const orderId = $(this).data('id');
-
-        Swal.fire({
-            title: 'Approve Order?',
-            text: 'This will mark the order as completed and send a delivery email to the customer.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, Approve',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Processing...',
-                    text: 'Approving order and sending email...',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    willOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                $.ajax({
-                    url: `{{ route("admin.orders.approve", ":id") }}`.replace(':id', orderId),
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Order Approved!',
-                            text: response.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        ordersTable.ajax.reload();
-                    },
-                    error: function(xhr) {
-                        const errorMsg = xhr.responseJSON?.message || 'Failed to approve order.';
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMsg
-                        });
-                    }
-                });
-            }
+        confirmAction('Approve order?', 'This will mark the order as completed and send delivery email.', 'Approve', function() {
+            postOrderAction(buildUrl(approveUrlTemplate, orderId), 'Order approved successfully.');
         });
     });
 
-    // Reject Order
     $(document).on('click', '.rejectBtn', function() {
         const orderId = $(this).data('id');
+        confirmAction('Reject order?', 'This will mark the order as failed.', 'Reject', function() {
+            postOrderAction(buildUrl(rejectUrlTemplate, orderId), 'Order rejected successfully.');
+        });
+    });
 
-        Swal.fire({
-            title: 'Reject Order?',
-            text: 'This will mark the order as failed. This action cannot be undone.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, Reject',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Processing...',
-                    text: 'Rejecting order...',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    willOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                $.ajax({
-                    url: `{{ route("admin.orders.reject", ":id") }}`.replace(':id', orderId),
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Order Rejected!',
-                            text: response.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        ordersTable.ajax.reload();
-                    },
-                    error: function(xhr) {
-                        const errorMsg = xhr.responseJSON?.message || 'Failed to reject order.';
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMsg
-                        });
-                    }
-                });
+    function postOrderAction(url, fallbackMessage) {
+        $.ajax({
+            url: url,
+            type: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            success: function(response) {
+                showAlert('success', response.message || fallbackMessage);
+                ordersTable.ajax.reload(null, false);
+            },
+            error: function(xhr) {
+                showAlert('error', xhr.responseJSON?.message || 'Order action failed.');
             }
         });
-    });
+    }
 
-    // Refresh Table
-    $('#refreshBtn').on('click', function() {
-        ordersTable.ajax.reload();
-        $(this).find('i').addClass('fa-spin');
-        setTimeout(() => {
-            $(this).find('i').removeClass('fa-spin');
-        }, 1000);
-    });
+    function confirmAction(title, text, confirmText, onConfirm) {
+        if (typeof Swal === 'undefined') {
+            if (confirm(title)) {
+                onConfirm();
+            }
+            return;
+        }
 
-    // Export functionality (placeholder)
-    $('#exportBtn').on('click', function() {
         Swal.fire({
-            icon: 'info',
-            title: 'Export Feature',
-            text: 'Export functionality will be implemented soon.',
-            timer: 2000,
-            showConfirmButton: false
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: confirmText,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#111827'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                onConfirm();
+            }
         });
-    });
+    }
 
-    // Filter functionality (placeholder)
-    $('#filterBtn').on('click', function() {
-        Swal.fire({
-            icon: 'info',
-            title: 'Filter Feature',
-            text: 'Advanced filtering will be implemented soon.',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    });
+    function showAlert(type, message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: type,
+                title: type === 'success' ? 'Success' : 'Error',
+                text: message,
+                timer: type === 'success' ? 1800 : undefined,
+                showConfirmButton: type !== 'success'
+            });
+            return;
+        }
 
-    // Helper function for status colors
-    function getStatusColor(status) {
-        const colors = {
-            'pending': 'warning',
-            'processing': 'primary',
-            'shipped': 'info',
-            'delivered': 'success',
-            'completed': 'success',
-            'failed': 'danger',
-            'refunded': 'secondary'
-        };
-        return colors[status] || 'secondary';
+        alert(message);
+    }
+
+    function formatText(value) {
+        return escapeHtml(String(value).replace(/_/g, ' ').replace(/\b\w/g, function(char) {
+            return char.toUpperCase();
+        }));
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 });
 </script>

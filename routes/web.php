@@ -424,7 +424,9 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('orders/delivered', [OrderController::class, 'delivered'])->name('orders.delivered');
     Route::get('orders/refunds', [OrderController::class, 'refunds'])->name('orders.refunds');
     Route::get('orders/exports', [OrderController::class, 'exports'])->name('orders.exports');
+    Route::get('orders/export/csv', [OrderController::class, 'exportCsv'])->name('orders.export.csv');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::post('orders/{order}/approve', [OrderController::class, 'approve'])->name('orders.approve');
     Route::post('orders/{order}/reject', [OrderController::class, 'reject'])->name('orders.reject');
 

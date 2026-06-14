@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProductPurchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
@@ -14,7 +15,14 @@ class OrderController extends Controller
      */
     public function index()
     {
-        return view('admin.orders.index');
+        $stats = [
+            'total' => ProductPurchase::count(),
+            'revenue' => ProductPurchase::whereIn('status', ['completed', 'delivered', 'processing'])->sum('total'),
+            'pending' => ProductPurchase::where('status', 'pending')->count(),
+            'shipped_today' => ProductPurchase::where('status', 'shipped')->whereDate('updated_at', today())->count(),
+        ];
+
+        return view('admin.orders.index', compact('stats'));
     }
 
     /**
@@ -30,24 +38,37 @@ class OrderController extends Controller
                 $query->where('status', $request->status);
             }
 
-            return DataTables::of($query)
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            return DataTables::of($query->latest())
                 ->addIndexColumn()
                 ->addColumn('order_id', fn ($p) => '#ORD-'.str_pad($p->id, 4, '0', STR_PAD_LEFT))
-                ->addColumn('product_name', fn ($p) => $p->product->name ?? 'N/A')
+                ->addColumn('product_name', fn ($p) => e($p->product->name ?? 'N/A'))
                 ->addColumn('customer', function ($p) {
                     $user = $p->user;
-                    $name = $user ? $user->name : $p->customer_name;
-                    $email = $user ? $user->email : $p->customer_email;
+                    $name = $user ? $user->name : ($p->customer_name ?: 'Guest Customer');
+                    $email = $user ? $user->email : ($p->customer_email ?: 'No email');
+                    $initial = strtoupper(substr($name, 0, 1));
 
                     return '<div class="d-flex align-items-center">
                         <div class="avatar avatar-sm me-2">
                             <div class="avatar-initial rounded-circle bg-primary text-white">
-                                '.substr($name, 0, 1).'
+                                '.e($initial).'
                             </div>
                         </div>
                         <div>
-                            <div class="fw-bold">'.$name.'</div>
-                            <small class="text-muted">'.$email.'</small>
+                            <div class="fw-bold">'.e($name).'</div>
+                            <small class="text-muted">'.e($email).'</small>
                         </div>
                     </div>';
                 })
@@ -64,7 +85,7 @@ class OrderController extends Controller
                         'refunded' => '<span class="badge bg-secondary"><i class="fas fa-undo me-1"></i>Refunded</span>',
                     ];
 
-                    return $badges[$p->status] ?? '<span class="badge bg-secondary">'.$p->status.'</span>';
+                    return $badges[$p->status] ?? '<span class="badge bg-secondary">'.e($p->status).'</span>';
                 })
                 ->addColumn('payment_method', function ($p) {
                     $methods = [
@@ -74,7 +95,7 @@ class OrderController extends Controller
                         'bank_transfer' => '<i class="fas fa-university text-success me-1"></i>Bank Transfer',
                     ];
 
-                    return $methods[$p->payment_method] ?? ucfirst(str_replace('_', ' ', $p->payment_method));
+                    return $methods[$p->payment_method] ?? e(ucfirst(str_replace('_', ' ', $p->payment_method ?? 'N/A')));
                 })
                 ->addColumn('created_at', fn ($p) => '<span class="text-muted">'.$p->created_at->format('M d, Y H:i').'</span>')
                 ->addColumn('action', function ($p) {
@@ -89,10 +110,7 @@ class OrderController extends Controller
                         $actions .= '<button class="btn btn-sm btn-outline-danger me-1 rejectBtn" data-id="'.$p->id.'" title="Reject Order"><i class="fas fa-times"></i></button>';
                     }
 
-                    // Edit button for processing/shipped orders
-                    if (in_array($p->status, ['processing', 'shipped'])) {
-                        $actions .= '<button class="btn btn-sm btn-outline-warning me-1 editBtn" data-id="'.$p->id.'" title="Update Status"><i class="fas fa-edit"></i></button>';
-                    }
+                    $actions .= '<button class="btn btn-sm btn-outline-secondary me-1 editBtn" data-id="'.$p->id.'" title="Update Status"><i class="fas fa-edit"></i></button>';
 
                     return $actions;
                 })
@@ -101,6 +119,55 @@ class OrderController extends Controller
         }
 
         return view('admin.orders.index');
+    }
+
+    /**
+     * Export filtered orders as CSV.
+     */
+    public function exportCsv(Request $request)
+    {
+        $query = ProductPurchase::with(['product', 'user'])->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $fileName = 'orders-'.now()->format('Ymd-His').'.csv';
+
+        return Response::streamDownload(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Order ID', 'Customer', 'Email', 'Product', 'Quantity', 'Total', 'Payment Method', 'Status', 'Created At']);
+
+            $query->chunk(500, function ($orders) use ($handle) {
+                foreach ($orders as $order) {
+                    fputcsv($handle, [
+                        '#ORD-'.str_pad($order->id, 4, '0', STR_PAD_LEFT),
+                        $order->user->name ?? $order->customer_name ?? 'Guest Customer',
+                        $order->user->email ?? $order->customer_email ?? '',
+                        $order->product->name ?? 'N/A',
+                        $order->quantity,
+                        $order->total,
+                        $order->payment_method,
+                        $order->status,
+                        optional($order->created_at)->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            });
+
+            fclose($handle);
+        }, $fileName, ['Content-Type' => 'text/csv']);
     }
 
     /**
