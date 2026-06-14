@@ -3,195 +3,79 @@
 @section('title', 'Support Tickets')
 
 @section('main_content')
-<section role="main" class="content-body" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); min-height: 100vh; padding: 30px 0;">
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">
-                        @if(request()->routeIs('admin.support.tickets.open'))
-                            Open Tickets
-                        @elseif(request()->routeIs('admin.support.tickets.pending'))
-                            Pending Tickets
-                        @elseif(request()->routeIs('admin.support.tickets.closed'))
-                            Closed Tickets
-                        @else
-                            All Support Tickets
-                        @endif
-                    </h4>
-                    <div class="card-tools">
-                        <a href="{{ route('admin.support.tickets.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> New Ticket
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
-                    <!-- Filter Tabs -->
-                    <div class="mb-3">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.index') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.index') }}">
-                                    All Tickets ({{ $tickets->total() }})
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.open') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.open') }}">
-                                    Open
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.pending') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.pending') }}">
-                                    Pending
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.closed') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.closed') }}">
-                                    Closed
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Filter Tabs -->
-                    <div class="mb-3">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.index') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.index') }}">
-                                    All Tickets ({{ $tickets->total() }})
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.open') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.open') }}">
-                                    Open
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.pending') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.pending') }}">
-                                    Pending
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.support.tickets.closed') ? 'active' : '' }}"
-                                   href="{{ route('admin.support.tickets.closed') }}">
-                                    Closed
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Ticket #</th>
-                                    <th>Subject</th>
-                                    <th>Customer</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Priority</th>
-                                    <th>Assigned To</th>
-                                    <th>Last Reply</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($tickets as $ticket)
-                                    <tr>
-                                        <td>
-                                            <strong>{{ $ticket->ticket_number }}</strong>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.support.tickets.show', $ticket) }}">
-                                                {{ Str::limit($ticket->subject, 50) }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {{ $ticket->customer->name ?? 'Unknown' }}
-                                            <br>
-                                            <small class="text-muted">{{ $ticket->customer->email ?? '' }}</small>
-                                        </td>
-                                        <td>{{ $ticket->category->name ?? 'Uncategorized' }}</td>
-                                        <td>
-                                            <span class="badge badge-{{ $ticket->status === 'open' ? 'success' : ($ticket->status === 'pending' ? 'warning' : ($ticket->status === 'closed' ? 'secondary' : 'info')) }}">
-                                                {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-{{ $ticket->priority === 'urgent' ? 'danger' : ($ticket->priority === 'high' ? 'warning' : ($ticket->priority === 'medium' ? 'info' : 'secondary')) }}">
-                                                {{ ucfirst($ticket->priority) }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {{ $ticket->assignedUser->name ?? 'Unassigned' }}
-                                        </td>
-                                        <td>
-                                            @if($ticket->last_reply_at)
-                                                {{ $ticket->last_reply_at->diffForHumans() }}
-                                            @else
-                                                Never
-                                            @endif
-                                        </td>
-                                        <td>{{ $ticket->created_at->format('M d, Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('admin.support.tickets.show', $ticket) }}" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('admin.support.tickets.edit', $ticket) }}" class="btn btn-warning btn-sm">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="10" class="text-center">No support tickets found.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    @if($tickets->hasPages())
-                        <div class="d-flex justify-content-center">
-                            {{ $tickets->links() }}
-                        </div>
-                    @endif
-                </div>
+@include('admin.partials.premium-ui')
+@php
+    $pageTitle = request()->routeIs('admin.support.tickets.open') ? 'Open Tickets' : (request()->routeIs('admin.support.tickets.pending') ? 'Pending Tickets' : (request()->routeIs('admin.support.tickets.closed') ? 'Closed Tickets' : 'Support Tickets'));
+    $visible = $tickets->getCollection();
+@endphp
+<section role="main" class="content-body premium-page">
+    <div class="container-fluid">
+        <div class="premium-header">
+            <div>
+                <div class="premium-eyebrow">Support</div>
+                <h2>{{ $pageTitle }}</h2>
+                <p>Track customer issues, assignment, priority, and response activity.</p>
+            </div>
+            <div class="premium-actions">
+                <a href="{{ route('admin.support.tickets.create') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>New Ticket</a>
             </div>
         </div>
+
+        <div class="premium-nav">
+            <a href="{{ route('admin.support.tickets.index') }}" class="{{ request()->routeIs('admin.support.tickets.index') ? 'active' : '' }}">Tickets</a>
+            <a href="{{ route('admin.support.tickets.open') }}" class="{{ request()->routeIs('admin.support.tickets.open') ? 'active' : '' }}">Open</a>
+            <a href="{{ route('admin.support.tickets.pending') }}" class="{{ request()->routeIs('admin.support.tickets.pending') ? 'active' : '' }}">Pending</a>
+            <a href="{{ route('admin.support.tickets.closed') }}" class="{{ request()->routeIs('admin.support.tickets.closed') ? 'active' : '' }}">Closed</a>
+            <a href="{{ route('admin.support.categories.index') }}">Categories</a>
+            <a href="{{ route('admin.support.knowledge-base.index') }}">Knowledge Base</a>
+        </div>
+
+        @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+        @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+
+        <div class="row g-3 mb-3">
+            <div class="col-xl-3 col-md-6"><div class="premium-stat"><span class="premium-icon premium-blue"><i class="fas fa-ticket-alt"></i></span><div><small>Total Results</small><strong>{{ number_format($tickets->total()) }}</strong></div></div></div>
+            <div class="col-xl-3 col-md-6"><div class="premium-stat"><span class="premium-icon premium-green"><i class="fas fa-door-open"></i></span><div><small>Open Visible</small><strong>{{ number_format($visible->where('status', 'open')->count()) }}</strong></div></div></div>
+            <div class="col-xl-3 col-md-6"><div class="premium-stat"><span class="premium-icon premium-amber"><i class="fas fa-clock"></i></span><div><small>Pending Visible</small><strong>{{ number_format($visible->where('status', 'pending')->count()) }}</strong></div></div></div>
+            <div class="col-xl-3 col-md-6"><div class="premium-stat"><span class="premium-icon premium-red"><i class="fas fa-exclamation"></i></span><div><small>Urgent Visible</small><strong>{{ number_format($visible->where('priority', 'urgent')->count()) }}</strong></div></div></div>
+        </div>
+
+        <div class="premium-card">
+            <div class="premium-card-title">
+                <div><h5>Ticket Queue</h5><p>Use the action buttons to review, assign, edit, or respond.</p></div>
+            </div>
+            <div class="table-responsive">
+                <table class="table premium-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th><th>Subject</th><th>Customer</th><th>Category</th><th>Status</th><th>Priority</th><th>Assigned</th><th>Last Reply</th><th>Created</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($tickets as $ticket)
+                        <tr>
+                            <td class="fw-bold">{{ $ticket->ticket_number }}</td>
+                            <td><a href="{{ route('admin.support.tickets.show', $ticket) }}" class="fw-bold">{{ Str::limit($ticket->subject, 50) }}</a></td>
+                            <td>{{ $ticket->customer->name ?? 'Unknown' }}<br><small class="premium-muted">{{ $ticket->customer->email ?? '' }}</small></td>
+                            <td>{{ $ticket->category->name ?? 'Uncategorized' }}</td>
+                            <td><span class="badge bg-{{ $ticket->status === 'open' ? 'success' : ($ticket->status === 'pending' ? 'warning' : ($ticket->status === 'closed' ? 'secondary' : 'info')) }}">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span></td>
+                            <td><span class="badge bg-{{ $ticket->priority === 'urgent' ? 'danger' : ($ticket->priority === 'high' ? 'warning' : ($ticket->priority === 'medium' ? 'info' : 'secondary')) }}">{{ ucfirst($ticket->priority) }}</span></td>
+                            <td>{{ $ticket->assignedUser->name ?? 'Unassigned' }}</td>
+                            <td>{{ $ticket->last_reply_at ? $ticket->last_reply_at->diffForHumans() : 'Never' }}</td>
+                            <td>{{ $ticket->created_at->format('M d, Y') }}</td>
+                            <td>
+                                <a href="{{ route('admin.support.tickets.show', $ticket) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('admin.support.tickets.edit', $ticket) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="10" class="text-center premium-muted py-4">No support tickets found.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if($tickets->hasPages())<div class="d-flex justify-content-center mt-3">{{ $tickets->links() }}</div>@endif
+        </div>
     </div>
-</div>
 </section>
 @endsection
-
-<style>
-    .table th, .table td {
-        vertical-align: middle;
-    }
-    .badge {
-        font-size: 0.75em;
-    }
-</style>

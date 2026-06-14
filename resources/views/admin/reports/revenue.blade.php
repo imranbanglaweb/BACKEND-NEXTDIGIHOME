@@ -1,7 +1,8 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
-<section role="main" class="content-body" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); min-height: 100vh; padding: 30px 0;">
+@include('admin.partials.premium-ui')
+<section role="main" class="content-body premium-page">
     <div class="container-fluid">
         <!-- Header Section -->
         <div class="row mb-4">

@@ -1,93 +1,90 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
-<section role="main" class="content-body" style="background-color: #fff; padding: 10px;">
+@include('admin.partials.premium-ui')
+<section role="main" class="content-body premium-page">
+    <div class="container-fluid">
+        <div class="premium-header">
+            <div>
+                <div class="premium-eyebrow">Users</div>
+                <h2>User Management</h2>
+                <p>Manage admin, staff, and operational user access from one place.</p>
+            </div>
+            <div class="premium-actions">
+                <a class="btn btn-primary" href="{{ route('admin.users.create') }}"><i class="fa fa-plus me-2"></i>Add User</a>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <h4 class="mb-3"><i class="fa fa-users"></i> User Management</h4>
-    </div>
-</div>
+        <div class="premium-nav">
+            <a href="{{ route('admin.users.index') }}" class="active">Users</a>
+            <a href="{{ route('admin.users.create') }}">Add User</a>
+            <a href="{{ route('admin.users.activity') }}">Activity</a>
+        </div>
 
-<!-- Filters -->
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="card" style="background-color: #f8f9fa; border: 1px solid #ddd;">
-            <div class="card-body">
-                <div class="row align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">User Type</label>
-                        <select id="user_type_filter" class="form-control form-control-sm select2">
-                            <option value="">All User Types</option>
-                            @foreach($userTypes as $key => $label)
-                                <option value="{{ $key }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Role</label>
-                        <select id="role_filter" class="form-control form-control-sm select2">
-                            <option value="">All Roles</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role }}">{{ $role }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Status</label>
-                        <select id="status_filter" class="form-control form-control-sm select2">
-                            <option value="">All Status</option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-1">
-                        <br>
-                        <button type="button" id="filter_reset" class="btn btn-secondary btn-sm w-100">
-                            <i class="fa fa-refresh"></i> Reset
-                        </button>
-                    </div>
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success">{{ $message }}</div>
+        @endif
+
+        <div class="premium-card premium-form mb-3">
+            <div class="premium-card-title">
+                <div><h5>Filters</h5><p>Narrow the user table by type, role, or account status.</p></div>
+            </div>
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label>User Type</label>
+                    <select id="user_type_filter" class="form-control select2">
+                        <option value="">All User Types</option>
+                        @foreach($userTypes as $key => $label)
+                            <option value="{{ $key }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <label>Role</label>
+                    <select id="role_filter" class="form-control select2">
+                        <option value="">All Roles</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role }}">{{ $role }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <label>Status</label>
+                    <select id="status_filter" class="form-control select2">
+                        <option value="">All Status</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-lg-1">
+                    <button type="button" id="filter_reset" class="btn btn-outline-secondary w-100"><i class="fa fa-refresh"></i></button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12 text-right">
-        <div class="btn-group">
-            <a class="btn btn-success" href="{{ route('admin.users.create') }}">
-                <i class="fa fa-plus"></i> Add User
-            </a>
+        <div class="premium-card">
+            <div class="premium-card-title">
+                <div><h5>User List</h5><p>Review identities, roles, status, and profile images.</p></div>
+            </div>
+            <div class="table-responsive">
+                <table class="table premium-table" id="myTable" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>User Name</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User Type</th>
+                            <th>Roles</th>
+                            <th>Status</th>
+                            <th>Image</th>
+                            <th width="150px">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-
-@if ($message = Session::get('success'))
-<div class="alert alert-success myElem">
-    <p>{{ $message }}</p>
-</div>
-@endif
-
-<!-- TABLE -->
-<div class="card mt-3 p-2">
-    <table class="table table-bordered table-hover" id="myTable" style="width:100%;">
-        <thead>
-                            <tr>
-                                <th></th>
-                                <th>User Name</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>User Type</th>
-                                <th>Roles</th>
-                                <th>Status</th>
-                                <th>Image</th>
-                                <th width="150px">Action</th>
-                            </tr>
-        </thead>
-    </table>
-</div>
-
 </section>
 
 

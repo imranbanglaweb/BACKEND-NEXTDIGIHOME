@@ -3,6 +3,8 @@
 @section('title', 'Notifications Settings')
 
 @section('main_content')
+@include('admin.partials.premium-ui')
+<section role="main" class="content-body premium-page premium-form">
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -281,4 +283,5 @@ function resetForm() {
     }
 }
 </script>
+</section>
 @endsection
