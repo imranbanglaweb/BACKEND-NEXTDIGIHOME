@@ -15,14 +15,28 @@ class OrderController extends Controller
      */
     public function index()
     {
+        return $this->listPage();
+    }
+
+    private function listPage(?string $status = null, string $title = 'Order List', string $description = 'Track orders, verify payments, update fulfillment status, and export filtered data.')
+    {
         $stats = [
             'total' => ProductPurchase::count(),
             'revenue' => ProductPurchase::whereIn('status', ['completed', 'delivered', 'processing'])->sum('total'),
             'pending' => ProductPurchase::where('status', 'pending')->count(),
             'shipped_today' => ProductPurchase::where('status', 'shipped')->whereDate('updated_at', today())->count(),
+            'processing' => ProductPurchase::where('status', 'processing')->count(),
+            'shipped' => ProductPurchase::where('status', 'shipped')->count(),
+            'delivered' => ProductPurchase::where('status', 'delivered')->count(),
+            'refunded' => ProductPurchase::where('status', 'refunded')->count(),
         ];
 
-        return view('admin.orders.index', compact('stats'));
+        return view('admin.orders.index', [
+            'stats' => $stats,
+            'pageStatus' => $status,
+            'pageTitle' => $title,
+            'pageDescription' => $description,
+        ]);
     }
 
     /**
@@ -175,7 +189,7 @@ class OrderController extends Controller
      */
     public function pending()
     {
-        return view('admin.orders.pending');
+        return $this->listPage('pending', 'Pending Orders', 'Review new orders awaiting payment or fulfillment approval.');
     }
 
     /**
@@ -183,7 +197,7 @@ class OrderController extends Controller
      */
     public function processing()
     {
-        return view('admin.orders.processing');
+        return $this->listPage('processing', 'Processing Orders', 'Manage orders currently being prepared for delivery.');
     }
 
     /**
@@ -191,7 +205,7 @@ class OrderController extends Controller
      */
     public function shipped()
     {
-        return view('admin.orders.shipped');
+        return $this->listPage('shipped', 'Shipped Orders', 'Track orders that have been shipped and are awaiting delivery confirmation.');
     }
 
     /**
@@ -199,7 +213,7 @@ class OrderController extends Controller
      */
     public function delivered()
     {
-        return view('admin.orders.delivered');
+        return $this->listPage('delivered', 'Delivered Orders', 'Review completed deliveries and customer fulfillment history.');
     }
 
     /**
@@ -207,7 +221,7 @@ class OrderController extends Controller
      */
     public function refunds()
     {
-        return view('admin.orders.refunds');
+        return $this->listPage('refunded', 'Refunded Orders', 'Review refunded orders and payment reversal history.');
     }
 
     /**
@@ -215,7 +229,13 @@ class OrderController extends Controller
      */
     public function exports()
     {
-        return view('admin.orders.exports');
+        $stats = [
+            'total' => ProductPurchase::count(),
+            'this_month' => ProductPurchase::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+            'revenue' => ProductPurchase::whereIn('status', ['completed', 'delivered', 'processing'])->sum('total'),
+        ];
+
+        return view('admin.orders.exports', compact('stats'));
     }
 
     /**

@@ -1,13 +1,18 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
+@php
+    $pageStatus = $pageStatus ?? '';
+    $pageTitle = $pageTitle ?? 'Order List';
+    $pageDescription = $pageDescription ?? 'Track orders, verify payments, update fulfillment status, and export filtered data.';
+@endphp
 <section role="main" class="content-body orders-page">
     <div class="container-fluid">
         <div class="orders-header">
             <div>
                 <div class="orders-eyebrow">Commerce</div>
-                <h2>Order List</h2>
-                <p>Track orders, verify payments, update fulfillment status, and export filtered data.</p>
+                <h2>{{ $pageTitle }}</h2>
+                <p>{{ $pageDescription }}</p>
             </div>
             <div class="orders-header-actions">
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
@@ -17,6 +22,16 @@
                     <i class="fas fa-download me-2"></i>Export CSV
                 </button>
             </div>
+        </div>
+
+        <div class="orders-nav mb-3">
+            <a href="{{ route('admin.orders.index') }}" class="{{ $pageStatus === '' ? 'active' : '' }}">All</a>
+            <a href="{{ route('admin.orders.pending') }}" class="{{ $pageStatus === 'pending' ? 'active' : '' }}">Pending</a>
+            <a href="{{ route('admin.orders.processing') }}" class="{{ $pageStatus === 'processing' ? 'active' : '' }}">Processing</a>
+            <a href="{{ route('admin.orders.shipped') }}" class="{{ $pageStatus === 'shipped' ? 'active' : '' }}">Shipped</a>
+            <a href="{{ route('admin.orders.delivered') }}" class="{{ $pageStatus === 'delivered' ? 'active' : '' }}">Delivered</a>
+            <a href="{{ route('admin.orders.refunds') }}" class="{{ $pageStatus === 'refunded' ? 'active' : '' }}">Refunds</a>
+            <a href="{{ route('admin.orders.exports') }}">Exports</a>
         </div>
 
         <div class="row g-3 mb-3">
@@ -73,13 +88,13 @@
                     <label class="form-label">Status</label>
                     <select class="form-control" id="statusFilter">
                         <option value="">All Statuses</option>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="completed">Completed</option>
-                        <option value="failed">Failed</option>
-                        <option value="refunded">Refunded</option>
+                        <option value="pending" {{ $pageStatus === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="processing" {{ $pageStatus === 'processing' ? 'selected' : '' }}>Processing</option>
+                        <option value="shipped" {{ $pageStatus === 'shipped' ? 'selected' : '' }}>Shipped</option>
+                        <option value="delivered" {{ $pageStatus === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                        <option value="completed" {{ $pageStatus === 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="failed" {{ $pageStatus === 'failed' ? 'selected' : '' }}>Failed</option>
+                        <option value="refunded" {{ $pageStatus === 'refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -247,6 +262,31 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .orders-nav {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .orders-nav a {
+        border-radius: 6px;
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 12px;
+        text-decoration: none;
+    }
+
+    .orders-nav a:hover,
+    .orders-nav a.active {
+        background: #111827;
+        color: #fff;
     }
 
     .order-stat-card,
@@ -436,6 +476,7 @@ $(document).ready(function() {
     const approveUrlTemplate = '{{ route("admin.orders.approve", ":id") }}';
     const rejectUrlTemplate = '{{ route("admin.orders.reject", ":id") }}';
     const exportUrl = '{{ route("admin.orders.export.csv") }}';
+    const pageStatus = @json($pageStatus);
 
     function buildUrl(template, id) {
         return template.replace(':id', id);
@@ -500,6 +541,9 @@ $(document).ready(function() {
 
     $('#resetFiltersBtn').on('click', function() {
         $('#statusFilter, #paymentFilter, #dateFromFilter, #dateToFilter').val('');
+        if (pageStatus) {
+            $('#statusFilter').val(pageStatus);
+        }
         ordersTable.ajax.reload();
     });
 

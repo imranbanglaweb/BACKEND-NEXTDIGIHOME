@@ -299,22 +299,48 @@ class SettingsController extends Controller
      */
     public function updateSeo(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'seo_meta_title' => 'nullable|string|max:70',
+            'seo_meta_description' => 'nullable|string|max:180',
+            'seo_meta_keywords' => 'nullable|string|max:500',
+            'seo_og_title' => 'nullable|string|max:95',
+            'seo_og_description' => 'nullable|string|max:220',
+            'seo_og_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'seo_twitter_title' => 'nullable|string|max:95',
+            'seo_twitter_description' => 'nullable|string|max:220',
+            'seo_twitter_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'google_analytics_id' => 'nullable|string|max:50',
+            'google_search_console_verification' => 'nullable|string|max:255',
+            'bing_webmaster_verification' => 'nullable|string|max:255',
+            'robots_meta' => 'nullable|in:index, follow,noindex, follow,index, nofollow,noindex, nofollow',
+            'canonical_url' => 'nullable|url|max:255',
+            'custom_head_scripts' => 'nullable|string|max:5000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please fix the highlighted SEO fields.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         try {
             $data = [
                 'seo_enabled' => $request->seo_enabled ? 1 : 0,
-                'seo_meta_title' => $request->seo_meta_title,
-                'seo_meta_description' => $request->seo_meta_description,
-                'seo_meta_keywords' => $request->seo_meta_keywords,
-                'seo_og_title' => $request->seo_og_title,
-                'seo_og_description' => $request->seo_og_description,
-                'seo_twitter_title' => $request->seo_twitter_title,
-                'seo_twitter_description' => $request->seo_twitter_description,
-                'google_analytics_id' => $request->google_analytics_id,
-                'google_search_console_verification' => $request->google_search_console_verification,
-                'bing_webmaster_verification' => $request->bing_webmaster_verification,
+                'seo_meta_title' => $request->input('seo_meta_title'),
+                'seo_meta_description' => $request->input('seo_meta_description'),
+                'seo_meta_keywords' => $request->input('seo_meta_keywords'),
+                'seo_og_title' => $request->input('seo_og_title'),
+                'seo_og_description' => $request->input('seo_og_description'),
+                'seo_twitter_title' => $request->input('seo_twitter_title'),
+                'seo_twitter_description' => $request->input('seo_twitter_description'),
+                'google_analytics_id' => $request->input('google_analytics_id'),
+                'google_search_console_verification' => $request->input('google_search_console_verification'),
+                'bing_webmaster_verification' => $request->input('bing_webmaster_verification'),
                 'robots_meta' => $request->robots_meta ?? 'index, follow',
-                'canonical_url' => $request->canonical_url,
-                'custom_head_scripts' => $request->custom_head_scripts,
+                'canonical_url' => $request->input('canonical_url'),
+                'custom_head_scripts' => $request->input('custom_head_scripts'),
                 'updated_at' => now(),
             ];
 

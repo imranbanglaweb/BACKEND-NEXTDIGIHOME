@@ -1,345 +1,162 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
-<section role="main" class="content-body" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 30px 0;">
+<section role="main" class="content-body order-export-page">
     <div class="container-fluid">
-        <!-- Header Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
+        <div class="export-header">
+            <div>
+                <div class="export-eyebrow">Commerce</div>
+                <h2>Order Exports</h2>
+                <p>Download filtered order records as CSV for reporting, finance, and operations.</p>
+            </div>
+            <div class="export-header-actions">
+                <a href="{{ route('admin.orders.index') }}" class="btn btn-light">
+                    <i class="fas fa-list me-2"></i>All Orders
+                </a>
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="orders-nav mb-3">
+            <a href="{{ route('admin.orders.index') }}">All</a>
+            <a href="{{ route('admin.orders.pending') }}">Pending</a>
+            <a href="{{ route('admin.orders.processing') }}">Processing</a>
+            <a href="{{ route('admin.orders.shipped') }}">Shipped</a>
+            <a href="{{ route('admin.orders.delivered') }}">Delivered</a>
+            <a href="{{ route('admin.orders.refunds') }}">Refunds</a>
+            <a href="{{ route('admin.orders.exports') }}" class="active">Exports</a>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-xl-4 col-md-6">
+                <div class="export-stat-card">
+                    <span class="stat-icon stat-blue"><i class="fas fa-database"></i></span>
                     <div>
-                        <h2 class="text-white mb-1">
-                            <i class="fas fa-file-export me-3"></i>Order Data Exports
-                        </h2>
-                        <p class="text-white-50 mb-0">Export order data for analysis and reporting</p>
+                        <small>Total Records</small>
+                        <strong>{{ number_format($stats['total'] ?? 0) }}</strong>
                     </div>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-light">
-                            <i class="fas fa-list me-2"></i>All Orders
-                        </a>
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="export-stat-card">
+                    <span class="stat-icon stat-green"><i class="fas fa-calendar-alt"></i></span>
+                    <div>
+                        <small>This Month</small>
+                        <strong>{{ number_format($stats['this_month'] ?? 0) }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="export-stat-card">
+                    <span class="stat-icon stat-amber"><i class="fas fa-dollar-sign"></i></span>
+                    <div>
+                        <small>Paid Revenue</small>
+                        <strong>$ {{ number_format($stats['revenue'] ?? 0, 2) }}</strong>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-file-export text-white fa-2x"></i>
+        <div class="row g-3">
+            <div class="col-xl-8">
+                <div class="export-panel">
+                    <div class="export-panel-title">
+                        <div>
+                            <h5>Custom CSV Export</h5>
+                            <p>Select filters, then download a CSV file generated from current order data.</p>
+                        </div>
+                    </div>
+
+                    <form id="exportForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="statusFilter">Status</label>
+                                <select class="form-control" id="statusFilter" name="status">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="failed">Failed</option>
+                                    <option value="refunded">Refunded</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="paymentFilter">Payment Method</label>
+                                <select class="form-control" id="paymentFilter" name="payment_method">
+                                    <option value="">All Methods</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="paypal">PayPal</option>
+                                    <option value="stripe">Stripe</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="bkash">Bkash</option>
+                                    <option value="nagad">Nagad</option>
+                                    <option value="rocket">Rocket</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="dateFromFilter">From Date</label>
+                                <input type="date" class="form-control" id="dateFromFilter" name="date_from">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="dateToFilter">To Date</label>
+                                <input type="date" class="form-control" id="dateToFilter" name="date_to">
                             </div>
                         </div>
-                        <h3 class="text-primary mb-1">156</h3>
-                        <p class="text-muted mb-0">Exports This Month</p>
-                    </div>
+
+                        <div class="export-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download CSV
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="resetExportBtn">
+                                <i class="fas fa-undo me-2"></i>Reset
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-file-csv text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-success mb-1">CSV</h3>
-                        <p class="text-muted mb-0">Most Popular Format</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-0 shadow-lg h-100" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-info d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-clock text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-info mb-1">2.3 MB</h3>
-                        <p class="text-muted mb-0">Avg Export Size</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Main Content Card -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-lg" style="background: rgba(255,255,255,0.95); border-radius: 15px;">
-                    <div class="card-header bg-white border-0" style="border-radius: 15px 15px 0 0;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 text-primary">
-                                <i class="fas fa-file-export me-2"></i>Data Export Management
-                            </h5>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-success btn-sm">
-                                    <i class="fas fa-plus me-2"></i>New Export
-                                </button>
-                                <button class="btn btn-info btn-sm">
-                                    <i class="fas fa-history me-2"></i>Export History
-                                </button>
-                            </div>
+            <div class="col-xl-4">
+                <div class="export-panel">
+                    <div class="export-panel-title">
+                        <div>
+                            <h5>Quick Exports</h5>
+                            <p>Common exports with one click.</p>
                         </div>
                     </div>
-                    <div class="card-body p-4">
-                        <!-- Export Dashboard -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    <strong>Export Analytics:</strong> 156 exports this month • 2.3 MB average file size • CSV most popular format
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Quick Export Options -->
-                        <div class="row mb-4">
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0 text-center h-100" style="cursor: pointer;" onclick="exportOrders('all')">
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <i class="fas fa-list text-primary" style="font-size: 32px;"></i>
-                                        </div>
-                                        <h6 class="mb-2">All Orders</h6>
-                                        <small class="text-muted">Complete order database</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0 text-center h-100" style="cursor: pointer;" onclick="exportOrders('monthly')">
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <i class="fas fa-calendar text-success" style="font-size: 32px;"></i>
-                                        </div>
-                                        <h6 class="mb-2">Monthly Report</h6>
-                                        <small class="text-muted">Current month orders</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0 text-center h-100" style="cursor: pointer;" onclick="exportOrders('revenue')">
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <i class="fas fa-dollar-sign text-warning" style="font-size: 32px;"></i>
-                                        </div>
-                                        <h6 class="mb-2">Revenue Report</h6>
-                                        <small class="text-muted">Sales and earnings data</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0 text-center h-100" style="cursor: pointer;" onclick="exportOrders('customers')">
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <i class="fas fa-users text-info" style="font-size: 32px;"></i>
-                                        </div>
-                                        <h6 class="mb-2">Customer Data</h6>
-                                        <small class="text-muted">Customer information</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Export History Table -->
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="border-0 px-3 py-3">Export ID</th>
-                                        <th class="border-0 px-3 py-3">Type</th>
-                                        <th class="border-0 px-3 py-3">Format</th>
-                                        <th class="border-0 px-3 py-3">Records</th>
-                                        <th class="border-0 px-3 py-3">File Size</th>
-                                        <th class="border-0 px-3 py-3">Created</th>
-                                        <th class="border-0 px-3 py-3">Status</th>
-                                        <th class="border-0 px-3 py-3 text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php
-                                        $exports = [
-                                            [
-                                                'id' => '#EXP-2024-001',
-                                                'type' => 'All Orders',
-                                                'format' => 'CSV',
-                                                'records' => '1,247',
-                                                'size' => '2.4 MB',
-                                                'created' => '2024-01-15 10:30 AM',
-                                                'status' => 'Completed',
-                                                'status_class' => 'success'
-                                            ],
-                                            [
-                                                'id' => '#EXP-2024-002',
-                                                'type' => 'Monthly Report',
-                                                'format' => 'Excel',
-                                                'records' => '89',
-                                                'size' => '1.2 MB',
-                                                'created' => '2024-01-15 09:15 AM',
-                                                'status' => 'Processing',
-                                                'status_class' => 'warning'
-                                            ],
-                                            [
-                                                'id' => '#EXP-2024-003',
-                                                'type' => 'Revenue Report',
-                                                'format' => 'PDF',
-                                                'records' => '1',
-                                                'size' => '850 KB',
-                                                'created' => '2024-01-14 04:45 PM',
-                                                'status' => 'Completed',
-                                                'status_class' => 'success'
-                                            ],
-                                            [
-                                                'id' => '#EXP-2024-004',
-                                                'type' => 'Customer Data',
-                                                'format' => 'CSV',
-                                                'records' => '1,234',
-                                                'size' => '3.1 MB',
-                                                'created' => '2024-01-14 02:20 PM',
-                                                'status' => 'Failed',
-                                                'status_class' => 'danger'
-                                            ],
-                                            [
-                                                'id' => '#EXP-2024-005',
-                                                'type' => 'Product Report',
-                                                'format' => 'Excel',
-                                                'records' => '156',
-                                                'size' => '1.8 MB',
-                                                'created' => '2024-01-13 11:00 AM',
-                                                'status' => 'Completed',
-                                                'status_class' => 'success'
-                                            ],
-                                        ];
-                                    @endphp
-                                    @foreach($exports as $export)
-                                    <tr>
-                                        <td class="px-3 py-3 fw-bold">{{ $export['id'] }}</td>
-                                        <td class="px-3 py-3">{{ $export['type'] }}</td>
-                                        <td class="px-3 py-3">
-                                            <span class="badge bg-primary">{{ $export['format'] }}</span>
-                                        </td>
-                                        <td class="px-3 py-3">{{ $export['records'] }}</td>
-                                        <td class="px-3 py-3">{{ $export['size'] }}</td>
-                                        <td class="px-3 py-3">{{ $export['created'] }}</td>
-                                        <td class="px-3 py-3">
-                                            <span class="badge bg-{{ $export['status_class'] }}">{{ $export['status'] }}</span>
-                                        </td>
-                                        <td class="px-3 py-3 text-center">
-                                            <div class="btn-group btn-group-sm">
-                                                <button class="btn btn-outline-primary" title="Download">
-                                                    <i class="fas fa-download"></i>
-                                                </button>
-                                                <button class="btn btn-outline-info" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-outline-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Export Format Options -->
-                        <div class="row mt-4">
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <div class="mb-2">
-                                            <i class="fas fa-file-csv text-success" style="font-size: 24px;"></i>
-                                        </div>
-                                        <h6 class="mb-1">CSV</h6>
-                                        <small class="text-muted">Most Popular</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <div class="mb-2">
-                                            <i class="fas fa-file-excel text-success" style="font-size: 24px;"></i>
-                                        </div>
-                                        <h6 class="mb-1">Excel</h6>
-                                        <small class="text-muted">Formatted Reports</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <div class="mb-2">
-                                            <i class="fas fa-file-pdf text-danger" style="font-size: 24px;"></i>
-                                        </div>
-                                        <h6 class="mb-1">PDF</h6>
-                                        <small class="text-muted">Print Ready</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <div class="mb-2">
-                                            <i class="fas fa-file-code text-info" style="font-size: 24px;"></i>
-                                        </div>
-                                        <h6 class="mb-1">JSON</h6>
-                                        <small class="text-muted">API Format</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Export Automation -->
-                        <hr class="my-4">
-                        <h6 class="text-primary mb-3">Automated Export Scheduling</h6>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <div class="d-flex align-items-center p-3 bg-light rounded">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-calendar text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Daily Reports</h6>
-                                        <small class="text-muted">Automated daily sales reports</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="d-flex align-items-center p-3 bg-light rounded">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-clock text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Weekly Summaries</h6>
-                                        <small class="text-muted">Weekly performance summaries</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="d-flex align-items-center p-3 bg-light rounded">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-chart-bar text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">Monthly Analytics</h6>
-                                        <small class="text-muted">Comprehensive monthly reports</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="quick-export-list">
+                        <button type="button" class="quick-export" data-status="">
+                            <i class="fas fa-list"></i>
+                            <span>
+                                <strong>All Orders</strong>
+                                <small>Full order database</small>
+                            </span>
+                        </button>
+                        <button type="button" class="quick-export" data-status="pending">
+                            <i class="fas fa-clock"></i>
+                            <span>
+                                <strong>Pending Orders</strong>
+                                <small>Needs review or approval</small>
+                            </span>
+                        </button>
+                        <button type="button" class="quick-export" data-status="delivered">
+                            <i class="fas fa-check-circle"></i>
+                            <span>
+                                <strong>Delivered Orders</strong>
+                                <small>Completed fulfillment</small>
+                            </span>
+                        </button>
+                        <button type="button" class="quick-export" data-status="refunded">
+                            <i class="fas fa-undo"></i>
+                            <span>
+                                <strong>Refunded Orders</strong>
+                                <small>Refund and reversal records</small>
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -348,27 +165,254 @@
 </section>
 
 <style>
-    .card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .order-export-page {
+        background: #f6f8fb;
+        min-height: calc(100vh - 70px);
+        padding: 24px;
     }
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+
+    .export-header {
+        align-items: center;
+        background: #111827;
+        border-radius: 8px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 22px 24px;
     }
-    .rounded-circle {
-        border-radius: 50% !important;
+
+    .export-header h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0 0 4px;
     }
-    .badge-primary {
-        background-color: #007bff;
+
+    .export-header p,
+    .export-panel-title p {
+        margin: 0;
     }
-    .bg-primary { background-color: #007bff !important; }
-    .bg-success { background-color: #28a745 !important; }
-    .bg-info { background-color: #17a2b8 !important; }
-    .text-primary { color: #007bff !important; }
-    .text-success { color: #28a745 !important; }
-    .text-info { color: #17a2b8 !important; }
-    .text-muted { color: #6c757d !important; }
-    .text-white { color: #ffffff !important; }
-    .text-white-50 { color: rgba(255,255,255,0.5) !important; }
+
+    .export-header p {
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    .export-eyebrow {
+        color: #60a5fa;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+    }
+
+    .export-header-actions,
+    .orders-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .orders-nav {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .orders-nav a {
+        border-radius: 6px;
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 12px;
+        text-decoration: none;
+    }
+
+    .orders-nav a:hover,
+    .orders-nav a.active {
+        background: #111827;
+        color: #fff;
+    }
+
+    .export-stat-card,
+    .export-panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .export-stat-card {
+        align-items: center;
+        display: flex;
+        gap: 14px;
+        min-height: 102px;
+        padding: 18px;
+    }
+
+    .export-stat-card small {
+        color: #6b7280;
+        display: block;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .export-stat-card strong {
+        color: #111827;
+        display: block;
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    .stat-icon {
+        align-items: center;
+        border-radius: 8px;
+        display: inline-flex;
+        flex: 0 0 46px;
+        height: 46px;
+        justify-content: center;
+        width: 46px;
+    }
+
+    .stat-blue { background: #dbeafe; color: #1d4ed8; }
+    .stat-green { background: #dcfce7; color: #15803d; }
+    .stat-amber { background: #fef3c7; color: #b45309; }
+
+    .export-panel {
+        padding: 18px;
+    }
+
+    .export-panel-title {
+        margin-bottom: 16px;
+    }
+
+    .export-panel-title h5 {
+        color: #111827;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 3px;
+    }
+
+    .export-panel-title p {
+        color: #6b7280;
+    }
+
+    .order-export-page .form-label {
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .order-export-page .form-control {
+        border-color: #d1d5db;
+        border-radius: 6px;
+        min-height: 38px;
+    }
+
+    .export-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .quick-export-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .quick-export {
+        align-items: center;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        color: #111827;
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        text-align: left;
+        width: 100%;
+    }
+
+    .quick-export:hover {
+        border-color: #111827;
+    }
+
+    .quick-export i {
+        align-items: center;
+        background: #dbeafe;
+        border-radius: 8px;
+        color: #1d4ed8;
+        display: inline-flex;
+        height: 38px;
+        justify-content: center;
+        width: 38px;
+    }
+
+    .quick-export strong,
+    .quick-export small {
+        display: block;
+    }
+
+    .quick-export small {
+        color: #6b7280;
+    }
+
+    @media (max-width: 767px) {
+        .order-export-page {
+            padding: 14px;
+        }
+
+        .export-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .export-header-actions,
+        .export-header-actions .btn,
+        .export-actions .btn {
+            width: 100%;
+        }
+    }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const exportUrl = @json(route('admin.orders.export.csv'));
+    const form = document.getElementById('exportForm');
+
+    function downloadWithFilters(statusOverride) {
+        const params = new URLSearchParams(new FormData(form));
+
+        if (typeof statusOverride !== 'undefined') {
+            params.set('status', statusOverride);
+        }
+
+        Array.from(params.keys()).forEach(function(key) {
+            if (!params.get(key)) {
+                params.delete(key);
+            }
+        });
+
+        window.location.href = exportUrl + (params.toString() ? '?' + params.toString() : '');
+    }
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        downloadWithFilters();
+    });
+
+    document.getElementById('resetExportBtn').addEventListener('click', function() {
+        form.reset();
+    });
+
+    document.querySelectorAll('.quick-export').forEach(function(button) {
+        button.addEventListener('click', function() {
+            downloadWithFilters(this.dataset.status || '');
+        });
+    });
+});
+</script>
 @endsection

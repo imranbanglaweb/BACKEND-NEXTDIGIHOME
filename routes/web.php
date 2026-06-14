@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CustomerGroupController;
 
 // Vehicle & Transport
 use App\Http\Controllers\AIMaintenanceAlertController;

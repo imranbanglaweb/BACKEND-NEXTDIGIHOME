@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductPurchase;
+use App\Models\Testimonial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -19,8 +21,15 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::orderBy('created_at', 'desc')->paginate(15);
+        $stats = [
+            'total' => Product::count(),
+            'active' => Product::where('active', true)->count(),
+            'digital' => Product::where('digital', true)->count(),
+            'featured' => Product::where('featured', true)->count(),
+        ];
+        $categories = Product::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category');
 
-        return view('admin.products.index', compact('products'));
+        return view('admin.products.index', compact('products', 'stats', 'categories'));
     }
 
     /**
@@ -275,11 +284,29 @@ class ProductController extends Controller
      */
     public function getData(Request $request)
     {
-        $products = Product::all();
+        $query = Product::query()->latest();
+
+        if ($request->filled('status')) {
+            $query->where('active', (bool) $request->status);
+        }
+
+        if ($request->filled('featured')) {
+            $query->where('featured', (bool) $request->featured);
+        }
+
+        if ($request->filled('digital')) {
+            $query->where('digital', (bool) $request->digital);
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        $products = $query->get();
 
         $data = [];
         foreach ($products as $product) {
-            $thumbnail = $product->thumbnail ? '<img src="' . asset('public/storage/' . $product->thumbnail) . '" alt="' . $product->name . '" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">' : '<div class="bg-light text-center" style="width: 50px; height: 50px; line-height: 50px;"><i class="fas fa-image text-muted"></i></div>';
+            $thumbnail = $product->thumbnail ? '<img src="' . asset('public/storage/' . $product->thumbnail) . '" alt="' . e($product->name) . '" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">' : '<div class="bg-light text-center" style="width: 50px; height: 50px; line-height: 50px;"><i class="fas fa-image text-muted"></i></div>';
 
             $price = '$' . number_format($product->price, 2);
             if ($product->compare_price) {
@@ -301,8 +328,8 @@ class ProductController extends Controller
             $data[] = [
                 $product->id,
                 $thumbnail,
-                $product->name,
-                $product->category,
+                e($product->name),
+                e($product->category),
                 $price,
                 $stock,
                 $status,
@@ -343,7 +370,21 @@ class ProductController extends Controller
      */
     public function downloads()
     {
-        return view('admin.products.downloads');
+        $products = Product::with('purchases')->withCount([
+            'purchases',
+            'purchases as completed_purchases_count' => function ($query) {
+                $query->whereIn('status', ['completed', 'delivered', 'processing']);
+            },
+        ])->where('digital', true)->latest()->get();
+
+        $stats = [
+            'digital' => Product::where('digital', true)->count(),
+            'with_file' => Product::where('digital', true)->whereNotNull('file_url')->where('file_url', '!=', '')->count(),
+            'downloads' => ProductPurchase::sum('download_count'),
+            'revenue' => ProductPurchase::whereIn('status', ['completed', 'delivered', 'processing'])->sum('total'),
+        ];
+
+        return view('admin.products.downloads', compact('products', 'stats'));
     }
 
     /**
@@ -351,7 +392,15 @@ class ProductController extends Controller
      */
     public function reviews()
     {
-        return view('admin.products.reviews');
+        $testimonials = Testimonial::ordered()->get();
+        $stats = [
+            'total' => $testimonials->count(),
+            'active' => $testimonials->where('is_active', true)->count(),
+            'average' => $testimonials->avg('rating') ? number_format($testimonials->avg('rating'), 1) : '0.0',
+            'products' => Product::count(),
+        ];
+
+        return view('admin.products.reviews', compact('testimonials', 'stats'));
     }
 
     /**
