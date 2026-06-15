@@ -19,6 +19,16 @@
     $renderedDetailedDescription = $product->detailed_description
         ? strip_tags(html_entity_decode($product->detailed_description, ENT_QUOTES | ENT_HTML5, 'UTF-8'), $allowedProductHtml)
         : null;
+    $frontendDescription = trim(strip_tags((string) ($product->description ?: $product->detailed_description)));
+    $thumbnailUrl = $product->thumbnail ? asset('public/storage/' . $product->thumbnail) : null;
+    $seoTitle = $product->seo_title ?: $product->name;
+    $seoDescription = $product->seo_description ?: \Illuminate\Support\Str::limit($frontendDescription, 160, '');
+    $canonicalUrl = $product->canonical_url ?: url('/products/' . $product->slug);
+    $ogTitle = $product->og_title ?: $seoTitle;
+    $ogDescription = $product->og_description ?: $seoDescription;
+    $ogImage = $product->og_image ?: $thumbnailUrl;
+    $robotsMeta = (($product->robots_index ?? true) ? 'index' : 'noindex') . ', ' . (($product->robots_follow ?? true) ? 'follow' : 'nofollow');
+    $apiProductUrl = url('/api/products/' . $product->slug);
 @endphp
 
 <section role="main" class="content-body product-preview-page">
@@ -166,6 +176,58 @@
                 </div>
             </section>
         @endif
+
+        <section class="preview-section seo-preview-section">
+            <div class="section-heading description-heading">
+                <div>
+                    <span>Frontend API Data</span>
+                    <h3>SEO metadata sent to product details page</h3>
+                </div>
+                <a href="{{ $apiProductUrl }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                    <i class="fa fa-code me-1"></i> View API JSON
+                </a>
+            </div>
+
+            <div class="seo-preview-grid">
+                <div class="search-preview-card">
+                    <span class="preview-url">{{ $canonicalUrl }}</span>
+                    <h4>{{ $seoTitle }}</h4>
+                    <p>{{ $seoDescription ?: 'Add an SEO description to improve the search result snippet for this product.' }}</p>
+                    <div class="robots-chip">{{ $robotsMeta }}</div>
+                </div>
+
+                <div class="social-preview-card">
+                    <div class="social-image">
+                        @if($ogImage)
+                            <img src="{{ $ogImage }}" alt="{{ $ogTitle }}">
+                        @else
+                            <i class="fa fa-image"></i>
+                        @endif
+                    </div>
+                    <div class="social-copy">
+                        <span>{{ parse_url($canonicalUrl, PHP_URL_HOST) ?: request()->getHost() }}</span>
+                        <h4>{{ $ogTitle }}</h4>
+                        <p>{{ $ogDescription ?: 'Social share description will appear here.' }}</p>
+                    </div>
+                </div>
+
+                <div class="api-seo-card">
+                    <h4>API SEO Payload</h4>
+                    <dl>
+                        <dt>seo.title</dt>
+                        <dd>{{ $seoTitle }}</dd>
+                        <dt>seo.description</dt>
+                        <dd>{{ $seoDescription ?: 'Not set' }}</dd>
+                        <dt>seo.keywords</dt>
+                        <dd>{{ $product->seo_keywords ?: 'Not set' }}</dd>
+                        <dt>seo.canonical_url</dt>
+                        <dd><code>{{ $canonicalUrl }}</code></dd>
+                        <dt>seo.open_graph.image</dt>
+                        <dd>{{ $ogImage ?: 'Not set' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </section>
 
         <section class="preview-section details-grid product-story-section">
             <div class="product-description-panel">
@@ -514,6 +576,123 @@
         background: #ffffff;
         box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
     }
+    .seo-preview-section {
+        background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+    }
+    .seo-preview-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+    }
+    .search-preview-card,
+    .social-preview-card,
+    .api-seo-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+    .search-preview-card {
+        padding: 22px;
+    }
+    .preview-url {
+        color: #15803d;
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 7px;
+        word-break: break-all;
+    }
+    .search-preview-card h4 {
+        color: #1d4ed8;
+        font-size: 1.22rem;
+        font-weight: 500;
+        line-height: 1.32;
+        margin: 0 0 8px;
+    }
+    .search-preview-card p {
+        color: #475569;
+        line-height: 1.58;
+        margin: 0;
+    }
+    .robots-chip {
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 999px;
+        color: #3730a3;
+        display: inline-flex;
+        font-size: 0.82rem;
+        font-weight: 800;
+        margin-top: 14px;
+        padding: 0.35rem 0.65rem;
+        text-transform: uppercase;
+    }
+    .social-preview-card {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        overflow: hidden;
+    }
+    .social-image {
+        align-items: center;
+        background: #e2e8f0;
+        color: #94a3b8;
+        display: flex;
+        justify-content: center;
+        min-height: 170px;
+    }
+    .social-image img {
+        display: block;
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+    .social-copy {
+        padding: 18px;
+    }
+    .social-copy span {
+        color: #64748b;
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+    .social-copy h4 {
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 800;
+        line-height: 1.35;
+        margin: 0 0 8px;
+    }
+    .social-copy p {
+        color: #64748b;
+        line-height: 1.55;
+        margin: 0;
+    }
+    .api-seo-card {
+        grid-column: 1 / -1;
+        padding: 20px;
+    }
+    .api-seo-card h4 {
+        color: #111827;
+        font-weight: 850;
+        margin: 0 0 14px;
+    }
+    .api-seo-card dl {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 10px 14px;
+        margin: 0;
+    }
+    .api-seo-card dt {
+        color: #64748b;
+        font-weight: 800;
+    }
+    .api-seo-card dd {
+        color: #111827;
+        margin: 0;
+        word-break: break-word;
+    }
     .description-summary-card {
         display: grid;
         grid-template-columns: 54px minmax(0, 1fr);
@@ -676,6 +855,9 @@
         .description-highlights {
             grid-template-columns: 1fr;
         }
+        .seo-preview-grid {
+            grid-template-columns: 1fr;
+        }
     }
     @media (max-width: 768px) {
         .product-preview-page {
@@ -704,6 +886,10 @@
         }
         .content-card {
             padding: 20px;
+        }
+        .social-preview-card,
+        .api-seo-card dl {
+            grid-template-columns: 1fr;
         }
     }
 </style>

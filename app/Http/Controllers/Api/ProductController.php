@@ -231,6 +231,18 @@ class ProductController extends Controller
 
         $data['thumbnail_url'] = $thumbnailUrl;
         $data['image_urls'] = $imageUrls;
+        $data['image_display'] = [
+            'width' => 900,
+            'height' => 675,
+            'aspect_ratio' => '4/3',
+            'object_fit' => 'cover',
+            'sizes' => '(max-width: 640px) 86vw, (max-width: 1024px) 42vw, 320px',
+            'container' => [
+                'width' => '100%',
+                'max_width' => '360px',
+                'min_width' => '0',
+            ],
+        ];
         $data['video_url_resolved'] = $product->video_type === 'upload'
             ? $this->resolveProductAssetUrl($product->video_url)
             : $product->video_url;
