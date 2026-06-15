@@ -228,9 +228,23 @@ class ProductController extends Controller
         $ogImage = $product->og_image ?: $thumbnailUrl;
         $robotsIndex = (bool) ($product->robots_index ?? true);
         $robotsFollow = (bool) ($product->robots_follow ?? true);
+        $robotsMeta = ($robotsIndex ? 'index' : 'noindex') . ', ' . ($robotsFollow ? 'follow' : 'nofollow');
 
         $data['thumbnail_url'] = $thumbnailUrl;
+        $data['image_url'] = $thumbnailUrl;
         $data['image_urls'] = $imageUrls;
+        $data['gallery'] = collect($imageUrls)
+            ->map(fn ($imageUrl) => [
+                'url' => $imageUrl,
+                'alt' => $product->name,
+            ])
+            ->prepend([
+                'url' => $thumbnailUrl,
+                'alt' => $product->name,
+            ])
+            ->filter(fn ($image) => ! empty($image['url']))
+            ->values()
+            ->all();
         $data['image_display'] = [
             'width' => 900,
             'height' => 675,
@@ -252,15 +266,35 @@ class ProductController extends Controller
             'description' => $metaDescription,
             'keywords' => $product->seo_keywords,
             'canonical_url' => $canonicalUrl,
+            'raw' => [
+                'seo_title' => $product->seo_title,
+                'seo_description' => $product->seo_description,
+                'seo_keywords' => $product->seo_keywords,
+                'canonical_url' => $product->canonical_url,
+                'og_title' => $product->og_title,
+                'og_description' => $product->og_description,
+                'og_image' => $product->og_image,
+                'robots_index' => $robotsIndex,
+                'robots_follow' => $robotsFollow,
+            ],
+            'meta_tags' => [
+                'title' => $metaTitle,
+                'description' => $metaDescription,
+                'keywords' => $product->seo_keywords,
+                'canonical' => $canonicalUrl,
+                'robots' => $robotsMeta,
+            ],
             'robots' => [
                 'index' => $robotsIndex,
                 'follow' => $robotsFollow,
-                'meta' => ($robotsIndex ? 'index' : 'noindex') . ', ' . ($robotsFollow ? 'follow' : 'nofollow'),
+                'meta' => $robotsMeta,
             ],
             'open_graph' => [
                 'title' => $ogTitle,
                 'description' => $ogDescription,
                 'image' => $ogImage,
+                'image_alt' => $product->name,
+                'site_name' => config('app.name', 'Next Digi Home'),
                 'type' => 'product',
                 'url' => $canonicalUrl,
             ],
@@ -269,6 +303,29 @@ class ProductController extends Controller
                 'title' => $ogTitle,
                 'description' => $ogDescription,
                 'image' => $ogImage,
+            ],
+            'structured_data' => [
+                '@context' => 'https://schema.org',
+                '@type' => 'Product',
+                'name' => $product->name,
+                'description' => $metaDescription,
+                'image' => array_values(array_filter(array_merge([$ogImage], $imageUrls))),
+                'sku' => (string) $product->id,
+                'category' => $product->category,
+                'brand' => [
+                    '@type' => 'Brand',
+                    'name' => config('app.name', 'Next Digi Home'),
+                ],
+                'offers' => [
+                    '@type' => 'Offer',
+                    'url' => $canonicalUrl,
+                    'priceCurrency' => 'USD',
+                    'price' => number_format((float) $product->price, 2, '.', ''),
+                    'availability' => $product->stock > 0
+                        ? 'https://schema.org/InStock'
+                        : 'https://schema.org/OutOfStock',
+                    'itemCondition' => 'https://schema.org/NewCondition',
+                ],
             ],
         ];
 

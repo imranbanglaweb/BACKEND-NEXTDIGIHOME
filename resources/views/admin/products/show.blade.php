@@ -222,8 +222,18 @@
                         <dd>{{ $product->seo_keywords ?: 'Not set' }}</dd>
                         <dt>seo.canonical_url</dt>
                         <dd><code>{{ $canonicalUrl }}</code></dd>
+                        <dt>seo.meta_tags.robots</dt>
+                        <dd>{{ $robotsMeta }}</dd>
+                        <dt>seo.open_graph.title</dt>
+                        <dd>{{ $ogTitle }}</dd>
+                        <dt>seo.open_graph.description</dt>
+                        <dd>{{ $ogDescription ?: 'Not set' }}</dd>
                         <dt>seo.open_graph.image</dt>
                         <dd>{{ $ogImage ?: 'Not set' }}</dd>
+                        <dt>seo.twitter.card</dt>
+                        <dd>{{ $ogImage ? 'summary_large_image' : 'summary' }}</dd>
+                        <dt>seo.structured_data.@type</dt>
+                        <dd>Product</dd>
                     </dl>
                 </div>
             </div>
