@@ -29,7 +29,16 @@ class Product extends Model
         'images',
         'featured',
         'active',
-        'published_at'
+        'published_at',
+        'seo_title',
+        'seo_description',
+        'seo_keywords',
+        'canonical_url',
+        'og_title',
+        'og_description',
+        'og_image',
+        'robots_index',
+        'robots_follow'
     ];
 
     protected $casts = [
@@ -38,7 +47,9 @@ class Product extends Model
         'published_at' => 'datetime',
         'featured' => 'boolean',
         'active' => 'boolean',
-        'digital' => 'boolean'
+        'digital' => 'boolean',
+        'robots_index' => 'boolean',
+        'robots_follow' => 'boolean'
     ];
 
     public function purchases()

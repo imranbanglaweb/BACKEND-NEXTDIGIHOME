@@ -7,7 +7,6 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -33,6 +32,10 @@ class ProductController extends Controller
             ->orderBy(request('sort_by', 'created_at'), request('sort_order', 'desc'))
             ->paginate(request('per_page', 12))
             ->withQueryString();
+
+        $products->getCollection()->transform(function ($product) {
+            return $this->formatProductForFrontend($product);
+        });
 
         return response()->json($products);
     }
@@ -78,6 +81,15 @@ class ProductController extends Controller
             'featured' => 'nullable|boolean',
             'active' => 'nullable|boolean',
             'published_at' => 'nullable|date',
+            'seo_title' => 'nullable|string|max:70',
+            'seo_description' => 'nullable|string|max:170',
+            'seo_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:255',
+            'og_title' => 'nullable|string|max:95',
+            'og_description' => 'nullable|string|max:200',
+            'og_image' => 'nullable|url|max:255',
+            'robots_index' => 'nullable|boolean',
+            'robots_follow' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -89,7 +101,7 @@ class ProductController extends Controller
 
         $product = Product::create($validator->validated());
 
-        return response()->json($product, 201);
+        return response()->json($this->formatProductForFrontend($product), 201);
     }
 
     /**
@@ -111,7 +123,7 @@ class ProductController extends Controller
             ], 404);
         }
 
-        return response()->json($product);
+        return response()->json($this->formatProductForFrontend($product));
     }
 
     /**
@@ -149,6 +161,15 @@ class ProductController extends Controller
             'featured' => 'sometimes|nullable|boolean',
             'active' => 'sometimes|nullable|boolean',
             'published_at' => 'sometimes|nullable|date',
+            'seo_title' => 'sometimes|nullable|string|max:70',
+            'seo_description' => 'sometimes|nullable|string|max:170',
+            'seo_keywords' => 'sometimes|nullable|string|max:500',
+            'canonical_url' => 'sometimes|nullable|url|max:255',
+            'og_title' => 'sometimes|nullable|string|max:95',
+            'og_description' => 'sometimes|nullable|string|max:200',
+            'og_image' => 'sometimes|nullable|url|max:255',
+            'robots_index' => 'sometimes|nullable|boolean',
+            'robots_follow' => 'sometimes|nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -160,7 +181,7 @@ class ProductController extends Controller
 
         $product->update($validator->validated());
 
-        return response()->json($product);
+        return response()->json($this->formatProductForFrontend($product->fresh()));
     }
 
     /**
@@ -182,5 +203,76 @@ class ProductController extends Controller
         $product->delete(); // Soft delete
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Format product data for frontend product listing/detail pages.
+     */
+    protected function formatProductForFrontend(Product $product): array
+    {
+        $data = $product->toArray();
+
+        $thumbnailUrl = $this->resolveProductAssetUrl($product->thumbnail);
+        $imageUrls = collect($product->images ?: [])
+            ->map(fn ($image) => $this->resolveProductAssetUrl($image))
+            ->filter()
+            ->values()
+            ->all();
+
+        $description = trim(strip_tags((string) ($product->description ?: $product->detailed_description)));
+        $metaDescription = $product->seo_description ?: Str::limit($description, 160, '');
+        $metaTitle = $product->seo_title ?: $product->name;
+        $canonicalUrl = $product->canonical_url ?: url('/products/' . $product->slug);
+        $ogTitle = $product->og_title ?: $metaTitle;
+        $ogDescription = $product->og_description ?: $metaDescription;
+        $ogImage = $product->og_image ?: $thumbnailUrl;
+        $robotsIndex = (bool) ($product->robots_index ?? true);
+        $robotsFollow = (bool) ($product->robots_follow ?? true);
+
+        $data['thumbnail_url'] = $thumbnailUrl;
+        $data['image_urls'] = $imageUrls;
+        $data['video_url_resolved'] = $product->video_type === 'upload'
+            ? $this->resolveProductAssetUrl($product->video_url)
+            : $product->video_url;
+
+        $data['seo'] = [
+            'title' => $metaTitle,
+            'description' => $metaDescription,
+            'keywords' => $product->seo_keywords,
+            'canonical_url' => $canonicalUrl,
+            'robots' => [
+                'index' => $robotsIndex,
+                'follow' => $robotsFollow,
+                'meta' => ($robotsIndex ? 'index' : 'noindex') . ', ' . ($robotsFollow ? 'follow' : 'nofollow'),
+            ],
+            'open_graph' => [
+                'title' => $ogTitle,
+                'description' => $ogDescription,
+                'image' => $ogImage,
+                'type' => 'product',
+                'url' => $canonicalUrl,
+            ],
+            'twitter' => [
+                'card' => $ogImage ? 'summary_large_image' : 'summary',
+                'title' => $ogTitle,
+                'description' => $ogDescription,
+                'image' => $ogImage,
+            ],
+        ];
+
+        return $data;
+    }
+
+    protected function resolveProductAssetUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', '//', 'data:'])) {
+            return $path;
+        }
+
+        return asset('public/storage/' . ltrim($path, '/'));
     }
 }

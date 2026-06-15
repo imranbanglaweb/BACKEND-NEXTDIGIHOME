@@ -64,6 +64,13 @@ class ProductController extends Controller
             'preview_url' => 'nullable|url',
             'video_type' => 'nullable|string|in:none,youtube,upload',
             'video_url' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:70',
+            'seo_description' => 'nullable|string|max:170',
+            'seo_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:255',
+            'og_title' => 'nullable|string|max:95',
+            'og_description' => 'nullable|string|max:200',
+            'og_image' => 'nullable|url|max:255',
             'video_file' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov|max:51200',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'selected_thumbnail_path' => 'nullable|string',
@@ -81,6 +88,8 @@ class ProductController extends Controller
         // Set default values
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['featured'] = $request->has('featured') ? 1 : 0;
+        $data['robots_index'] = $request->has('robots_index') ? 1 : 0;
+        $data['robots_follow'] = $request->has('robots_follow') ? 1 : 0;
 
         // Handle images upload first (needed for gallery thumbnail selection)
         if ($request->hasFile('images')) {
@@ -183,6 +192,13 @@ class ProductController extends Controller
             'preview_url' => 'nullable|url',
             'video_type' => 'nullable|string|in:none,youtube,upload',
             'video_url' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:70',
+            'seo_description' => 'nullable|string|max:170',
+            'seo_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:255',
+            'og_title' => 'nullable|string|max:95',
+            'og_description' => 'nullable|string|max:200',
+            'og_image' => 'nullable|url|max:255',
             'video_file' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov|max:51200',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'selected_thumbnail_path' => 'nullable|string',
@@ -208,6 +224,8 @@ class ProductController extends Controller
         // Set checkbox values
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['featured'] = $request->has('featured') ? 1 : 0;
+        $data['robots_index'] = $request->has('robots_index') ? 1 : 0;
+        $data['robots_follow'] = $request->has('robots_follow') ? 1 : 0;
 
         // Handle thumbnail from gallery selection or file upload
         if ($request->filled('selected_thumbnail_path')) {

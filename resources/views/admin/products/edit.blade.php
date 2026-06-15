@@ -1,7 +1,7 @@
 @extends('admin.dashboard.master')
 
 @section('main_content')
-<section role="main" class="content-body" style="background-color: #fff; padding: 20px;">
+<section role="main" class="content-body product-form-page" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 30px;">
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
@@ -44,8 +44,8 @@
     @endif
 
     <!-- Main Form Card -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-warning text-white">
+    <div class="card shadow-sm product-form-card">
+        <div class="card-header text-white product-form-card-header">
             <h5 class="mb-0"><i class="fa fa-box me-2"></i>Product Information</h5>
         </div>
         <div class="card-body p-4">
@@ -209,6 +209,102 @@
                         </div>
                     </div>
 
+                    {{-- SEO & Social Sharing --}}
+                    <div class="col-md-12 mt-4 seo-panel">
+                        <div class="row g-3">
+                            <div class="col-12 seo-panel-header">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                    <div>
+                                        <span class="seo-eyebrow">Search visibility</span>
+                                        <h6 class="mb-1"><i class="fa fa-chart-line me-2"></i>SEO & Social Sharing</h6>
+                                        <p class="mb-0">Fine tune how this product appears in search results and shared links.</p>
+                                    </div>
+                                    <div class="seo-score-pill">
+                                        <i class="fa fa-magic me-1"></i> Premium metadata
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 seo-field">
+                                <label for="seo_title" class="form-label"><strong>SEO Title</strong></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-heading"></i></span>
+                                    <input type="text" class="form-control" id="seo_title" name="seo_title" value="{{ old('seo_title', $product->seo_title) }}" maxlength="70" placeholder="Best keyword-focused product title">
+                                </div>
+                                <small class="form-text text-muted">Recommended: 50-60 characters. Leave blank to use product name.</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-6 seo-field">
+                                <label for="canonical_url" class="form-label"><strong>Canonical URL</strong></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-link"></i></span>
+                                    <input type="url" class="form-control" id="canonical_url" name="canonical_url" value="{{ old('canonical_url', $product->canonical_url) }}" placeholder="https://example.com/products/product-slug">
+                                </div>
+                                <small class="form-text text-muted">Use only when this product has a preferred public URL.</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-6 seo-field">
+                                <label for="seo_description" class="form-label"><strong>SEO Description</strong></label>
+                                <textarea class="form-control" id="seo_description" name="seo_description" rows="3" maxlength="170" placeholder="Short search result description with key benefit and product intent">{{ old('seo_description', $product->seo_description) }}</textarea>
+                                <small class="form-text text-muted">Recommended: 140-160 characters.</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-6 seo-field">
+                                <label for="seo_keywords" class="form-label"><strong>SEO Keywords</strong></label>
+                                <textarea class="form-control" id="seo_keywords" name="seo_keywords" rows="3" placeholder="keyword one, keyword two, product category">{{ old('seo_keywords', $product->seo_keywords) }}</textarea>
+                                <small class="form-text text-muted">Optional comma-separated keywords for internal/search metadata.</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-6 seo-field">
+                                <label for="og_title" class="form-label"><strong>Social Share Title</strong></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-share-alt"></i></span>
+                                    <input type="text" class="form-control" id="og_title" name="og_title" value="{{ old('og_title', $product->og_title) }}" maxlength="95" placeholder="Title shown on Facebook, LinkedIn, WhatsApp">
+                                </div>
+                                <small class="form-text text-muted">Leave blank to use SEO title or product name.</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-6 seo-field">
+                                <label for="og_image" class="form-label"><strong>Social Share Image URL</strong></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-image"></i></span>
+                                    <input type="url" class="form-control" id="og_image" name="og_image" value="{{ old('og_image', $product->og_image) }}" placeholder="https://example.com/images/share-image.jpg">
+                                </div>
+                                <small class="form-text text-muted">Optional. Leave blank to use product thumbnail.</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-8 seo-field">
+                                <label for="og_description" class="form-label"><strong>Social Share Description</strong></label>
+                                <textarea class="form-control" id="og_description" name="og_description" rows="2" maxlength="200" placeholder="Description shown when this product is shared">{{ old('og_description', $product->og_description) }}</textarea>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="col-md-4 seo-field seo-robots">
+                                <label class="form-label"><strong>Search Engine Robots</strong></label>
+                                <div class="seo-toggle-row">
+                                    <input class="form-check-input" type="checkbox" id="robots_index" name="robots_index" value="1" {{ old('robots_index', $product->robots_index ?? true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="robots_index">
+                                        <strong>Allow indexing</strong>
+                                        <span>Let search engines show this product.</span>
+                                    </label>
+                                </div>
+                                <div class="seo-toggle-row">
+                                    <input class="form-check-input" type="checkbox" id="robots_follow" name="robots_follow" value="1" {{ old('robots_follow', $product->robots_follow ?? true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="robots_follow">
+                                        <strong>Follow product links</strong>
+                                        <span>Pass ranking signals to linked pages.</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Thumbnail Upload --}}
                     <div class="col-md-6">
                         <label class="form-label"><strong>Product Thumbnail</strong></label>
@@ -341,6 +437,144 @@
 </section>
 
 <style>
+    .product-form-page {
+        color: #1f2937;
+        font-size: 15px;
+        line-height: 1.55;
+    }
+    .product-form-page h2 {
+        color: #111827;
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+    .product-form-card {
+        border: 1px solid #e5edf6 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10) !important;
+        overflow: hidden;
+    }
+    .product-form-card-header {
+        background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%) !important;
+        border: 0 !important;
+        padding: 1.35rem 1.6rem !important;
+    }
+    .product-form-card-header h5 {
+        font-size: 1.18rem;
+        font-weight: 700;
+        letter-spacing: 0;
+    }
+    .product-form-page .form-label {
+        color: #1f2937;
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        margin-bottom: 0.45rem;
+    }
+    .product-form-page .form-control,
+    .product-form-page .form-select {
+        background-color: #fbfdff;
+        border: 1px solid #d7e1ee;
+        border-radius: 10px;
+        color: #111827;
+        font-size: 0.96rem;
+        font-weight: 500;
+        min-height: 46px;
+        padding: 0.72rem 0.9rem;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+    .product-form-page textarea.form-control {
+        line-height: 1.55;
+        min-height: 112px;
+    }
+    .product-form-page .form-control::placeholder {
+        color: #8a98aa;
+        font-weight: 400;
+        opacity: 1;
+    }
+    .product-form-page .form-control:focus,
+    .product-form-page .form-select:focus {
+        background-color: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        color: #0f172a;
+    }
+    .product-form-page .input-group-text {
+        background-color: #f1f6fc;
+        border-color: #d7e1ee;
+        color: #334155;
+        font-weight: 700;
+        min-height: 46px;
+    }
+    .product-form-page .form-text,
+    .product-form-page small.form-text {
+        color: #64748b !important;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        margin-top: 0.38rem;
+    }
+    .product-form-page .form-check {
+        background: #f8fbff;
+        border: 1px solid #e5edf6;
+        border-radius: 12px;
+        padding: 12px 14px 12px 40px;
+    }
+    .product-form-page .form-check + .form-check {
+        margin-top: 10px;
+    }
+    .product-form-page .form-check-input {
+        border-color: #94a3b8;
+        height: 1.05rem;
+        margin-top: 0.25rem;
+        width: 1.05rem;
+    }
+    .product-form-page .form-check-label {
+        color: #1f2937;
+        font-size: 0.92rem;
+    }
+    .product-form-page .card-body > form > .row.g-3.mb-4:not(.seo-panel):not(.digital-options),
+    .product-form-page .card-body > form > .col-md-12,
+    .product-form-page .card-body > form > .col-md-6:not(.seo-field),
+    .product-form-page .card-body > form > .col-12:not(.seo-panel-header) {
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+        padding: 18px;
+    }
+    .product-form-page .card-body > form > .col-md-6:not(.seo-field),
+    .product-form-page .card-body > form > .col-md-12,
+    .product-form-page .card-body > form > .col-12:not(.seo-panel-header) {
+        margin-bottom: 16px;
+    }
+    .product-form-page h6 {
+        color: #111827;
+        font-size: 0.98rem;
+        font-weight: 800;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+    }
+    .product-form-page .btn {
+        border-radius: 10px;
+        font-weight: 700;
+        letter-spacing: 0;
+        padding: 0.68rem 1.15rem;
+    }
+    .product-form-page .btn-warning {
+        background: linear-gradient(135deg, #2563eb 0%, #0f766e 100%);
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+    }
+    .product-form-page .btn-info {
+        background: #0ea5e9;
+        border-color: #0ea5e9;
+        color: #fff;
+    }
+    .product-form-page .btn-secondary {
+        background: #475569;
+        border-color: #475569;
+    }
     .bootstrap-tagsinput {
         width: 100%;
     }
@@ -356,6 +590,88 @@
         padding: 20px;
         border-radius: 8px;
         border: 1px solid #ffeaa7;
+    }
+    .seo-panel {
+        background: linear-gradient(135deg, #f7fbff 0%, #ffffff 54%, #f5f8ff 100%);
+        border: 1px solid #dfe8f5;
+        border-radius: 18px;
+        box-shadow: 0 14px 35px rgba(20, 53, 94, 0.08);
+        padding: 18px;
+    }
+    .seo-panel-header {
+        background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
+        border-radius: 14px;
+        color: #fff;
+        padding: 18px 20px;
+    }
+    .seo-panel-header h6 {
+        border-bottom: 0;
+        color: #fff;
+        font-size: 1.05rem;
+        font-weight: 700;
+        padding-bottom: 0;
+    }
+    .seo-panel-header p,
+    .seo-eyebrow {
+        color: rgba(255, 255, 255, 0.78);
+    }
+    .seo-eyebrow {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .seo-score-pill {
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 999px;
+        color: #fff;
+        font-weight: 700;
+        padding: 9px 14px;
+        white-space: nowrap;
+    }
+    .seo-field {
+        background: #fff;
+        background-clip: padding-box;
+        border: 7px solid transparent;
+        border-radius: 14px;
+        box-shadow: inset 0 0 0 1px #e7edf5, 0 8px 20px rgba(20, 53, 94, 0.05);
+        padding: 16px;
+    }
+    .seo-field .form-control {
+        border-color: #d8e2ee;
+        background-color: #fbfdff;
+    }
+    .seo-field .input-group-text {
+        background: #eef6ff;
+        border-color: #d8e2ee;
+        color: #2563eb;
+        min-width: 44px;
+        justify-content: center;
+    }
+    .seo-toggle-row {
+        align-items: flex-start;
+        background: #f8fbff;
+        border: 1px solid #e3edf8;
+        border-radius: 12px;
+        display: flex;
+        gap: 10px;
+        padding: 12px;
+    }
+    .seo-toggle-row + .seo-toggle-row {
+        margin-top: 10px;
+    }
+    .seo-toggle-row .form-check-input {
+        margin-left: 0;
+        margin-top: 4px;
+    }
+    .seo-toggle-row span {
+        color: #6c757d;
+        display: block;
+        font-size: 0.82rem;
+        line-height: 1.35;
     }
     .gallery-preview img {
         width: 80px;
@@ -474,6 +790,114 @@
         border: 1px solid #e9ecef;
     }
     .ck-editor__editable { min-height: 180px; }
+
+    /* Final scoped polish: keep legacy rules from dulling the premium form */
+    .product-form-page .form-control,
+    .product-form-page .form-select,
+    .product-form-page .bootstrap-tagsinput {
+        background-color: #fbfdff !important;
+        border: 1px solid #d7e1ee !important;
+        border-radius: 10px !important;
+        color: #111827 !important;
+        font-size: 0.96rem !important;
+        font-weight: 500 !important;
+        line-height: 1.45 !important;
+        min-height: 46px;
+        padding: 0.72rem 0.9rem !important;
+    }
+
+    .product-form-page textarea.form-control {
+        min-height: 112px;
+        resize: vertical;
+    }
+
+    .product-form-page .form-control::placeholder {
+        color: #8a98aa !important;
+        font-weight: 400 !important;
+        opacity: 1;
+    }
+
+    .product-form-page .form-control:focus,
+    .product-form-page .form-select:focus {
+        background-color: #fff !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+        color: #0f172a !important;
+        transform: none !important;
+    }
+
+    .product-form-page .input-group-text {
+        border-radius: 10px 0 0 10px !important;
+        min-height: 46px;
+    }
+
+    .product-form-page .input-group .form-control {
+        border-radius: 0 10px 10px 0 !important;
+    }
+
+    .product-form-page .col-12.text-center.mt-4 {
+        background: #f8fbff;
+        border: 1px solid #e5edf6;
+        border-radius: 16px;
+        padding: 16px;
+        text-align: right !important;
+    }
+
+    .product-form-page .btn {
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+        min-height: 44px;
+    }
+
+    /* Larger typography scale */
+    .product-form-page {
+        font-size: 16px !important;
+    }
+
+    .product-form-page h2 {
+        font-size: 2rem !important;
+    }
+
+    .product-form-page .product-form-card-header h5 {
+        font-size: 1.35rem !important;
+    }
+
+    .product-form-page h6 {
+        font-size: 1.12rem !important;
+    }
+
+    .product-form-page .form-label,
+    .product-form-page .form-check-label {
+        font-size: 1.04rem !important;
+    }
+
+    .product-form-page .form-control,
+    .product-form-page .form-select,
+    .product-form-page .bootstrap-tagsinput {
+        font-size: 1.08rem !important;
+        min-height: 50px !important;
+        padding: 0.82rem 1rem !important;
+    }
+
+    .product-form-page textarea.form-control {
+        min-height: 126px !important;
+    }
+
+    .product-form-page .form-text,
+    .product-form-page small.form-text,
+    .product-form-page .seo-toggle-row span {
+        font-size: 0.94rem !important;
+    }
+
+    .product-form-page .seo-eyebrow {
+        font-size: 0.88rem !important;
+    }
+
+    .product-form-page .btn {
+        font-size: 1.02rem !important;
+        min-height: 48px !important;
+    }
 </style>
 
 <!-- Additional Scripts for Enhanced Forms -->
