@@ -149,7 +149,7 @@
                             <th>Payment</th>
                             <th>Status</th>
                             <th>Date</th>
-                            <th class="text-center">Actions</th>
+                            <th class="text-center order-actions-col">Actions</th>
                         </tr>
                     </thead>
                 </table>
@@ -404,9 +404,36 @@
         font-weight: 700;
     }
 
-    .order-table .btn {
+    .order-table .order-actions-col {
+        background: #fff;
+        box-shadow: -8px 0 14px rgba(15, 23, 42, 0.04);
+        min-width: 156px;
+        position: sticky;
+        right: 0;
+        z-index: 2;
+    }
+
+    .order-table thead .order-actions-col {
+        background: #f9fafb;
+        z-index: 3;
+    }
+
+    .order-action-buttons {
+        display: inline-flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .order-table .order-action-buttons .btn {
         border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 32px;
         height: 32px;
+        margin: 0 !important;
         width: 32px;
     }
 
@@ -514,7 +541,7 @@ $(document).ready(function() {
             { data: 'payment_method', name: 'payment_method', className: 'text-nowrap' },
             { data: 'status', name: 'status', className: 'text-center text-nowrap' },
             { data: 'created_at', name: 'created_at', className: 'text-nowrap' },
-            { data: 'action', orderable: false, searchable: false, className: 'text-center text-nowrap' }
+            { data: 'action', orderable: false, searchable: false, className: 'text-center text-nowrap order-actions-col' }
         ],
         language: {
             processing: '<div class="py-4 text-center"><div class="spinner-border text-primary" role="status"></div><div class="mt-2 text-muted">Loading orders...</div></div>',

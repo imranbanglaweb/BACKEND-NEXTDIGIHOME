@@ -113,18 +113,19 @@ class OrderController extends Controller
                 })
                 ->addColumn('created_at', fn ($p) => '<span class="text-muted">'.$p->created_at->format('M d, Y H:i').'</span>')
                 ->addColumn('action', function ($p) {
-                    $actions = '';
+                    $actions = '<div class="order-action-buttons">';
 
                     // View button
-                    $actions .= '<button class="btn btn-sm btn-outline-primary me-1 viewBtn" data-id="'.$p->id.'" title="View Details"><i class="fas fa-eye"></i></button>';
+                    $actions .= '<button class="btn btn-sm btn-outline-primary viewBtn" data-id="'.$p->id.'" title="View Details"><i class="fas fa-eye"></i></button>';
 
                     // Approve/Reject buttons based on status
                     if ($p->status === 'pending') {
-                        $actions .= '<button class="btn btn-sm btn-outline-success me-1 approveBtn" data-id="'.$p->id.'" title="Approve Order"><i class="fas fa-check"></i></button>';
-                        $actions .= '<button class="btn btn-sm btn-outline-danger me-1 rejectBtn" data-id="'.$p->id.'" title="Reject Order"><i class="fas fa-times"></i></button>';
+                        $actions .= '<button class="btn btn-sm btn-outline-success approveBtn" data-id="'.$p->id.'" title="Approve Order"><i class="fas fa-check"></i></button>';
+                        $actions .= '<button class="btn btn-sm btn-outline-danger rejectBtn" data-id="'.$p->id.'" title="Reject Order"><i class="fas fa-times"></i></button>';
                     }
 
-                    $actions .= '<button class="btn btn-sm btn-outline-secondary me-1 editBtn" data-id="'.$p->id.'" title="Update Status"><i class="fas fa-edit"></i></button>';
+                    $actions .= '<button class="btn btn-sm btn-outline-secondary editBtn" data-id="'.$p->id.'" title="Update Status"><i class="fas fa-edit"></i></button>';
+                    $actions .= '</div>';
 
                     return $actions;
                 })
