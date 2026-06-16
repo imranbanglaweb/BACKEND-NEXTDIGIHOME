@@ -158,7 +158,7 @@
     </div>
 </section>
 
-<div class="modal fade order-premium-modal" id="viewOrderModal" tabindex="-1" role="dialog" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
+<div class="modal order-premium-modal" id="viewOrderModal" tabindex="-1" role="dialog" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content order-modal">
             <div class="modal-header">
@@ -178,7 +178,7 @@
     </div>
 </div>
 
-<div class="modal fade order-premium-modal" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+<div class="modal order-premium-modal" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content order-modal">
             <div class="modal-header">
