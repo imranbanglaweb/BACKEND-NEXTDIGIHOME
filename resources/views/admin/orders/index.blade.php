@@ -423,7 +423,7 @@
     .order-table .order-actions-col {
         background: #fff;
         box-shadow: -8px 0 14px rgba(15, 23, 42, 0.04);
-        min-width: 156px;
+        min-width: 210px;
         position: sticky;
         right: 0;
         z-index: 2;
@@ -699,6 +699,7 @@ $(document).ready(function() {
     const csrfToken = '{{ csrf_token() }}';
     const showUrlTemplate = '{{ route("admin.orders.show", ":id") }}';
     const updateUrlTemplate = '{{ route("admin.orders.update", ":id") }}';
+    const deleteUrlTemplate = '{{ route("admin.orders.destroy", ":id") }}';
     const approveUrlTemplate = '{{ route("admin.orders.approve", ":id") }}';
     const rejectUrlTemplate = '{{ route("admin.orders.reject", ":id") }}';
     const exportUrl = '{{ route("admin.orders.export.csv") }}';
@@ -928,7 +929,15 @@ $(document).ready(function() {
         });
     });
 
-    function postOrderAction(url, fallbackMessage, triggerButton) {
+    $(document).on('click', '.deleteBtn', function() {
+        const orderId = $(this).data('id');
+        const actionButton = $(this);
+        confirmAction('Delete order?', 'This will permanently delete the order and any uploaded payment proof.', 'Delete', function() {
+            postOrderAction(buildUrl(deleteUrlTemplate, orderId), 'Order deleted successfully.', actionButton, 'DELETE');
+        }, 'danger');
+    });
+
+    function postOrderAction(url, fallbackMessage, triggerButton, method = 'POST') {
         const originalHtml = triggerButton ? triggerButton.html() : '';
 
         if (triggerButton) {
@@ -950,7 +959,7 @@ $(document).ready(function() {
 
         $.ajax({
             url: url,
-            type: 'POST',
+            type: method,
             headers: { 'X-CSRF-TOKEN': csrfToken },
             success: function(response) {
                 if (typeof Swal !== 'undefined') {
@@ -973,7 +982,7 @@ $(document).ready(function() {
         });
     }
 
-    function confirmAction(title, text, confirmText, onConfirm) {
+    function confirmAction(title, text, confirmText, onConfirm, variant = 'default') {
         if (typeof Swal === 'undefined') {
             if (confirm(title)) {
                 onConfirm();
@@ -981,14 +990,16 @@ $(document).ready(function() {
             return;
         }
 
+        const isDanger = variant === 'danger';
+
         Swal.fire({
             title: title,
             text: text,
-            icon: 'warning',
+            icon: isDanger ? 'error' : 'warning',
             showCancelButton: true,
             confirmButtonText: confirmText,
             cancelButtonText: 'Cancel',
-            confirmButtonColor: '#111827',
+            confirmButtonColor: isDanger ? '#dc2626' : '#111827',
             cancelButtonColor: '#64748b',
             customClass: {
                 popup: 'order-swal-popup',

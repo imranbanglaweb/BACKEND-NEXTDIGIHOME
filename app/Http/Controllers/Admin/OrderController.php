@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductPurchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
@@ -125,6 +126,7 @@ class OrderController extends Controller
                     }
 
                     $actions .= '<button class="btn btn-sm btn-outline-secondary editBtn" data-id="'.$p->id.'" title="Update Status"><i class="fas fa-edit"></i></button>';
+                    $actions .= '<button class="btn btn-sm btn-outline-danger deleteBtn" data-id="'.$p->id.'" title="Delete Order"><i class="fas fa-trash"></i></button>';
                     $actions .= '</div>';
 
                     return $actions;
@@ -325,6 +327,25 @@ class OrderController extends Controller
             'success' => true,
             'message' => 'Order status updated successfully',
             'new_status' => $request->status,
+        ]);
+    }
+
+    /**
+     * Delete an order.
+     */
+    public function destroy($id)
+    {
+        $purchase = ProductPurchase::findOrFail($id);
+
+        if ($purchase->payment_proof && Storage::disk('public')->exists($purchase->payment_proof)) {
+            Storage::disk('public')->delete($purchase->payment_proof);
+        }
+
+        $purchase->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order deleted successfully.',
         ]);
     }
 }
