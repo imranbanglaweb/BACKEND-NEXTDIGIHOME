@@ -644,7 +644,13 @@
     .order-swal-popup {
         border-radius: 12px !important;
         box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24) !important;
+        max-width: calc(100vw - 32px) !important;
         padding: 22px !important;
+        width: 430px !important;
+    }
+
+    .order-swal-popup .swal2-icon {
+        margin: 6px auto 14px !important;
     }
 
     .order-swal-popup .swal2-title {
@@ -659,11 +665,26 @@
         font-size: 14px !important;
     }
 
+    .order-swal-popup .swal2-actions {
+        display: flex !important;
+        gap: 10px !important;
+        justify-content: center !important;
+        margin-top: 22px !important;
+        width: 100% !important;
+    }
+
     .order-swal-confirm,
     .order-swal-cancel {
+        box-shadow: none !important;
         border-radius: 8px !important;
         font-weight: 700 !important;
+        min-width: 108px !important;
         padding: 10px 18px !important;
+    }
+
+    .order-swal-cancel {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
     }
 
     @keyframes orderSpin {
@@ -918,7 +939,7 @@ $(document).ready(function() {
         const actionButton = $(this);
         confirmAction('Approve order?', 'This will mark the order as completed and send delivery email.', 'Approve', function() {
             postOrderAction(buildUrl(approveUrlTemplate, orderId), 'Order approved successfully.', actionButton);
-        });
+        }, 'success');
     });
 
     $(document).on('click', '.rejectBtn', function() {
@@ -926,7 +947,7 @@ $(document).ready(function() {
         const actionButton = $(this);
         confirmAction('Reject order?', 'This will mark the order as failed.', 'Reject', function() {
             postOrderAction(buildUrl(rejectUrlTemplate, orderId), 'Order rejected successfully.', actionButton);
-        });
+        }, 'danger');
     });
 
     window.deleteOrder = function(event, orderId, button) {
@@ -959,6 +980,9 @@ $(document).ready(function() {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 showConfirmButton: false,
+                customClass: {
+                    popup: 'order-swal-popup'
+                },
                 didOpen: function() {
                     Swal.showLoading();
                 }
@@ -1000,15 +1024,16 @@ $(document).ready(function() {
         }
 
         const isDanger = variant === 'danger';
+        const isSuccess = variant === 'success';
 
         Swal.fire({
             title: title,
             text: text,
-            icon: isDanger ? 'error' : 'warning',
+            icon: isDanger ? 'error' : (isSuccess ? 'question' : 'warning'),
             showCancelButton: true,
             confirmButtonText: confirmText,
             cancelButtonText: 'Cancel',
-            confirmButtonColor: isDanger ? '#dc2626' : '#111827',
+            confirmButtonColor: isDanger ? '#dc2626' : (isSuccess ? '#16a34a' : '#111827'),
             cancelButtonColor: '#64748b',
             customClass: {
                 popup: 'order-swal-popup',
@@ -1029,7 +1054,12 @@ $(document).ready(function() {
                 title: type === 'success' ? 'Success' : 'Error',
                 text: message,
                 timer: type === 'success' ? 1800 : undefined,
-                showConfirmButton: type !== 'success'
+                showConfirmButton: type !== 'success',
+                confirmButtonColor: type === 'success' ? '#16a34a' : '#dc2626',
+                customClass: {
+                    popup: 'order-swal-popup',
+                    confirmButton: 'order-swal-confirm'
+                }
             });
             return;
         }
