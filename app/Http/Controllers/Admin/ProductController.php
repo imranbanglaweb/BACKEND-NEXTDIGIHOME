@@ -13,6 +13,24 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    private const PRODUCT_KINDS = [
+        'digital_download',
+        'website_template',
+        'ecommerce_template',
+        'saas',
+        'course',
+        'service',
+        'physical',
+        'other',
+    ];
+
+    private const PURCHASE_TYPES = [
+        'one_time',
+        'monthly_subscription',
+        'yearly_subscription',
+        'lifetime',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -39,7 +57,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        $categories = \App\Models\Category::orderBy('category_name')->get();
+
+        return view('admin.products.create', compact('categories'));
     }
 
     /**
@@ -59,6 +79,10 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'category' => 'required|string',
             'digital' => 'required|boolean',
+            'product_kind' => ['required', Rule::in(self::PRODUCT_KINDS)],
+            'purchase_type' => ['required', Rule::in(self::PURCHASE_TYPES)],
+            'validity_days' => 'nullable|integer|min:1|max:36500',
+            'validity_label' => 'nullable|string|max:100',
             'tags' => 'nullable|string',
             'file_url' => 'nullable|url',
             'preview_url' => 'nullable|url',
@@ -79,6 +103,7 @@ class ProductController extends Controller
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->slug);
+        $data = $this->normalizeProductCommercialFields($data);
 
         // Handle tags
         if ($request->tags) {
@@ -187,6 +212,10 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'category' => 'required|string',
             'digital' => 'required|boolean',
+            'product_kind' => ['required', Rule::in(self::PRODUCT_KINDS)],
+            'purchase_type' => ['required', Rule::in(self::PURCHASE_TYPES)],
+            'validity_days' => 'nullable|integer|min:1|max:36500',
+            'validity_label' => 'nullable|string|max:100',
             'tags' => 'nullable|string',
             'file_url' => 'nullable|url',
             'preview_url' => 'nullable|url',
@@ -215,6 +244,7 @@ class ProductController extends Controller
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->slug);
+        $data = $this->normalizeProductCommercialFields($data);
 
         // Handle tags
         if ($request->tags) {
@@ -320,6 +350,14 @@ class ProductController extends Controller
             $query->where('category', $request->category);
         }
 
+        if ($request->filled('product_kind')) {
+            $query->where('product_kind', $request->product_kind);
+        }
+
+        if ($request->filled('purchase_type')) {
+            $query->where('purchase_type', $request->purchase_type);
+        }
+
         $products = $query->get();
 
         $data = [];
@@ -330,6 +368,7 @@ class ProductController extends Controller
             if ($product->compare_price) {
                 $price .= '<br><small class="text-muted"><del>$' . number_format($product->compare_price, 2) . '</del></small>';
             }
+            $price .= '<br><small class="text-muted">' . e($product->purchase_type_label) . '</small>';
 
             $stock = $product->stock > 10 ? '<span class="badge badge-success">In Stock</span>' : ($product->stock > 0 ? '<span class="badge badge-warning">Low Stock</span>' : '<span class="badge badge-danger">Out of Stock</span>');
 
@@ -347,7 +386,7 @@ class ProductController extends Controller
                 $product->id,
                 $thumbnail,
                 e($product->name),
-                e($product->category),
+                e($product->category) . '<br><small class="text-muted">' . e($product->product_kind_label) . '</small>',
                 $price,
                 $stock,
                 $status,
@@ -449,5 +488,29 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json(['success' => true, 'message' => 'Product deleted successfully.']);
+    }
+
+    private function normalizeProductCommercialFields(array $data): array
+    {
+        $purchaseType = $data['purchase_type'] ?? 'one_time';
+
+        if (! isset($data['validity_days']) || $data['validity_days'] === '') {
+            $data['validity_days'] = match ($purchaseType) {
+                'monthly_subscription' => 30,
+                'yearly_subscription' => 365,
+                default => null,
+            };
+        }
+
+        if (! isset($data['validity_label']) || trim((string) $data['validity_label']) === '') {
+            $data['validity_label'] = match ($purchaseType) {
+                'monthly_subscription' => 'Valid for 1 month',
+                'yearly_subscription' => 'Valid for 1 year',
+                'lifetime' => 'Lifetime validity',
+                default => 'One-time purchase',
+            };
+        }
+
+        return $data;
     }
 }

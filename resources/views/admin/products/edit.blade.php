@@ -123,6 +123,8 @@
                     </div>
                 </div>
 
+                @include('admin.products.partials.commercial-fields', ['product' => $product])
+
                 <!-- Pricing Section -->
                 <div class="row g-3 mb-4">
                     <div class="col-12">
@@ -1076,6 +1078,18 @@ function initializeProductForm() {
         } else {
             $('.digital-options').hide();
         }
+    });
+
+    $('#purchase_type').on('change', function() {
+        const defaults = {
+            one_time: { days: '', label: 'One-time purchase' },
+            monthly_subscription: { days: '30', label: 'Valid for 1 month' },
+            yearly_subscription: { days: '365', label: 'Valid for 1 year' },
+            lifetime: { days: '', label: 'Lifetime validity' }
+        };
+        const selected = defaults[$(this).val()] || defaults.one_time;
+        $('#validity_days').val(selected.days);
+        $('#validity_label').val(selected.label);
     });
 
     // Video type toggle handler (premium video options)

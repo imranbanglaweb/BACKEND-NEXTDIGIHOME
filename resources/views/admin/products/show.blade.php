@@ -90,7 +90,8 @@
             <aside class="product-purchase-panel">
                 <div class="product-meta-row">
                     <span class="category-pill">{{ $product->category }}</span>
-                    <span class="type-pill">{{ $product->digital ? 'Digital Product' : 'Physical Product' }}</span>
+                    <span class="type-pill">{{ $product->product_kind_label }}</span>
+                    <span class="type-pill">{{ $product->purchase_type_label }}</span>
                 </div>
 
                 <h1>{{ $product->name }}</h1>
@@ -117,7 +118,7 @@
                     </div>
                     <div>
                         <i class="fa fa-shield-alt"></i>
-                        <span>Secure checkout</span>
+                        <span>{{ $product->access_label }}</span>
                     </div>
                     <div>
                         <i class="fa fa-life-ring"></i>
@@ -302,6 +303,12 @@
                         <dd>{{ $product->active ? 'Active' : 'Inactive' }}</dd>
                         <dt>Featured</dt>
                         <dd>{{ $product->featured ? 'Yes' : 'No' }}</dd>
+                        <dt>Product Kind</dt>
+                        <dd>{{ $product->product_kind_label }}</dd>
+                        <dt>Purchase Option</dt>
+                        <dd>{{ $product->purchase_type_label }}</dd>
+                        <dt>Access Validity</dt>
+                        <dd>{{ $product->access_label }}</dd>
                         <dt>Slug</dt>
                         <dd><code>{{ $product->slug }}</code></dd>
                         <dt>Created</dt>

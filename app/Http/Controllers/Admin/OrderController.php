@@ -280,6 +280,7 @@ class OrderController extends Controller
                 'status' => 'completed',
                 'paid_at' => now(),
             ]);
+            $purchase->activateAccessFromProduct();
 
             // Send delivery email
             \App\Jobs\SendProductDeliveryEmail::dispatch($purchase);
@@ -317,13 +318,19 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $purchase = ProductPurchase::findOrFail($id);
+        $purchase = ProductPurchase::with('product')->findOrFail($id);
         $oldStatus = $purchase->status;
 
         $purchase->update([
             'status' => $request->status,
             'notes' => $request->notes,
         ]);
+
+        if (in_array($request->status, ['completed', 'processing', 'delivered'], true)
+            && ! in_array($oldStatus, ['completed', 'processing', 'delivered'], true)) {
+            $purchase->forceFill(['paid_at' => $purchase->paid_at ?: now()])->save();
+            $purchase->activateAccessFromProduct();
+        }
 
         // Send email notifications based on status change
         if ($request->status === 'shipped' && $oldStatus !== 'shipped') {

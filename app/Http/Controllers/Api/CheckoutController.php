@@ -106,9 +106,6 @@ class CheckoutController extends Controller
                 $downloadToken = Str::random(32);
                 $downloadTokens[] = $downloadToken;
 
-                // Set download expiry to 1 year from purchase for digital products
-                $downloadExpiry = $product->digital ? now()->addYear() : null;
-
                 $purchaseData = [
                     'user_id' => $user ? $user->id : null,
                     'product_id' => $product->id,
@@ -124,7 +121,6 @@ class CheckoutController extends Controller
                     'customer_name' => $request->customer_name,
                     'customer_phone' => $request->customer_phone,
                     'download_token' => $downloadToken,
-                    'download_expires_at' => $downloadExpiry,
                     'download_count' => 0,
                 ];
 
@@ -230,6 +226,7 @@ class CheckoutController extends Controller
             'status' => 'completed',
             'paid_at' => now(),
         ]);
+        $purchase->activateAccessFromProduct();
 
         // Send delivery email with download link
         SendProductDeliveryEmail::dispatch($purchase);

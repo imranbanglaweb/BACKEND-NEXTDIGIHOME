@@ -10,6 +10,24 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+    private const PRODUCT_KINDS = [
+        'digital_download',
+        'website_template',
+        'ecommerce_template',
+        'saas',
+        'course',
+        'service',
+        'physical',
+        'other',
+    ];
+
+    private const PURCHASE_TYPES = [
+        'one_time',
+        'monthly_subscription',
+        'yearly_subscription',
+        'lifetime',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -23,6 +41,12 @@ class ProductController extends Controller
             })
             ->when(request('category'), function($query) {
                 return $query->where('category', request('category'));
+            })
+            ->when(request('product_kind'), function($query) {
+                return $query->where('product_kind', request('product_kind'));
+            })
+            ->when(request('purchase_type'), function($query) {
+                return $query->where('purchase_type', request('purchase_type'));
             })
             ->when(request('search'), function($query) {
                 $search = request('search');
@@ -72,6 +96,10 @@ class ProductController extends Controller
             'compare_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'digital' => 'required|boolean',
+            'product_kind' => 'nullable|string|in:' . implode(',', self::PRODUCT_KINDS),
+            'purchase_type' => 'nullable|string|in:' . implode(',', self::PURCHASE_TYPES),
+            'validity_days' => 'nullable|integer|min:1|max:36500',
+            'validity_label' => 'nullable|string|max:100',
             'file_url' => 'nullable|url',
             'preview_url' => 'nullable|url',
             'category' => 'required|string|max:100',
@@ -99,7 +127,7 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product = Product::create($validator->validated());
+        $product = Product::create($this->normalizeProductCommercialFields($validator->validated()));
 
         return response()->json($this->formatProductForFrontend($product), 201);
     }
@@ -152,6 +180,10 @@ class ProductController extends Controller
             'compare_price' => 'sometimes|nullable|numeric|min:0',
             'stock' => 'sometimes|nullable|integer|min:0',
             'digital' => 'sometimes|required|boolean',
+            'product_kind' => 'sometimes|nullable|string|in:' . implode(',', self::PRODUCT_KINDS),
+            'purchase_type' => 'sometimes|nullable|string|in:' . implode(',', self::PURCHASE_TYPES),
+            'validity_days' => 'sometimes|nullable|integer|min:1|max:36500',
+            'validity_label' => 'sometimes|nullable|string|max:100',
             'file_url' => 'sometimes|nullable|url',
             'preview_url' => 'sometimes|nullable|url',
             'category' => 'sometimes|required|string|max:100',
@@ -179,7 +211,7 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product->update($validator->validated());
+        $product->update($this->normalizeProductCommercialFields($validator->validated(), $product));
 
         return response()->json($this->formatProductForFrontend($product->fresh()));
     }
@@ -260,6 +292,18 @@ class ProductController extends Controller
         $data['video_url_resolved'] = $product->video_type === 'upload'
             ? $this->resolveProductAssetUrl($product->video_url)
             : $product->video_url;
+        $data['product_kind_label'] = $product->product_kind_label;
+        $data['purchase_type_label'] = $product->purchase_type_label;
+        $data['access_label'] = $product->access_label;
+        $data['commercial'] = [
+            'product_kind' => $product->product_kind,
+            'product_kind_label' => $product->product_kind_label,
+            'purchase_type' => $product->purchase_type,
+            'purchase_type_label' => $product->purchase_type_label,
+            'validity_days' => $product->validity_days,
+            'validity_label' => $product->validity_label,
+            'access_label' => $product->access_label,
+        ];
 
         $data['seo'] = [
             'title' => $metaTitle,
@@ -343,5 +387,31 @@ class ProductController extends Controller
         }
 
         return asset('public/storage/' . ltrim($path, '/'));
+    }
+
+    private function normalizeProductCommercialFields(array $data, ?Product $product = null): array
+    {
+        $purchaseType = $data['purchase_type'] ?? $product?->purchase_type ?? 'one_time';
+        $data['product_kind'] = $data['product_kind'] ?? $product?->product_kind ?? 'digital_download';
+        $data['purchase_type'] = $purchaseType;
+
+        if (! array_key_exists('validity_days', $data) || $data['validity_days'] === '') {
+            $data['validity_days'] = match ($purchaseType) {
+                'monthly_subscription' => 30,
+                'yearly_subscription' => 365,
+                default => null,
+            };
+        }
+
+        if (! array_key_exists('validity_label', $data) || trim((string) $data['validity_label']) === '') {
+            $data['validity_label'] = match ($purchaseType) {
+                'monthly_subscription' => 'Valid for 1 month',
+                'yearly_subscription' => 'Valid for 1 year',
+                'lifetime' => 'Lifetime validity',
+                default => 'One-time purchase',
+            };
+        }
+
+        return $data;
     }
 }

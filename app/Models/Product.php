@@ -19,6 +19,10 @@ class Product extends Model
         'compare_price',
         'stock',
         'digital',
+        'product_kind',
+        'purchase_type',
+        'validity_days',
+        'validity_label',
         'file_url',
         'preview_url',
         'video_type',
@@ -48,6 +52,7 @@ class Product extends Model
         'featured' => 'boolean',
         'active' => 'boolean',
         'digital' => 'boolean',
+        'validity_days' => 'integer',
         'robots_index' => 'boolean',
         'robots_follow' => 'boolean'
     ];
@@ -55,5 +60,46 @@ class Product extends Model
     public function purchases()
     {
         return $this->hasMany(ProductPurchase::class);
+    }
+
+    public function getPurchaseTypeLabelAttribute(): string
+    {
+        return [
+            'one_time' => 'One-time purchase',
+            'monthly_subscription' => 'Monthly subscription',
+            'yearly_subscription' => 'Yearly subscription',
+            'lifetime' => 'Lifetime access',
+        ][$this->purchase_type] ?? ucfirst(str_replace('_', ' ', (string) $this->purchase_type));
+    }
+
+    public function getProductKindLabelAttribute(): string
+    {
+        return [
+            'digital_download' => 'Digital download',
+            'website_template' => 'Website template',
+            'ecommerce_template' => 'Ecommerce template',
+            'saas' => 'SaaS product',
+            'course' => 'Course',
+            'service' => 'Service',
+            'physical' => 'Physical product',
+            'other' => 'Other',
+        ][$this->product_kind] ?? ucfirst(str_replace('_', ' ', (string) $this->product_kind));
+    }
+
+    public function getAccessLabelAttribute(): string
+    {
+        if ($this->validity_label) {
+            return $this->validity_label;
+        }
+
+        if ($this->purchase_type === 'lifetime') {
+            return 'Lifetime validity';
+        }
+
+        if ($this->validity_days) {
+            return $this->validity_days . ' days validity';
+        }
+
+        return $this->purchase_type_label;
     }
 }

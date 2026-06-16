@@ -112,6 +112,30 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Product Kind</label>
+                    <select id="product_kind_filter" class="form-control">
+                        <option value="">All Kinds</option>
+                        <option value="digital_download">Digital Download</option>
+                        <option value="website_template">Website Template</option>
+                        <option value="ecommerce_template">Ecommerce Template</option>
+                        <option value="saas">SaaS Product</option>
+                        <option value="course">Course</option>
+                        <option value="service">Service</option>
+                        <option value="physical">Physical Product</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Purchase Option</label>
+                    <select id="purchase_type_filter" class="form-control">
+                        <option value="">All Options</option>
+                        <option value="one_time">One-time</option>
+                        <option value="monthly_subscription">Monthly</option>
+                        <option value="yearly_subscription">Yearly</option>
+                        <option value="lifetime">Lifetime</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -355,6 +379,8 @@ $(document).ready(function() {
                 data.featured = $('#featured_filter').val();
                 data.digital = $('#digital_filter').val();
                 data.category = $('#category_filter').val();
+                data.product_kind = $('#product_kind_filter').val();
+                data.purchase_type = $('#purchase_type_filter').val();
             }
         },
         order: [[0, 'desc']],
@@ -376,12 +402,12 @@ $(document).ready(function() {
         }
     });
 
-    $('#status_filter, #featured_filter, #digital_filter, #category_filter').on('change', function() {
+    $('#status_filter, #featured_filter, #digital_filter, #category_filter, #product_kind_filter, #purchase_type_filter').on('change', function() {
         table.ajax.reload();
     });
 
     $('#filter_reset').on('click', function() {
-        $('#status_filter, #featured_filter, #digital_filter, #category_filter').val('');
+        $('#status_filter, #featured_filter, #digital_filter, #category_filter, #product_kind_filter, #purchase_type_filter').val('');
         table.ajax.reload();
     });
 

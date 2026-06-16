@@ -61,16 +61,11 @@
                         </label>
                         <select name="category" id="category" class="form-control">
                             <option value="">Select Category</option>
-                            <option value="Digital Marketing">Digital Marketing</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="Graphic Design">Graphic Design</option>
-                            <option value="Business Tools">Business Tools</option>
-                            <option value="Education">Education</option>
-                            <option value="Photography">Photography</option>
-                            <option value="Music & Audio">Music & Audio</option>
-                            <option value="Video & Animation">Video & Animation</option>
-                            <option value="Software & Apps">Software & Apps</option>
-                            <option value="Templates">Templates</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->category_name }}" {{ old('category') === $category->category_name ? 'selected' : '' }}>
+                                    {{ $category->category_name }}
+                                </option>
+                            @endforeach
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
@@ -88,6 +83,8 @@
                         <div class="invalid-feedback"></div>
                     </div>
                 </div>
+
+                @include('admin.products.partials.commercial-fields')
 
                 <!-- Pricing Section -->
                 <div class="row g-3 mb-4">
@@ -1315,6 +1312,18 @@ $(document).ready(function() {
             } else {
                 $('.digital-options').slideUp(300);
             }
+        });
+
+        $('#purchase_type').on('change', function() {
+            const defaults = {
+                one_time: { days: '', label: 'One-time purchase' },
+                monthly_subscription: { days: '30', label: 'Valid for 1 month' },
+                yearly_subscription: { days: '365', label: 'Valid for 1 year' },
+                lifetime: { days: '', label: 'Lifetime validity' }
+            };
+            const selected = defaults[$(this).val()] || defaults.one_time;
+            $('#validity_days').val(selected.days);
+            $('#validity_label').val(selected.label);
         });
 
         // Video type toggle - premium video options
