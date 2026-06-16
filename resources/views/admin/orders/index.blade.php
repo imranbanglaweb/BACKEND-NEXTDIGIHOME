@@ -89,11 +89,13 @@
                     <select class="form-control" id="statusFilter">
                         <option value="">All Statuses</option>
                         <option value="pending" {{ $pageStatus === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="payment_submitted" {{ $pageStatus === 'payment_submitted' ? 'selected' : '' }}>Payment Submitted</option>
                         <option value="processing" {{ $pageStatus === 'processing' ? 'selected' : '' }}>Processing</option>
                         <option value="shipped" {{ $pageStatus === 'shipped' ? 'selected' : '' }}>Shipped</option>
                         <option value="delivered" {{ $pageStatus === 'delivered' ? 'selected' : '' }}>Delivered</option>
                         <option value="completed" {{ $pageStatus === 'completed' ? 'selected' : '' }}>Completed</option>
                         <option value="failed" {{ $pageStatus === 'failed' ? 'selected' : '' }}>Failed</option>
+                        <option value="cancelled" {{ $pageStatus === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         <option value="refunded" {{ $pageStatus === 'refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
@@ -206,11 +208,13 @@
                         <label for="editStatus" class="form-label">Status</label>
                         <select class="form-control" id="editStatus" name="status" required>
                             <option value="pending">Pending</option>
+                            <option value="payment_submitted">Payment Submitted</option>
                             <option value="processing">Processing</option>
                             <option value="shipped">Shipped</option>
                             <option value="delivered">Delivered</option>
                             <option value="completed">Completed</option>
                             <option value="failed">Failed</option>
+                            <option value="cancelled">Cancelled</option>
                             <option value="refunded">Refunded</option>
                         </select>
                     </div>
@@ -945,7 +949,7 @@ $(document).ready(function() {
     $(document).on('click', '.rejectBtn', function() {
         const orderId = $(this).data('id');
         const actionButton = $(this);
-        confirmAction('Reject order?', 'This will mark the order as failed.', 'Reject', function() {
+        confirmAction('Reject order?', 'This will mark the order as cancelled.', 'Reject', function() {
             postOrderAction(buildUrl(rejectUrlTemplate, orderId), 'Order rejected successfully.', actionButton);
         }, 'danger');
     });

@@ -19,7 +19,7 @@
                         <a href="{{ route('admin.orders.index') }}" class="btn btn-light">
                             <i class="fas fa-arrow-left me-2"></i>Back to Orders
                         </a>
-                        @if($order->status === 'pending')
+                        @if(in_array($order->status, ['pending', 'payment_submitted'], true))
                             <button class="btn btn-success approveBtn" data-id="{{ $order->id }}">
                                 <i class="fas fa-check me-2"></i>Approve Order
                             </button>
@@ -50,17 +50,19 @@
                                 @php
                                     $statusColors = [
                                         'pending' => 'warning',
+                                        'payment_submitted' => 'warning',
                                         'processing' => 'primary',
                                         'shipped' => 'info',
                                         'delivered' => 'success',
                                         'completed' => 'success',
                                         'failed' => 'danger',
+                                        'cancelled' => 'danger',
                                         'refunded' => 'secondary'
                                     ];
                                     $statusColor = $statusColors[$order->status] ?? 'secondary';
                                 @endphp
                                 <span class="badge bg-{{ $statusColor }} px-4 py-2 fs-6">
-                                    <i class="fas fa-circle me-2"></i>{{ ucfirst($order->status) }}
+                                    <i class="fas fa-circle me-2"></i>{{ ucwords(str_replace('_', ' ', $order->status)) }}
                                 </span>
                             </div>
                         </div>

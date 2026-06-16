@@ -11,6 +11,8 @@ use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
 {
+    private const REVIEWABLE_STATUSES = ['pending', 'payment_submitted'];
+
     /**
      * Display all orders
      */
@@ -24,7 +26,7 @@ class OrderController extends Controller
         $stats = [
             'total' => ProductPurchase::count(),
             'revenue' => ProductPurchase::whereIn('status', ['completed', 'delivered', 'processing'])->sum('total'),
-            'pending' => ProductPurchase::where('status', 'pending')->count(),
+            'pending' => ProductPurchase::whereIn('status', self::REVIEWABLE_STATUSES)->count(),
             'shipped_today' => ProductPurchase::where('status', 'shipped')->whereDate('updated_at', today())->count(),
             'processing' => ProductPurchase::where('status', 'processing')->count(),
             'shipped' => ProductPurchase::where('status', 'shipped')->count(),
@@ -50,7 +52,11 @@ class OrderController extends Controller
 
             // Filter by status if provided
             if ($request->has('status') && $request->status) {
-                $query->where('status', $request->status);
+                if ($request->status === 'pending') {
+                    $query->whereIn('status', self::REVIEWABLE_STATUSES);
+                } else {
+                    $query->where('status', $request->status);
+                }
             }
 
             if ($request->filled('payment_method')) {
@@ -92,11 +98,13 @@ class OrderController extends Controller
                 ->addColumn('status', function ($p) {
                     $badges = [
                         'pending' => '<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pending</span>',
+                        'payment_submitted' => '<span class="badge bg-warning text-dark"><i class="fas fa-receipt me-1"></i>Payment Submitted</span>',
                         'processing' => '<span class="badge bg-primary"><i class="fas fa-cog me-1"></i>Processing</span>',
                         'shipped' => '<span class="badge bg-info"><i class="fas fa-truck me-1"></i>Shipped</span>',
                         'delivered' => '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Delivered</span>',
                         'completed' => '<span class="badge bg-success"><i class="fas fa-check me-1"></i>Completed</span>',
                         'failed' => '<span class="badge bg-danger"><i class="fas fa-times me-1"></i>Failed</span>',
+                        'cancelled' => '<span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Cancelled</span>',
                         'refunded' => '<span class="badge bg-secondary"><i class="fas fa-undo me-1"></i>Refunded</span>',
                     ];
 
@@ -119,8 +127,8 @@ class OrderController extends Controller
                     // View button
                     $actions .= '<button class="btn btn-sm btn-outline-primary viewBtn" data-id="'.$p->id.'" title="View Details"><i class="fas fa-eye"></i></button>';
 
-                    // Approve/Reject buttons based on status
-                    if ($p->status === 'pending') {
+                    // Approve/Reject buttons for orders awaiting admin review.
+                    if (in_array($p->status, self::REVIEWABLE_STATUSES, true)) {
                         $actions .= '<button class="btn btn-sm btn-outline-success approveBtn" data-id="'.$p->id.'" title="Approve Order"><i class="fas fa-check"></i></button>';
                         $actions .= '<button class="btn btn-sm btn-outline-danger rejectBtn" data-id="'.$p->id.'" title="Reject Order"><i class="fas fa-times"></i></button>';
                     }
@@ -267,7 +275,7 @@ class OrderController extends Controller
     {
         $purchase = ProductPurchase::with('product')->findOrFail($id);
 
-        if ($purchase->status === 'pending') {
+        if (in_array($purchase->status, self::REVIEWABLE_STATUSES, true)) {
             $purchase->update([
                 'status' => 'completed',
                 'paid_at' => now(),
@@ -290,7 +298,7 @@ class OrderController extends Controller
     {
         $purchase = ProductPurchase::findOrFail($id);
         $purchase->update([
-            'status' => 'failed',
+            'status' => 'cancelled',
         ]);
 
         return response()->json([
@@ -305,7 +313,7 @@ class OrderController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,shipped,delivered,completed,failed,refunded',
+            'status' => 'required|in:pending,payment_submitted,processing,shipped,delivered,completed,failed,cancelled,refunded',
             'notes' => 'nullable|string|max:500',
         ]);
 
