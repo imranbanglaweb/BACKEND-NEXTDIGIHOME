@@ -10,6 +10,7 @@ use App\Models\ProductPurchase;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -31,56 +32,6 @@ class CheckoutController extends Controller
             'payment_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'notes' => 'nullable|string',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        // Parse items if it's a JSON string
-        $items = [];
-        if ($request->has('items')) {
-            $itemsValue = $request->items;
-            if (is_string($itemsValue)) {
-                $items = json_decode($itemsValue, true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid items format',
-                    ], 400);
-                }
-            } else {
-                $items = $itemsValue;
-            }
-        } elseif ($request->has('product_id')) {
-            $items = [[
-                'product_id' => $request->product_id,
-                'quantity' => $request->quantity,
-            ]];
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'No items provided',
-            ], 400);
-        }
-
-        // Validate items array
-        $itemsValidator = Validator::make(['items' => $items], [
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-        ]);
-
-        if ($itemsValidator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Items validation failed',
-                'errors' => $itemsValidator->errors(),
-            ], 422);
-        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -117,6 +68,25 @@ class CheckoutController extends Controller
             ], 400);
         }
 
+        $itemsValidator = Validator::make(['items' => $items], [
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        if ($itemsValidator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Items validation failed',
+                'errors' => $itemsValidator->errors(),
+            ], 422);
+        }
+
+        $paymentProofPath = null;
+        if ($request->hasFile('payment_proof')) {
+            $paymentProofPath = $request->file('payment_proof')->store('payment_proofs', 'public');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -127,7 +97,7 @@ class CheckoutController extends Controller
             $downloadTokens = [];
 
             foreach ($items as $item) {
-                $product = Product::findOrFail($item['product_id']);
+                $product = Product::whereKey($item['product_id'])->lockForUpdate()->firstOrFail();
 
                 if ($product->stock < $item['quantity']) {
                     throw new \Exception("Not enough stock for {$product->name}");
@@ -158,10 +128,8 @@ class CheckoutController extends Controller
                     'download_count' => 0,
                 ];
 
-                // Handle payment proof upload
-                if ($request->hasFile('payment_proof')) {
-                    $path = $request->file('payment_proof')->store('payment_proofs', 'public');
-                    $purchaseData['payment_proof'] = $path;
+                if ($paymentProofPath) {
+                    $purchaseData['payment_proof'] = $paymentProofPath;
                 }
 
                 $purchase = ProductPurchase::create($purchaseData);
@@ -172,9 +140,13 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+            if ($request->hasSession()) {
+                $request->session()->forget('cart');
+            }
+
             // Send purchase confirmation email for each purchase
             foreach ($purchases as $purchase) {
-                SendProductPurchaseEmail::dispatch($purchase->load('product'));
+                SendProductPurchaseEmail::dispatchAfterResponse($purchase->load('product'));
             }
 
             return response()->json([
@@ -182,9 +154,14 @@ class CheckoutController extends Controller
                 'message' => count($purchases).' order(s) created successfully',
                 'purchases' => $purchases,
                 'transaction_id' => $transactionId,
+                'clear_cart' => true,
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            if ($paymentProofPath && Storage::disk('public')->exists($paymentProofPath)) {
+                Storage::disk('public')->delete($paymentProofPath);
+            }
 
             return response()->json([
                 'success' => false,

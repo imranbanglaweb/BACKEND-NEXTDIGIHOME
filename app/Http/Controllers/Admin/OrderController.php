@@ -337,8 +337,13 @@ class OrderController extends Controller
     {
         $purchase = ProductPurchase::findOrFail($id);
 
-        if ($purchase->payment_proof && Storage::disk('public')->exists($purchase->payment_proof)) {
-            Storage::disk('public')->delete($purchase->payment_proof);
+        $paymentProof = $purchase->payment_proof;
+        $isSharedProof = $paymentProof
+            ? ProductPurchase::where('payment_proof', $paymentProof)->whereKeyNot($purchase->id)->exists()
+            : false;
+
+        if ($paymentProof && ! $isSharedProof && Storage::disk('public')->exists($paymentProof)) {
+            Storage::disk('public')->delete($paymentProof);
         }
 
         $purchase->delete();
