@@ -285,29 +285,11 @@ fbq('track', 'PageView');
                         <i class="fa fa-chart-line mr-2 text-info"></i>
                         <a href="{{ route('metapixel.events') }}">View Events</a>
                     </li>
-                    <li class="mb-2">
-                        <i class="fa fa-exclamation-triangle mr-2 text-warning"></i>
-                        <a href="#debug" onclick="document.getElementById('debug-panel').style.display='block'">Debug Mode</a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Debug Panel (for admins with APP_DEBUG=true) -->
-@if(config('app.debug'))
-<div id="debug-panel" style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.9); color: white; padding: 15px; border-radius: 8px; font-size: 12px; z-index: 9999; max-width: 350px; display: none;">
-    <strong style="color: #00ff00;">Meta Pixel Debug Panel</strong><br>
-    <small>Pixel ID: {{ $pixel_id }}</small><br>
-    <small>Status: {{ $is_enabled ? 'Enabled' : 'Disabled' }}</small><br>
-    <small>Route: {{ $current_route ?? 'N/A' }}</small><br>
-    <small>Tracked: {{ implode(', ', $tracked_events) ?: 'None' }}</small><br>
-    <small>User: {{ auth()->user()->name ?? 'Guest' }}</small><br>
-    <small>Role: {{ auth()->user()->role ?? auth()->user()->roles()->first()->name ?? 'N/A' }}</small><br>
-    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Close</button>
-</div>
-@endif
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

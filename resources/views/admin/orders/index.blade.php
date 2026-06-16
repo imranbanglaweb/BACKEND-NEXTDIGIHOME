@@ -929,15 +929,23 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.deleteBtn', function() {
-        const orderId = $(this).data('id');
-        const actionButton = $(this);
+    window.deleteOrder = function(event, orderId, button) {
+        if (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+
+        const actionButton = $(button || '.deleteBtn[data-id="' + orderId + '"]').first();
         confirmAction('Delete order?', 'This will permanently delete the order and any uploaded payment proof.', 'Delete', function() {
-            postOrderAction(buildUrl(deleteUrlTemplate, orderId), 'Order deleted successfully.', actionButton, 'DELETE');
+            postOrderAction(buildUrl(deleteUrlTemplate, orderId), 'Order deleted successfully.', actionButton, 'POST', { _method: 'DELETE' });
         }, 'danger');
+    };
+
+    $(document).on('click', '.deleteBtn', function(event) {
+        window.deleteOrder(event, $(this).data('id'), this);
     });
 
-    function postOrderAction(url, fallbackMessage, triggerButton, method = 'POST') {
+    function postOrderAction(url, fallbackMessage, triggerButton, method = 'POST', payload = {}) {
         const originalHtml = triggerButton ? triggerButton.html() : '';
 
         if (triggerButton) {
@@ -960,6 +968,7 @@ $(document).ready(function() {
         $.ajax({
             url: url,
             type: method,
+            data: payload,
             headers: { 'X-CSRF-TOKEN': csrfToken },
             success: function(response) {
                 if (typeof Swal !== 'undefined') {

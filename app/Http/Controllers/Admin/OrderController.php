@@ -126,7 +126,7 @@ class OrderController extends Controller
                     }
 
                     $actions .= '<button class="btn btn-sm btn-outline-secondary editBtn" data-id="'.$p->id.'" title="Update Status"><i class="fas fa-edit"></i></button>';
-                    $actions .= '<button class="btn btn-sm btn-outline-danger deleteBtn" data-id="'.$p->id.'" title="Delete Order"><i class="fas fa-trash"></i></button>';
+                    $actions .= '<button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-id="'.$p->id.'" onclick="deleteOrder(event, '.$p->id.', this)" title="Delete Order"><i class="fas fa-trash"></i></button>';
                     $actions .= '</div>';
 
                     return $actions;

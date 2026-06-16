@@ -187,14 +187,3 @@ src="https://www.facebook.com/tr?id={{ $pixelId }}&ev=PageView&noscript=1"
 
 @endif
 
-<!-- Debug Info for Admins -->
-@if($isAdmin && $shouldTrackAdmin && config('app.debug'))
-<div style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999; max-width: 300px; pointer-events: none;">
-    <strong>Meta Pixel Debug</strong><br>
-    Pixel ID: {{ $pixelId }}<br>
-    Status: {{ $isEnabled ? 'Enabled' : 'Disabled' }}<br>
-    Admin Track: {{ $shouldTrackAdmin ? 'Yes' : 'No' }}<br>
-    Route: {{ $currentRoute ?? 'N/A' }}<br>
-    Tracked Events: {{ implode(', ', $trackedEvents) ?: 'None' }}
-</div>
-@endif
