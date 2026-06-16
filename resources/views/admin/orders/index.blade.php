@@ -158,32 +158,47 @@
     </div>
 </section>
 
-<div class="modal" id="viewOrderModal" tabindex="-1" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
+<div class="modal fade order-premium-modal" id="viewOrderModal" tabindex="-1" role="dialog" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content order-modal">
             <div class="modal-header">
-                <div>
-                    <h5 class="modal-title" id="viewOrderModalLabel">Order Details</h5>
-                    <small class="text-muted">Customer, payment, and product information</small>
+                <div class="order-modal-title">
+                    <span class="order-modal-icon"><i class="fas fa-receipt"></i></span>
+                    <div>
+                        <h5 class="modal-title" id="viewOrderModalLabel">Order Details</h5>
+                        <small>Customer, payment, and product information</small>
+                    </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close order-modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body" id="viewOrderContent"></div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+<div class="modal fade order-premium-modal" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content order-modal">
             <div class="modal-header">
-                <div>
-                    <h5 class="modal-title" id="editOrderModalLabel">Update Order</h5>
-                    <small class="text-muted">Change fulfillment status and internal notes</small>
+                <div class="order-modal-title">
+                    <span class="order-modal-icon order-modal-icon-edit"><i class="fas fa-pen"></i></span>
+                    <div>
+                        <h5 class="modal-title" id="editOrderModalLabel">Update Order</h5>
+                        <small>Change fulfillment status and internal notes</small>
+                    </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close order-modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
+                <div class="order-form-preloader" id="editOrderPreloader">
+                    <div class="order-loader"></div>
+                    <strong>Loading order</strong>
+                    <span>Please wait while details are prepared.</span>
+                </div>
                 <form id="editOrderForm">
                     @csrf
                     <input type="hidden" id="editOrderId" name="order_id">
@@ -204,9 +219,10 @@
                         <textarea class="form-control" id="editNotes" name="notes" rows="4" placeholder="Add internal notes for this order"></textarea>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Save Changes
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveOrderBtn">
+                            <span class="btn-ready"><i class="fas fa-save me-2"></i>Save Changes</span>
+                            <span class="btn-loading"><i class="fas fa-spinner fa-spin me-2"></i>Saving</span>
                         </button>
                     </div>
                 </form>
@@ -437,15 +453,110 @@
         width: 32px;
     }
 
+    body.modal-open {
+        background: #f6f8fb !important;
+    }
+
+    .modal-backdrop.show,
+    .modal-backdrop.in {
+        background: #0f172a !important;
+        opacity: 0.48 !important;
+    }
+
+    .order-premium-modal {
+        background: transparent !important;
+    }
+
+    .order-premium-modal.fade .modal-dialog {
+        transform: translateY(18px) scale(0.98);
+        transition: transform 0.22s ease-out;
+    }
+
+    .order-premium-modal.show .modal-dialog,
+    .order-premium-modal.in .modal-dialog {
+        transform: translateY(0) scale(1);
+    }
+
     .order-modal {
+        background: #ffffff;
         border: 0;
-        border-radius: 8px;
-        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+        border-radius: 12px;
+        box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+        overflow: hidden;
     }
 
     .order-modal .modal-header {
+        align-items: center;
+        background: #f8fafc;
         border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
         padding: 18px 20px;
+    }
+
+    .order-modal-title {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+    }
+
+    .order-modal-title h5 {
+        color: #111827;
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .order-modal-title small {
+        color: #64748b;
+        display: block;
+        font-size: 12px;
+        margin-top: 2px;
+    }
+
+    .order-modal-icon {
+        align-items: center;
+        background: #dbeafe;
+        border-radius: 10px;
+        color: #1d4ed8;
+        display: inline-flex;
+        height: 42px;
+        justify-content: center;
+        width: 42px;
+    }
+
+    .order-modal-icon-edit {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .order-modal-close {
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        color: #475569;
+        display: inline-flex;
+        font-size: 22px;
+        height: 36px;
+        justify-content: center;
+        line-height: 1;
+        opacity: 1;
+        padding: 0;
+        text-shadow: none;
+        width: 36px;
+    }
+
+    .order-modal-close:hover {
+        background: #fee2e2;
+        border-color: #fecaca;
+        color: #b91c1c;
+        opacity: 1;
+    }
+
+    .order-modal .modal-body {
+        padding: 20px;
+        position: relative;
     }
 
     .order-detail-grid {
@@ -471,6 +582,94 @@
     .detail-box strong {
         color: #111827;
         font-size: 15px;
+    }
+
+    .order-loading-state,
+    .order-form-preloader {
+        align-items: center;
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 230px;
+        text-align: center;
+    }
+
+    .order-form-preloader {
+        background: rgba(255, 255, 255, 0.88);
+        inset: 0;
+        min-height: 100%;
+        position: absolute;
+        z-index: 5;
+    }
+
+    .order-form-preloader.is-hidden {
+        display: none;
+    }
+
+    .order-loading-state strong,
+    .order-form-preloader strong {
+        color: #111827;
+        font-size: 16px;
+        margin-top: 14px;
+    }
+
+    .order-loading-state span,
+    .order-form-preloader span {
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .order-loader {
+        animation: orderSpin 0.9s linear infinite;
+        border: 3px solid #e5e7eb;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        height: 44px;
+        width: 44px;
+    }
+
+    #saveOrderBtn .btn-loading {
+        display: none;
+    }
+
+    #saveOrderBtn.is-loading .btn-ready {
+        display: none;
+    }
+
+    #saveOrderBtn.is-loading .btn-loading {
+        display: inline;
+    }
+
+    .order-swal-popup {
+        border-radius: 12px !important;
+        box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24) !important;
+        padding: 22px !important;
+    }
+
+    .order-swal-popup .swal2-title {
+        color: #111827 !important;
+        font-size: 22px !important;
+        font-weight: 800 !important;
+    }
+
+    .order-swal-popup .swal2-html-container,
+    .order-swal-popup .swal2-content {
+        color: #64748b !important;
+        font-size: 14px !important;
+    }
+
+    .order-swal-confirm,
+    .order-swal-cancel {
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        padding: 10px 18px !important;
+    }
+
+    @keyframes orderSpin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     @media (max-width: 767px) {
@@ -507,6 +706,41 @@ $(document).ready(function() {
 
     function buildUrl(template, id) {
         return template.replace(':id', id);
+    }
+
+    function modalLoadingState(title, message) {
+        return `
+            <div class="order-loading-state">
+                <div class="order-loader"></div>
+                <strong>${escapeHtml(title)}</strong>
+                <span>${escapeHtml(message)}</span>
+            </div>
+        `;
+    }
+
+    function showOrderModal(selector) {
+        $(selector).modal({
+            backdrop: true,
+            keyboard: true,
+            show: true
+        });
+    }
+
+    function hideOrderModal(selector) {
+        $(selector).modal('hide');
+    }
+
+    function cleanupOrderModalState() {
+        setTimeout(function() {
+            if (!$('.modal.show, .modal.in').length) {
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css({
+                    overflow: '',
+                    paddingRight: '',
+                    backgroundColor: ''
+                });
+            }
+        }, 180);
     }
 
     function activeFilters() {
@@ -587,10 +821,16 @@ $(document).ready(function() {
         window.location.href = exportUrl + (params ? '?' + params : '');
     });
 
+    $('.order-premium-modal').on('hidden.bs.modal', cleanupOrderModalState);
+
+    $(document).on('click', '.order-modal-close, [data-dismiss="modal"]', function() {
+        hideOrderModal($(this).closest('.modal'));
+    });
+
     $(document).on('click', '.viewBtn', function() {
         const orderId = $(this).data('id');
-        $('#viewOrderContent').html('<div class="py-5 text-center"><div class="spinner-border text-primary" role="status"></div><div class="mt-3 text-muted">Loading order details...</div></div>');
-        $('#viewOrderModal').modal('show');
+        $('#viewOrderContent').html(modalLoadingState('Loading order details', 'Customer and payment data are being prepared.'));
+        showOrderModal('#viewOrderModal');
 
         $.get(buildUrl(showUrlTemplate, orderId))
             .done(function(response) {
@@ -625,6 +865,11 @@ $(document).ready(function() {
 
     $(document).on('click', '.editBtn', function() {
         const orderId = $(this).data('id');
+        $('#editOrderForm')[0].reset();
+        $('#editOrderId').val('');
+        $('#editOrderPreloader').removeClass('is-hidden');
+        $('#saveOrderBtn').prop('disabled', true).removeClass('is-loading');
+        showOrderModal('#editOrderModal');
 
         $.get(buildUrl(showUrlTemplate, orderId))
             .done(function(response) {
@@ -632,9 +877,11 @@ $(document).ready(function() {
                 $('#editOrderId').val(order.id);
                 $('#editStatus').val(order.status);
                 $('#editNotes').val(order.notes || '');
-                $('#editOrderModal').modal('show');
+                $('#editOrderPreloader').addClass('is-hidden');
+                $('#saveOrderBtn').prop('disabled', false);
             })
             .fail(function() {
+                hideOrderModal('#editOrderModal');
                 showAlert('error', 'Unable to load order for editing.');
             });
     });
@@ -642,6 +889,9 @@ $(document).ready(function() {
     $('#editOrderForm').on('submit', function(event) {
         event.preventDefault();
         const orderId = $('#editOrderId').val();
+        const saveBtn = $('#saveOrderBtn');
+
+        saveBtn.prop('disabled', true).addClass('is-loading');
 
         $.ajax({
             url: buildUrl(updateUrlTemplate, orderId),
@@ -649,41 +899,76 @@ $(document).ready(function() {
             data: $(this).serialize() + '&_method=PUT',
             headers: { 'X-CSRF-TOKEN': csrfToken },
             success: function(response) {
-                $('#editOrderModal').modal('hide');
+                hideOrderModal('#editOrderModal');
                 showAlert('success', response.message || 'Order updated successfully.');
                 ordersTable.ajax.reload(null, false);
             },
             error: function(xhr) {
                 showAlert('error', xhr.responseJSON?.message || 'Failed to update order.');
+            },
+            complete: function() {
+                saveBtn.prop('disabled', false).removeClass('is-loading');
             }
         });
     });
 
     $(document).on('click', '.approveBtn', function() {
         const orderId = $(this).data('id');
+        const actionButton = $(this);
         confirmAction('Approve order?', 'This will mark the order as completed and send delivery email.', 'Approve', function() {
-            postOrderAction(buildUrl(approveUrlTemplate, orderId), 'Order approved successfully.');
+            postOrderAction(buildUrl(approveUrlTemplate, orderId), 'Order approved successfully.', actionButton);
         });
     });
 
     $(document).on('click', '.rejectBtn', function() {
         const orderId = $(this).data('id');
+        const actionButton = $(this);
         confirmAction('Reject order?', 'This will mark the order as failed.', 'Reject', function() {
-            postOrderAction(buildUrl(rejectUrlTemplate, orderId), 'Order rejected successfully.');
+            postOrderAction(buildUrl(rejectUrlTemplate, orderId), 'Order rejected successfully.', actionButton);
         });
     });
 
-    function postOrderAction(url, fallbackMessage) {
+    function postOrderAction(url, fallbackMessage, triggerButton) {
+        const originalHtml = triggerButton ? triggerButton.html() : '';
+
+        if (triggerButton) {
+            triggerButton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+        }
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Processing order',
+                text: 'Please wait while the order is updated.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+        }
+
         $.ajax({
             url: url,
             type: 'POST',
             headers: { 'X-CSRF-TOKEN': csrfToken },
             success: function(response) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.close();
+                }
                 showAlert('success', response.message || fallbackMessage);
                 ordersTable.ajax.reload(null, false);
             },
             error: function(xhr) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.close();
+                }
                 showAlert('error', xhr.responseJSON?.message || 'Order action failed.');
+            },
+            complete: function() {
+                if (triggerButton) {
+                    triggerButton.prop('disabled', false).html(originalHtml);
+                }
             }
         });
     }
@@ -703,7 +988,13 @@ $(document).ready(function() {
             showCancelButton: true,
             confirmButtonText: confirmText,
             cancelButtonText: 'Cancel',
-            confirmButtonColor: '#111827'
+            confirmButtonColor: '#111827',
+            cancelButtonColor: '#64748b',
+            customClass: {
+                popup: 'order-swal-popup',
+                confirmButton: 'order-swal-confirm',
+                cancelButton: 'order-swal-cancel'
+            }
         }).then(function(result) {
             if (result.isConfirmed) {
                 onConfirm();
