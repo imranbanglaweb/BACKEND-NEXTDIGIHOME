@@ -286,6 +286,12 @@ class RolePermissionSeeder extends Seeder
             // Maintenance Schedule
             'maintenance-schedule-manage',
 
+            // System
+            'system-configure',
+            'system-maintenance',
+            'system-backup',
+            'system-logs',
+
             // Driver Availability Own
             'driver-availability-own',
 

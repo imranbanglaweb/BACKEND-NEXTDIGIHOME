@@ -283,6 +283,7 @@ class PermissionSeeder extends Seeder
             'usage-view',
             'analytics-view',
             'system-configure',
+            'system-logs',
             'report-tenant-usage',
             'report-billing',
 
@@ -384,6 +385,8 @@ class PermissionSeeder extends Seeder
             'maintenance-view',
             'maintenance-create',
             'maintenance-edit',
+            'system-configure',
+            'system-logs',
             'report-requisition',
             'report-trip-fuel',
             'report-vehicle-utilization',

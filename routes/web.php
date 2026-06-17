@@ -472,9 +472,9 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('reports/export', [ReportsController::class, 'export'])->name('reports.export');
     Route::post('reports/export/process', [ReportsController::class, 'processExport'])->name('reports.export.process');
 
-    Route::get('admin/system/info', [SystemController::class, 'info'])->name('system.info');
-    Route::get('admin/system/logs', [SystemController::class, 'logs'])->name('system.logs');
-    Route::get('admin/system/cache', [SystemController::class, 'cache'])->name('system.cache');   
+    Route::get('system/info', [SystemController::class, 'info'])->name('system.info');
+    Route::get('system/logs', [SystemController::class, 'logs'])->name('system.logs');
+    Route::get('system/cache', [SystemController::class, 'cache'])->name('system.cache');   
     Route::post('system/cache/clear', [SystemController::class, 'clearCache'])->name('system.cache.clear');
     Route::get('system/backup', [SystemController::class, 'backup'])->name('system.backup');
     Route::post('system/backup/create', [SystemController::class, 'createBackup'])->name('system.backup.create');
