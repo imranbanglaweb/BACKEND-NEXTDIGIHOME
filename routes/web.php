@@ -491,6 +491,7 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     Route::post('settings/general/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneral'])->name('settings.general.update');
     Route::get('settings/email', [App\Http\Controllers\Admin\SettingsController::class, 'email'])->name('settings.email');
     Route::post('settings/email/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateEmail'])->name('settings.email.update');
+    Route::post('email/test/send', [App\Http\Controllers\Admin\SettingsController::class, 'sendTestEmail'])->name('email.test.send');
     Route::get('settings/payments', [App\Http\Controllers\Admin\SettingsController::class, 'payments'])->name('settings.payments');
     Route::post('settings/payments/update', [App\Http\Controllers\Admin\SettingsController::class, 'updatePayments'])->name('settings.payments.update');
     Route::get('settings/languages', [App\Http\Controllers\Admin\SettingsController::class, 'languages'])->name('settings.languages');

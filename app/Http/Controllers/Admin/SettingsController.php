@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
@@ -176,6 +178,52 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to update email settings: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Failed to update email settings'], 500);
+        }
+    }
+
+    /**
+     * Send a test email using the saved mail settings.
+     */
+    public function sendTestEmail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()], 400);
+        }
+
+        try {
+            $settings = DB::table('settings')->where('id', 1)->first();
+
+            if ($settings) {
+                Config::set('mail.default', $settings->mail_mailer ?? config('mail.default', 'smtp'));
+                Config::set('mail.from.address', $settings->mail_from_address ?: config('mail.from.address'));
+                Config::set('mail.from.name', $settings->mail_from_name ?: config('mail.from.name'));
+
+                if (($settings->mail_mailer ?? 'smtp') === 'smtp') {
+                    Config::set('mail.mailers.smtp.host', $settings->mail_host);
+                    Config::set('mail.mailers.smtp.port', $settings->mail_port ?? 587);
+                    Config::set('mail.mailers.smtp.encryption', $settings->mail_encryption);
+                    Config::set('mail.mailers.smtp.username', $settings->mail_username);
+                    Config::set('mail.mailers.smtp.password', $settings->mail_password);
+                }
+            }
+
+            Mail::raw('This is a test email from your application email settings page.', function ($message) use ($request) {
+                $message->to($request->email)
+                    ->subject('Test Email');
+            });
+
+            return response()->json(['success' => true, 'message' => 'Test email sent successfully']);
+        } catch (\Exception $e) {
+            Log::error('Failed to send test email: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send test email: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
