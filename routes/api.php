@@ -70,7 +70,7 @@ Route::middleware(['api', 'auth'])->group(function () {
 
 // Delivery API Routes
 Route::middleware(['api'])->group(function () {
-    Route::get('download', [DeliveryController::class, 'download']);
+    Route::get('download', [DeliveryController::class, 'download'])->name('api.download');
     Route::post('verify-token', [DeliveryController::class, 'verifyToken']);
 });
 

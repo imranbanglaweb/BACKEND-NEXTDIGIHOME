@@ -734,7 +734,7 @@ class EmailService
         }
 
         $data = $this->prepareProductPurchaseData($purchase);
-        $data['download_url'] = route('download', ['token' => $purchase->download_token]);
+        $data['download_url'] = route('api.download', ['token' => $purchase->download_token]);
 
         return $this->sendTemplatedEmail(
             'product_delivery',
@@ -755,8 +755,7 @@ class EmailService
             ? $baseUrl.'/public/admin_resource/assets/images/'.$adminSettings->admin_logo
             : $baseUrl.'/public/admin_resource/assets/images/default.png';
 
-        // Generate download URL (route not named, so construct manually)
-        $downloadUrl = $baseUrl . '/api/download?token=' . $purchase->download_token;
+        $downloadUrl = route('api.download', ['token' => $purchase->download_token]);
 
         return [
             'customer_name' => $purchase->customer_name,
