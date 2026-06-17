@@ -187,10 +187,21 @@
                                     </div>
                                     <div class="card-body">
                                         <p class="text-muted mb-3">Configure email templates for different notification types.</p>
+                                        @php
+                                            $emailTemplatesRoute = null;
+
+                                            if (Route::has('admin.email-templates.index')) {
+                                                $emailTemplatesRoute = route('admin.email-templates.index');
+                                            } elseif (Route::has('email-templates.index')) {
+                                                $emailTemplatesRoute = route('email-templates.index');
+                                            }
+                                        @endphp
                                         <div class="d-flex gap-2 flex-wrap">
-                                            <a href="{{ route('admin.email-templates.index') }}" class="btn btn-outline-primary">
-                                                <i class="fas fa-envelope"></i> Email Templates
-                                            </a>
+                                            @if($emailTemplatesRoute)
+                                                <a href="{{ $emailTemplatesRoute }}" class="btn btn-outline-primary">
+                                                    <i class="fas fa-envelope"></i> Email Templates
+                                                </a>
+                                            @endif
                                             <button type="button" class="btn btn-outline-info" onclick="testNotification()">
                                                 <i class="fas fa-paper-plane"></i> Send Test Notification
                                             </button>

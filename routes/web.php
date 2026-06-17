@@ -515,8 +515,9 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     // ============================================================================
     
     // Pages
-    Route::resource('pages', PageContentController::class);
     Route::get('pages/data', [PageContentController::class, 'getData'])->name('pages.data');
+    Route::post('pages/{pageContent}/toggle-status', [PageContentController::class, 'toggleStatus'])->name('pages.toggle-status');
+    Route::resource('pages', PageContentController::class)->parameters(['pages' => 'pageContent']);
     
     // Hero Sliders
     Route::resource('hero-sliders', HeroSliderController::class);
