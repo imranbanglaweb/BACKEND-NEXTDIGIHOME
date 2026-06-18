@@ -778,6 +778,71 @@ class EmailService
             'admin_title' => $adminSettings->admin_title ?? 'Digital Products Store',
             'admin_description' => $adminSettings->admin_description ?? 'Digital Products Store',
             'admin_logo_url' => $adminLogoUrl,
+            'website_url' => $adminSettings->canonical_url ?? config('app.url', url('/')),
+            'facebook_page_url' => $this->getFacebookPageUrl(),
+            'related_products_html' => $this->getRelatedProductsHtml($purchase->product_id),
         ];
+    }
+
+    protected function getFacebookPageUrl(): string
+    {
+        $contact = \App\Models\ContactInfo::active()
+            ->where(function ($query) {
+                $query->where('type', 'social')
+                    ->orWhere('title', 'like', '%facebook%')
+                    ->orWhere('value', 'like', '%facebook.com%');
+            })
+            ->orderBy('sort_order')
+            ->first();
+
+        return $contact->value ?? env('FACEBOOK_PAGE_URL', 'https://www.facebook.com/nextdigihome');
+    }
+
+    protected function getRelatedProductsHtml(?int $currentProductId = null): string
+    {
+        $products = \App\Models\Product::query()
+            ->where('active', true)
+            ->when($currentProductId, fn ($query) => $query->where('id', '!=', $currentProductId))
+            ->orderByDesc('featured')
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        if ($products->isEmpty()) {
+            return '<p style="margin:0; color:#64748b; font-size:13px;">Explore more premium digital products on our website.</p>';
+        }
+
+        $items = $products->map(function ($product) {
+            $image = $product->thumbnail ?: $product->og_image;
+            $imageUrl = null;
+
+            if ($image) {
+                $imageUrl = str_starts_with($image, 'http://') || str_starts_with($image, 'https://')
+                    ? $image
+                    : asset('public/storage/'.$image);
+            }
+
+            $imageHtml = $imageUrl
+                ? '<img src="'.e($imageUrl).'" alt="'.e($product->name).'" style="width:58px; height:58px; border-radius:10px; object-fit:cover; display:block;">'
+                : '<div style="width:58px; height:58px; border-radius:10px; background:#e0e7ff; color:#3730a3; display:flex; align-items:center; justify-content:center; font-weight:800;">ND</div>';
+
+            $price = number_format((float) $product->price, 2);
+            $url = e(url('/products/'.$product->slug));
+            $name = e($product->name);
+            $kind = e($product->product_kind_label);
+
+            return <<<HTML
+<td style="width:33.333%; padding:0 8px 0 0; vertical-align:top;">
+    <a href="{$url}" style="display:block; border:1px solid #e5e7eb; border-radius:12px; padding:12px; background:#ffffff; text-decoration:none;">
+        {$imageHtml}
+        <div style="color:#111827; font-size:13px; line-height:1.35; font-weight:800; margin-top:10px;">{$name}</div>
+        <div style="color:#64748b; font-size:11px; margin-top:4px;">{$kind}</div>
+        <div style="color:#16a34a; font-size:13px; font-weight:800; margin-top:8px;">\${$price}</div>
+    </a>
+</td>
+HTML;
+        })->implode('');
+
+        return '<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;"><tr>'.$items.'</tr></table>';
     }
 }

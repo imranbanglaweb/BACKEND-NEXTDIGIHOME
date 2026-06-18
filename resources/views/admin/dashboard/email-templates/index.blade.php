@@ -10,40 +10,30 @@ Email Templates
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <style>
-    .template-shell {
-        background: #f6f8fb;
-        min-height: calc(100vh - 90px);
-        padding: 24px 0;
-    }
-    .template-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        align-items: center;
-        margin-bottom: 18px;
-    }
-    .template-title {
-        color: #172033;
-        font-size: 24px;
-        font-weight: 700;
-        margin: 0;
-    }
-    .template-subtitle {
-        color: #667085;
-        margin: 6px 0 0;
-        font-size: 14px;
-    }
     .stat-strip {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 16px;
+        gap: 16px;
+        margin: 18px 0;
     }
     .stat-tile {
-        background: #fff;
-        border: 1px solid #e6eaf0;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
-        padding: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        padding: 18px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-tile::after {
+        content: "";
+        position: absolute;
+        right: -28px;
+        top: -28px;
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        background: rgba(59, 130, 246, 0.08);
     }
     .stat-label {
         color: #667085;
@@ -56,20 +46,6 @@ Email Templates
         font-size: 28px;
         font-weight: 800;
         margin-top: 4px;
-    }
-    .filter-bar {
-        align-items: end;
-        background: #fff;
-        border: 1px solid #e6eaf0;
-        border-radius: 8px;
-        display: flex;
-        gap: 12px;
-        justify-content: space-between;
-        margin-bottom: 16px;
-        padding: 14px;
-    }
-    .filter-field {
-        min-width: 260px;
     }
     .table th, .table td {
         vertical-align: middle !important;
@@ -95,18 +71,123 @@ Email Templates
     .template-card {
         border: 1px solid #e6eaf0 !important;
         border-radius: 8px !important;
+        overflow: hidden;
+    }
+    .template-card > .card-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+    }
+    .template-filter-tools {
+        align-items: center;
+        display: flex;
+        gap: 8px;
+    }
+    .template-filter-tools select {
+        min-width: 240px;
+    }
+    .template-table-wrap {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    #emailTemplateTable {
+        margin-bottom: 0 !important;
+    }
+    #emailTemplateTable thead th {
+        background: #111827;
+        border-color: #111827;
+        color: #ffffff;
+        font-size: 12px;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .template-actions {
+        display: inline-flex;
+        gap: 6px;
+        justify-content: center;
+        white-space: nowrap;
+    }
+    .template-actions .btn {
+        align-items: center;
+        border-radius: 6px;
+        display: inline-flex;
+        height: 32px;
+        justify-content: center;
+        padding: 0;
+        width: 34px;
+    }
+    .email-preview-modal .modal-dialog {
+        max-width: 980px;
+    }
+    .email-preview-modal .modal-content {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, .28);
+        overflow: hidden;
+    }
+    .email-preview-modal .modal-header {
+        align-items: center;
+        background: linear-gradient(135deg, #111827 0%, #1d4ed8 100%);
+        border: 0;
+        padding: 20px 24px;
+    }
+    .email-preview-modal .modal-title {
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.3;
+    }
+    .email-preview-modal .modal-title small {
+        color: rgba(255,255,255,.72);
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 3px;
+    }
+    .email-preview-modal .close {
+        color: #ffffff;
+        opacity: .9;
+        text-shadow: none;
+    }
+    .email-preview-modal .modal-body {
+        background: #e8edf5;
+        max-height: 74vh;
+        overflow-y: auto;
+        padding: 24px;
+    }
+    .email-preview-modal .modal-footer {
+        background: #ffffff;
+        border-top: 1px solid #e5e7eb;
+        padding: 14px 22px;
+    }
+    .preview-loading {
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 360px;
+    }
+    .preview-loading i {
+        color: #2563eb;
     }
     @media (max-width: 767px) {
-        .template-header,
-        .filter-bar {
+        .template-card > .card-header,
+        .template-filter-tools {
             align-items: stretch;
             flex-direction: column;
         }
         .stat-strip {
             grid-template-columns: 1fr;
         }
-        .filter-field {
+        .template-filter-tools select {
             min-width: 0;
+            width: 100%;
         }
     }
 </style>
@@ -208,30 +289,31 @@ Email Templates
 </section>
 
 <!-- Preview Modal -->
-<div class="modal" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
+<div class="modal email-preview-modal" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="previewModalLabel"><i class="fa fa-eye"></i> Template Preview</h5>
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">
+                    <i class="fa fa-display"></i> Template Preview
+                    <small>Branded customer email with marketing recommendations</small>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="previewContent" class="border rounded p-3" style="min-height: 300px; background: #fff;"></div>
+                <div id="previewContent"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                <a href="{{ route('admin.email.test') }}" class="btn btn-info"><i class="fa fa-paper-plane"></i> Send Test Email</a>
             </div>
         </div>
     </div>
 </div>
 <style>
     .modal-backdrop.show {
-        opacity: 0.5 !important;
-    }
-    #previewModal .modal-content {
-        background: #fff;
+        opacity: 0.72 !important;
     }
 </style>
 @endsection
@@ -253,7 +335,6 @@ $(function() {
             { data: 'variables_count', name: 'variables_count', className: 'text-center', orderable: false, searchable: false },
             { data: 'is_active', name: 'is_active', className: 'text-center', orderable: false },
             { data: 'updated_at', name: 'updated_at', className: 'text-nowrap' },
-            { data: 'preview', name: 'preview', orderable: false, searchable: false, className: 'text-center' },
             { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
         ],
         language: {
@@ -383,8 +464,8 @@ $(function() {
         let id = $(this).data('id');
         let name = $(this).data('name');
         
-        $('#previewModalLabel').html('<i class="fa fa-eye"></i> Preview: ' + name);
-        $('#previewContent').html('<div class="text-center py-5"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading preview...</p></div>');
+        $('#previewModalLabel').html('<i class="fa fa-display"></i> Preview: ' + name + '<small>Branded customer email with marketing recommendations</small>');
+        $('#previewContent').html('<div class="preview-loading"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-3 mb-0 text-muted">Preparing branded email preview...</p></div>');
         
         $('#previewModal').modal('show');
         
@@ -395,7 +476,7 @@ $(function() {
                 $('#previewContent').html(response);
             },
             error: function() {
-                $('#previewContent').html('<div class="alert alert-danger">Failed to load preview</div>');
+                $('#previewContent').html('<div class="alert alert-danger mb-0">Failed to load preview</div>');
             }
         });
     });

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmailTemplate;
+use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -171,7 +173,7 @@ class EmailTemplateController extends Controller
     {
         $rendered = $emailTemplate->render($this->sampleData());
 
-        return response($rendered['body']);
+        return response($this->wrapPreview($rendered['body']));
     }
 
     protected function validator(Request $request, ?EmailTemplate $emailTemplate = null)
@@ -207,6 +209,10 @@ class EmailTemplateController extends Controller
 
     protected function sampleData(): array
     {
+        $settings = Setting::first();
+        $websiteUrl = $this->websiteUrl($settings);
+        $facebookUrl = $this->facebookUrl();
+
         return [
             'customer_name' => 'Ayesha Rahman',
             'customer_email' => 'customer@example.com',
@@ -224,10 +230,160 @@ class EmailTemplateController extends Controller
             'validity_label' => '30 days',
             'purchase_type' => 'Digital Download',
             'company_name' => config('app.name', 'Next Digi Home'),
-            'admin_title' => config('app.name', 'Next Digi Home'),
-            'admin_description' => 'Premium Digital Products Marketplace',
-            'admin_logo_url' => asset('public/admin_resource/assets/images/default.png'),
+            'admin_title' => $settings->admin_title ?? config('app.name', 'Next Digi Home'),
+            'admin_description' => $settings->admin_description ?? 'Premium Digital Products Marketplace',
+            'admin_logo_url' => $this->logoUrl($settings),
+            'website_url' => $websiteUrl,
+            'facebook_page_url' => $facebookUrl,
+            'related_products_html' => $this->relatedProductsHtml(),
             'year' => date('Y'),
         ];
+    }
+
+    protected function wrapPreview(string $body): string
+    {
+        $settings = Setting::first();
+        $logoUrl = $this->logoUrl($settings);
+        $title = e($settings->admin_title ?? config('app.name', 'Next Digi Home'));
+        $description = e($settings->admin_description ?? 'Premium Digital Products Marketplace');
+        $websiteUrl = e($this->websiteUrl($settings));
+        $facebookUrl = e($this->facebookUrl());
+        $relatedProducts = $this->relatedProductsHtml();
+
+        $logoHtml = $logoUrl
+            ? '<img src="'.e($logoUrl).'" alt="'.$title.'" style="height:52px; max-width:190px; object-fit:contain; display:block;">'
+            : '<div style="font-size:24px; font-weight:800; color:#ffffff;">'.$title.'</div>';
+
+        $year = date('Y');
+
+        return <<<HTML
+<div style="background:#eef2f7; padding:28px; border-radius:18px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; max-width:760px; margin:0 auto; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 24px 70px rgba(15,23,42,.16); font-family:Arial, sans-serif;">
+        <tr>
+            <td style="background:linear-gradient(135deg,#111827 0%,#1d4ed8 100%); padding:28px 34px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+                    <tr>
+                        <td style="vertical-align:middle;">{$logoHtml}</td>
+                        <td style="vertical-align:middle; text-align:right;">
+                            <div style="color:#ffffff; font-size:18px; font-weight:800;">{$title}</div>
+                            <div style="color:#dbeafe; font-size:13px; margin-top:5px;">{$description}</div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:0; background:#ffffff;">
+                {$body}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:28px 34px; background:#f8fafc; border-top:1px solid #e5e7eb;">
+                <div style="font-size:16px; font-weight:800; color:#111827; margin-bottom:14px;">Explore more digital products</div>
+                {$relatedProducts}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:24px 34px; background:#111827;">
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+                    <tr>
+                        <td style="color:#cbd5e1; font-size:13px;">&copy; {$year} {$title}. All rights reserved.</td>
+                        <td style="text-align:right;">
+                            <a href="{$websiteUrl}" style="color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; margin-right:14px;">Website</a>
+                            <a href="{$facebookUrl}" style="color:#93c5fd; text-decoration:none; font-size:13px; font-weight:700;">Facebook</a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+HTML;
+    }
+
+    protected function relatedProductsHtml(): string
+    {
+        $products = Product::query()
+            ->where('active', true)
+            ->orderByDesc('featured')
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        if ($products->isEmpty()) {
+            return '<p style="margin:0; color:#64748b; font-size:13px;">Featured digital products will appear here after products are added.</p>';
+        }
+
+        $items = $products->map(function (Product $product) {
+            $imageUrl = $this->productImageUrl($product);
+            $imageHtml = $imageUrl
+                ? '<img src="'.e($imageUrl).'" alt="'.e($product->name).'" style="width:58px; height:58px; border-radius:10px; object-fit:cover; display:block;">'
+                : '<div style="width:58px; height:58px; border-radius:10px; background:#e0e7ff; color:#3730a3; display:flex; align-items:center; justify-content:center; font-weight:800;">ND</div>';
+
+            $price = number_format((float) $product->price, 2);
+            $url = e(url('/products/'.$product->slug));
+            $name = e($product->name);
+            $kind = e($product->product_kind_label);
+
+            return <<<HTML
+<td style="width:33.333%; padding:0 8px 0 0; vertical-align:top;">
+    <a href="{$url}" style="display:block; border:1px solid #e5e7eb; border-radius:12px; padding:12px; background:#ffffff; text-decoration:none;">
+        {$imageHtml}
+        <div style="color:#111827; font-size:13px; line-height:1.35; font-weight:800; margin-top:10px;">{$name}</div>
+        <div style="color:#64748b; font-size:11px; margin-top:4px;">{$kind}</div>
+        <div style="color:#16a34a; font-size:13px; font-weight:800; margin-top:8px;">\${$price}</div>
+    </a>
+</td>
+HTML;
+        })->implode('');
+
+        return '<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;"><tr>'.$items.'</tr></table>';
+    }
+
+    protected function logoUrl(?Setting $settings): ?string
+    {
+        if ($settings && $settings->admin_logo) {
+            return asset('public/admin_resource/assets/images/'.$settings->admin_logo);
+        }
+
+        if ($settings && $settings->site_logo) {
+            return asset('public/admin_resource/assets/images/'.$settings->site_logo);
+        }
+
+        return null;
+    }
+
+    protected function websiteUrl(?Setting $settings): string
+    {
+        return $settings->canonical_url ?: config('app.url', url('/'));
+    }
+
+    protected function facebookUrl(): string
+    {
+        $contact = \App\Models\ContactInfo::active()
+            ->where(function ($query) {
+                $query->where('type', 'social')
+                    ->orWhere('title', 'like', '%facebook%')
+                    ->orWhere('value', 'like', '%facebook.com%');
+            })
+            ->orderBy('sort_order')
+            ->first();
+
+        return $contact->value ?? env('FACEBOOK_PAGE_URL', 'https://www.facebook.com/nextdigihome');
+    }
+
+    protected function productImageUrl(Product $product): ?string
+    {
+        $image = $product->thumbnail ?: $product->og_image;
+
+        if (! $image) {
+            return null;
+        }
+
+        if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
+            return $image;
+        }
+
+        return asset('public/storage/'.$image);
     }
 }

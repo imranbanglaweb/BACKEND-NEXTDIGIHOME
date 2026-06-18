@@ -180,7 +180,16 @@ class EmailTemplateSeeder extends Seeder
 
     private function variables(array $variables): array
     {
-        return $variables;
+        return array_merge([
+            'admin_title' => 'Company title from admin settings',
+            'admin_description' => 'Description from admin settings',
+            'admin_logo_url' => 'Logo URL from admin settings',
+            'company_name' => 'Company name from config',
+            'website_url' => 'Public website URL',
+            'facebook_page_url' => 'Facebook page URL',
+            'related_products_html' => 'HTML block with recommended products',
+            'year' => 'Current year',
+        ], $variables);
     }
 
     private function layout(
@@ -205,6 +214,7 @@ class EmailTemplateSeeder extends Seeder
 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #e6eaf0; border-radius:8px; overflow:hidden; font-family:Arial, sans-serif;">
     <tr>
         <td style="background:#101828; padding:28px 32px;">
+            <img src="{{admin_logo_url}}" alt="{{admin_title}}" style="height:46px; max-width:180px; object-fit:contain; display:block; margin-bottom:14px;">
             <h1 style="margin:0; color:#ffffff; font-size:24px; line-height:1.3;">{{admin_title}}</h1>
             <p style="margin:8px 0 0; color:#cfd7e6; font-size:14px;">{{admin_description}}</p>
         </td>
@@ -226,8 +236,22 @@ class EmailTemplateSeeder extends Seeder
         </td>
     </tr>
     <tr>
-        <td style="background:#f8fafc; padding:20px 32px; text-align:center; border-top:1px solid #eef2f6;">
-            <p style="margin:0; color:#475467; font-size:13px;">&copy; {{year}} {{company_name}}. All rights reserved.</p>
+        <td style="padding:26px 32px; background:#f8fafc; border-top:1px solid #eef2f6;">
+            <h3 style="margin:0 0 14px; color:#101828; font-size:17px;">Explore more digital products</h3>
+            {{related_products_html}}
+        </td>
+    </tr>
+    <tr>
+        <td style="background:#101828; padding:20px 32px; border-top:1px solid #1f2937;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+                <tr>
+                    <td style="color:#cbd5e1; font-size:13px;">&copy; {{year}} {{company_name}}. All rights reserved.</td>
+                    <td style="text-align:right;">
+                        <a href="{{website_url}}" style="color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; margin-right:14px;">Website</a>
+                        <a href="{{facebook_page_url}}" style="color:#93c5fd; text-decoration:none; font-size:13px; font-weight:700;">Facebook</a>
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>
