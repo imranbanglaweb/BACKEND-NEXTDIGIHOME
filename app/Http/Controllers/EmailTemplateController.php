@@ -242,58 +242,12 @@ class EmailTemplateController extends Controller
 
     protected function wrapPreview(string $body): string
     {
-        $settings = Setting::first();
-        $logoUrl = $this->logoUrl($settings);
-        $title = e($settings->admin_title ?? config('app.name', 'Next Digi Home'));
-        $description = e($settings->admin_description ?? 'Premium Digital Products Marketplace');
-        $websiteUrl = e($this->websiteUrl($settings));
-        $facebookUrl = e($this->facebookUrl());
-        $relatedProducts = $this->relatedProductsHtml();
-
-        $logoHtml = $logoUrl
-            ? '<img src="'.e($logoUrl).'" alt="'.$title.'" style="height:52px; max-width:190px; object-fit:contain; display:block;">'
-            : '<div style="font-size:24px; font-weight:800; color:#ffffff;">'.$title.'</div>';
-
-        $year = date('Y');
-
         return <<<HTML
 <div style="background:#eef2f7; padding:28px; border-radius:18px;">
     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; max-width:760px; margin:0 auto; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 24px 70px rgba(15,23,42,.16); font-family:Arial, sans-serif;">
         <tr>
-            <td style="background:linear-gradient(135deg,#111827 0%,#1d4ed8 100%); padding:28px 34px;">
-                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
-                    <tr>
-                        <td style="vertical-align:middle;">{$logoHtml}</td>
-                        <td style="vertical-align:middle; text-align:right;">
-                            <div style="color:#ffffff; font-size:18px; font-weight:800;">{$title}</div>
-                            <div style="color:#dbeafe; font-size:13px; margin-top:5px;">{$description}</div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
             <td style="padding:0; background:#ffffff;">
                 {$body}
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:28px 34px; background:#f8fafc; border-top:1px solid #e5e7eb;">
-                <div style="font-size:16px; font-weight:800; color:#111827; margin-bottom:14px;">Explore more digital products</div>
-                {$relatedProducts}
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:24px 34px; background:#111827;">
-                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
-                    <tr>
-                        <td style="color:#cbd5e1; font-size:13px;">&copy; {$year} {$title}. All rights reserved.</td>
-                        <td style="text-align:right;">
-                            <a href="{$websiteUrl}" style="color:#ffffff; text-decoration:none; font-size:13px; font-weight:700; margin-right:14px;">Website</a>
-                            <a href="{$facebookUrl}" style="color:#93c5fd; text-decoration:none; font-size:13px; font-weight:700;">Facebook</a>
-                        </td>
-                    </tr>
-                </table>
             </td>
         </tr>
     </table>
