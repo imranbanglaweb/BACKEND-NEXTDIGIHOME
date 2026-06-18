@@ -5,31 +5,60 @@
 <style>
     .settings-container {
         background: #ffffff;
-        padding: 25px;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 28px;
+        border-radius: 18px;
+        box-shadow: 0 18px 55px rgba(15, 23, 42, 0.08);
+        border: 1px solid #dbe3ef;
     }
 
     .settings-title {
-        font-size: 22px;
-        font-weight: 700;
-        color: #1e293b;
+        font-size: 24px;
+        font-weight: 800;
+        color: #111827;
+        letter-spacing: 0;
+        margin: 0;
+    }
+
+    .settings-subtitle {
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    .settings-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .settings-heading-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: linear-gradient(135deg, #2563eb 0%, #0f766e 100%);
+        box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
     }
 
     .tab-btn {
-        padding: 10px 25px;
-        border-radius: 30px;
-        font-weight: 600;
+        padding: 11px 20px;
+        border-radius: 12px;
+        font-weight: 700;
         transition: 0.3s;
-        border: 2px solid transparent;
-        background: #f1f5f9;
-        color: #64748b;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        margin: 0 8px 10px 0;
     }
 
     .tab-btn.active {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%) !important;
         color: #fff !important;
-        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
         border-color: transparent;
     }
 
@@ -39,33 +68,116 @@
     }
 
     .settings-card {
-        background: #f8fafc;
-        padding: 25px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        padding: 28px;
         border-radius: 16px;
         transition: 0.3s;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #dbe3ef;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
     }
 
     .settings-card:hover {
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
     }
 
     label {
-        font-weight: 600;
-        margin-bottom: 6px;
-        color: #334155;
+        font-weight: 800;
+        margin-bottom: 8px;
+        color: #1f2937;
+        font-size: 13px;
+        letter-spacing: 0;
     }
 
     .form-control {
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        padding: 10px 15px;
+        min-height: 46px;
+        border-radius: 12px;
+        border: 1.5px solid #94a3b8;
+        padding: 11px 14px;
         transition: all 0.3s ease;
+        color: #111827;
+        background-color: #ffffff;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .form-control::placeholder {
+        color: #475569;
+        opacity: 1;
+        font-weight: 650;
     }
 
     .form-control:focus {
-        border-color: #4f46e5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        color: #111827;
+    }
+
+    .settings-section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .settings-section-title h4 {
+        margin: 0;
+        color: #111827;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .settings-section-title p {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .settings-section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #1d4ed8;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+    }
+
+    .settings-file-box {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        border-radius: 14px;
+    }
+
+    .settings-file-box input[type="file"] {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .settings-logo-preview {
+        width: 86px;
+        height: 56px;
+        object-fit: contain;
+        padding: 8px;
+        background: #f8fafc;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+    }
+
+    .settings-help {
+        display: block;
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
     }
 
     .btn-primary.saved {
@@ -298,7 +410,7 @@
 <section role="main" class="content-body">
     <div class="settings-container">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h2 class="settings-title">
                 ⚙️ {{ trans(ensure_menu_translation('website_settings')) }}
                 
@@ -340,22 +452,48 @@
             {{-- ADMIN SETTINGS CARD --}}
             <div class="col-md-12 admin_settings settings-card">
 
-                <div class="form-group mb-3">
-                    <label>Admin Title:</label>
-                    {!! Form::text('admin_title', $settings->admin_title ?? null, ['class'=>'form-control']) !!}
+                <div class="settings-section-title">
+                    <span class="settings-section-icon"><i class="fa fa-building"></i></span>
+                    <div>
+                        <h4>General Settings</h4>
+                        <p>Update the admin brand name, short description, and dashboard logo.</p>
+                    </div>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label>Admin Description:</label>
-                    {!! Form::text('admin_description', $settings->admin_description ?? null, ['class'=>'form-control']) !!}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group mb-4">
+                            <label>Admin Title</label>
+                            {!! Form::text('admin_title', $settings->admin_title ?? null, [
+                                'class'=>'form-control',
+                                'placeholder'=>'Next Digi Home Admin'
+                            ]) !!}
+                            <small class="settings-help">Shown in the backend header and browser title.</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group mb-4">
+                            <label>Admin Description</label>
+                            {!! Form::text('admin_description', $settings->admin_description ?? null, [
+                                'class'=>'form-control',
+                                'placeholder'=>'Digital products, licenses, downloads and customer operations'
+                            ]) !!}
+                            <small class="settings-help">Use a short operational description for the dashboard.</small>
+                        </div>
+                    </div>
                 </div>
 
-                 <label>Admin Logo:</label>
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <input type="file" name="admin_logo">
-                    @if(!empty($settings->admin_logo))
-                        <img src="{{ asset('public/admin_resource/assets/images/'.$settings->admin_logo) }}" width="80">
-                    @endif
+                <div class="form-group mb-0">
+                    <label>Admin Logo</label>
+                    <div class="settings-file-box">
+                        <input type="file" name="admin_logo" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml">
+                        @if(!empty($settings->admin_logo))
+                            <img class="settings-logo-preview" src="{{ asset('public/admin_resource/assets/images/'.$settings->admin_logo) }}" alt="Admin logo">
+                        @else
+                            <span class="settings-help mt-0">Upload a logo for the admin panel.</span>
+                        @endif
+                    </div>
+                    <small class="settings-help">Recommended transparent PNG or SVG with a wide layout.</small>
                 </div>
 
             </div>
@@ -471,9 +609,15 @@
             {{-- EMAIL SETTINGS CARD --}}
             <div class="col-md-12 email_settings settings-card" style="display: none;">
 
-                <h4 class="mb-4"><i class="fa fa-envelope text-primary me-2"></i>Email Configuration</h4>
+                <div class="settings-section-title">
+                    <span class="settings-section-icon"><i class="fa fa-envelope"></i></span>
+                    <div>
+                        <h4>Email Configuration</h4>
+                        <p>Configure SMTP sender details for orders, downloads, licenses, and customer notifications.</p>
+                    </div>
+                </div>
 
-                <div class="alert alert-info mb-4" style="border-radius: 10px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.2);">
+                <div class="alert alert-info mb-4" style="border-radius: 14px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-weight: 650;">
                     <i class="fa fa-info-circle me-2"></i>
                     Configure your SMTP settings here. These settings will override the .env mail configuration.
                 </div>
@@ -481,7 +625,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mail Mailer:</label>
+                            <label>Mail Mailer</label>
                             <select name="mail_mailer" class="form-control">
                                 <option value="smtp" {{ ($settings->mail_mailer ?? 'smtp') == 'smtp' ? 'selected' : '' }}>SMTP</option>
                                 <option value="sendmail" {{ ($settings->mail_mailer ?? '') == 'sendmail' ? 'selected' : '' }}>Sendmail</option>
@@ -491,7 +635,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mail Host:</label>
+                            <label>Mail Host</label>
                             {!! Form::text('mail_host', $settings->mail_host ?? 'smtp.gmail.com', ['class'=>'form-control', 'placeholder'=>'smtp.gmail.com']) !!}
                         </div>
                     </div>
@@ -500,13 +644,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mail Port:</label>
+                            <label>Mail Port</label>
                             {!! Form::number('mail_port', $settings->mail_port ?? 587, ['class'=>'form-control', 'placeholder'=>'587']) !!}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mail Encryption:</label>
+                            <label>Mail Encryption</label>
                             <select name="mail_encryption" class="form-control">
                                 <option value="tls" {{ ($settings->mail_encryption ?? 'tls') == 'tls' ? 'selected' : '' }}>TLS</option>
                                 <option value="ssl" {{ ($settings->mail_encryption ?? '') == 'ssl' ? 'selected' : '' }}>SSL</option>
@@ -519,13 +663,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mail Username:</label>
-                            {!! Form::text('mail_username', $settings->mail_username ?? '', ['class'=>'form-control', 'placeholder'=>'your-email@gmail.com']) !!}
+                            <label>Mail Username</label>
+                            {!! Form::text('mail_username', $settings->mail_username ?? '', ['class'=>'form-control', 'placeholder'=>'support@nextdigihome.com']) !!}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mail Password:</label>
+                            <label>Mail Password</label>
                             <div class="input-group">
                                 <input type="text" name="mail_password" class="form-control" placeholder="App Password" id="mail_password" value="{{ $settings->mail_password ?? '' }}">
                                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('mail_password', 'mail_password_toggle')">
@@ -540,14 +684,14 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>From Address:</label>
-                            {!! Form::email('mail_from_address', $settings->mail_from_address ?? '', ['class'=>'form-control', 'placeholder'=>'noreply@example.com']) !!}
+                            <label>From Address</label>
+                            {!! Form::email('mail_from_address', $settings->mail_from_address ?? '', ['class'=>'form-control', 'placeholder'=>'noreply@nextdigihome.com']) !!}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>From Name:</label>
-                            {!! Form::text('mail_from_name', $settings->mail_from_name ?? '', ['class'=>'form-control', 'placeholder'=>'Your Application Name']) !!}
+                            <label>From Name</label>
+                            {!! Form::text('mail_from_name', $settings->mail_from_name ?? '', ['class'=>'form-control', 'placeholder'=>'Next Digi Home']) !!}
                         </div>
                     </div>
                 </div>
