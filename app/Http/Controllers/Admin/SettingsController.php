@@ -146,7 +146,7 @@ class SettingsController extends Controller
             'mail_port' => 'required|integer',
             'mail_username' => 'nullable|string',
             'mail_password' => 'nullable|string',
-            'mail_encryption' => 'nullable|string',
+            'mail_encryption' => 'nullable|in:tls,ssl,none',
             'mail_from_address' => 'required|email',
             'mail_from_name' => 'required|string',
         ]);
@@ -162,7 +162,7 @@ class SettingsController extends Controller
                 'mail_port' => $request->mail_port,
                 'mail_username' => $request->mail_username,
                 'mail_password' => $request->mail_password,
-                'mail_encryption' => $request->mail_encryption,
+                'mail_encryption' => $request->mail_encryption === 'none' ? null : $request->mail_encryption,
                 'mail_from_address' => $request->mail_from_address,
                 'mail_from_name' => $request->mail_from_name,
                 'updated_at' => now(),

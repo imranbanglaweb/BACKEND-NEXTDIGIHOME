@@ -651,10 +651,11 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label>Mail Encryption</label>
+                            @php($mailEncryption = $settings->mail_encryption ?? null)
                             <select name="mail_encryption" class="form-control">
-                                <option value="tls" {{ ($settings->mail_encryption ?? 'tls') == 'tls' ? 'selected' : '' }}>TLS</option>
-                                <option value="ssl" {{ ($settings->mail_encryption ?? '') == 'ssl' ? 'selected' : '' }}>SSL</option>
-                                <option value="" {{ ($settings->mail_encryption ?? '') == '' ? 'selected' : '' }}>None</option>
+                                <option value="tls" {{ $mailEncryption === 'tls' ? 'selected' : '' }}>TLS</option>
+                                <option value="ssl" {{ $mailEncryption === 'ssl' ? 'selected' : '' }}>SSL</option>
+                                <option value="none" {{ empty($mailEncryption) ? 'selected' : '' }}>None</option>
                             </select>
                         </div>
                     </div>

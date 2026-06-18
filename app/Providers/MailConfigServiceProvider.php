@@ -50,7 +50,7 @@ class MailConfigServiceProvider extends ServiceProvider
                                 'transport' => 'smtp',
                                 'host' => $settings->mail_host,
                                 'port' => $settings->mail_port ?? 587,
-                                'encryption' => $settings->mail_encryption ?? 'tls',
+                                'encryption' => in_array($settings->mail_encryption, ['tls', 'ssl'], true) ? $settings->mail_encryption : null,
                                 'username' => $settings->mail_username,
                                 'password' => $settings->mail_password ?? '',
                                 'timeout' => null,

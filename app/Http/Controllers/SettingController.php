@@ -108,7 +108,8 @@ class SettingController extends Controller
         $setting->mail_port = $request->mail_port ?? 587;
         $setting->mail_username = $request->mail_username ?? '';
         $setting->mail_password = $request->mail_password ?? '';
-        $setting->mail_encryption = $request->mail_encryption ?? 'tls';
+        $mailEncryption = $request->input('mail_encryption');
+        $setting->mail_encryption = $mailEncryption === 'none' ? null : $mailEncryption;
         $setting->mail_from_address = $request->mail_from_address ?? '';
         $setting->mail_from_name = $request->mail_from_name ?? '';
 
@@ -124,6 +125,7 @@ class SettingController extends Controller
         $setting->created_by = Auth::id();
         // $setting->path = '/storage/'.$path;
         $setting->save();
+        Cache::forget('mail_config');
 
         return response()->json('Settings Updated Successfully');
     }
@@ -229,7 +231,7 @@ class SettingController extends Controller
             'host' => $settings->mail_host ?? config('mail.mailers.smtp.host'),
             'port' => $settings->mail_port ?? config('mail.mailers.smtp.port'),
             'username' => $settings->mail_username ?? config('mail.mailers.smtp.username'),
-            'encryption' => $settings->mail_encryption ?? config('mail.mailers.smtp.encryption'),
+            'encryption' => in_array($settings->mail_encryption, ['tls', 'ssl'], true) ? $settings->mail_encryption : null,
             'from_address' => $settings->mail_from_address ?? config('mail.from.address'),
             'from_name' => $settings->mail_from_name ?? config('mail.from.name'),
         ];
