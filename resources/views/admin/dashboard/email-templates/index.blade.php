@@ -10,35 +10,136 @@ Email Templates
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <style>
+    .template-shell {
+        background: #f6f8fb;
+        min-height: calc(100vh - 90px);
+        padding: 24px 0;
+    }
+    .template-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+    .template-title {
+        color: #172033;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+    }
+    .template-subtitle {
+        color: #667085;
+        margin: 6px 0 0;
+        font-size: 14px;
+    }
+    .stat-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .stat-tile {
+        background: #fff;
+        border: 1px solid #e6eaf0;
+        border-radius: 8px;
+        padding: 16px;
+    }
+    .stat-label {
+        color: #667085;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .stat-value {
+        color: #172033;
+        font-size: 28px;
+        font-weight: 800;
+        margin-top: 4px;
+    }
+    .filter-bar {
+        align-items: end;
+        background: #fff;
+        border: 1px solid #e6eaf0;
+        border-radius: 8px;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding: 14px;
+    }
+    .filter-field {
+        min-width: 260px;
+    }
     .table th, .table td {
         vertical-align: middle !important;
-        font-size: 15px;
+        font-size: 14px;
     }
     .badge {
-        font-size: 15px;
+        font-size: 12px;
+        padding: 7px 10px;
+        border-radius: 999px;
+    }
+    .badge-type {
+        background: #eef4ff;
+        color: #175cd3;
+    }
+    .badge-active {
+        background: #ecfdf3;
+        color: #027a48;
+    }
+    .badge-inactive {
+        background: #fef3f2;
+        color: #b42318;
+    }
+    .template-card {
+        border: 1px solid #e6eaf0 !important;
+        border-radius: 8px !important;
+    }
+    @media (max-width: 767px) {
+        .template-header,
+        .filter-bar {
+            align-items: stretch;
+            flex-direction: column;
+        }
+        .stat-strip {
+            grid-template-columns: 1fr;
+        }
+        .filter-field {
+            min-width: 0;
+        }
     }
 </style>
 @endpush
 
 @section('main_content')
-<section role="main" class="content-body" style="background-color: #fff;">
+@include('admin.partials.premium-ui')
+<section role="main" class="content-body premium-page premium-form">
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center">
-            <h4 class="fw-bold text-primary">
-                <br>
-                <i class="fa fa-envelope"></i> Email Templates
-            </h4>
-            <div class="btn-group pull-right">
-                <a href="{{ route('admin.email.test') }}" class="btn btn-info btn-sm">
-                    <i class="fa fa-paper-plane"></i> Test Email
-                </a>
-                <a href="{{ route('email-templates.create') }}" class="btn btn-success btn-sm">
-                    <i class="fa fa-plus-circle"></i> Add Template
-                </a>
-            </div>
-        </div>
-        <br>
-        <br>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-envelope-open-text"></i> Digital Product Email Templates
+                        </h3>
+                        <div class="card-tools">
+                            <a href="{{ route('admin.email.test') }}" class="btn btn-sm btn-info mr-2">
+                                <i class="fas fa-paper-plane"></i> Test Email
+                            </a>
+                            <a href="{{ route('email-templates.create') }}" class="btn btn-sm btn-success mr-2">
+                                <i class="fas fa-plus-circle"></i> Add Template
+                            </a>
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Template Management:</strong> Manage purchase confirmation, payment, delivery, and access reminder emails for digital products.
+                        </div>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -48,24 +149,58 @@ Email Templates
             <div class="alert alert-danger small">{{ session('error') }}</div>
         @endif
 
-        <div class="card shadow-sm border-0 rounded-3">
+        <div class="stat-strip">
+            <div class="stat-tile">
+                <div class="stat-label">Total Templates</div>
+                <div class="stat-value">{{ $stats['total'] ?? 0 }}</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-label">Active Templates</div>
+                <div class="stat-value">{{ $stats['active'] ?? 0 }}</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-label">Product Workflows</div>
+                <div class="stat-value">{{ $stats['product'] ?? 0 }}</div>
+            </div>
+        </div>
+
+        <div class="card card-outline card-primary template-card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="fas fa-list"></i> Template Library</h5>
+                <div class="card-tools template-filter-tools">
+                    <select id="templateTypeFilter" class="form-control form-control-sm">
+                        <option value="">All product templates</option>
+                        @foreach($types as $key => $label)
+                            <option value="{{ $key }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" id="resetFilters" class="btn btn-sm btn-outline-secondary">
+                        <i class="fa fa-rotate-left"></i> Reset
+                    </button>
+                </div>
+            </div>
             <div class="card-body">
-                <div class="table-responsive">
+                <div class="table-responsive template-table-wrap">
                     <table id="emailTemplateTable" class="table table-striped table-bordered align-middle" style="width:100%">
-                        <thead class="bg-primary text-white text-center">
+                        <thead class="text-center">
                             <tr>
                                 <th>SL</th>
                                 <th>Name</th>
                                 <th>Slug</th>
                                 <th>Type</th>
                                 <th>Subject</th>
+                                <th>Variables</th>
                                 <th>Status</th>
-                                <th>Preview</th>
-                                <th width="15%">Actions</th>
+                                <th>Updated</th>
+                                <th width="18%">Actions</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,13 +250,24 @@ $(function() {
             { data: 'slug', name: 'slug' },
             { data: 'type_label', name: 'type', orderable: false },
             { data: 'subject', name: 'subject' },
+            { data: 'variables_count', name: 'variables_count', className: 'text-center', orderable: false, searchable: false },
             { data: 'is_active', name: 'is_active', className: 'text-center', orderable: false },
+            { data: 'updated_at', name: 'updated_at', className: 'text-nowrap' },
             { data: 'preview', name: 'preview', orderable: false, searchable: false, className: 'text-center' },
             { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
         ],
         language: {
             processing: '<div class="spinner-border text-primary" role="status"></div>'
         },
+    });
+
+    $('#templateTypeFilter').on('change', function() {
+        table.ajax.url("{{ route('email-templates.index') }}?type=" + encodeURIComponent($(this).val())).load();
+    });
+
+    $('#resetFilters').on('click', function() {
+        $('#templateTypeFilter').val('');
+        table.ajax.url("{{ route('email-templates.index') }}").load();
     });
 
     // Toggle Status

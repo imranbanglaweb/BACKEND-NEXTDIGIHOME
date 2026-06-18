@@ -36,7 +36,12 @@ class EmailTemplate extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    // Template type constants for requisition workflow
+    public const TYPE_PRODUCT_PURCHASE_CONFIRMATION = 'product_purchase_confirmation';
+    public const TYPE_PRODUCT_DELIVERY = 'product_delivery';
+    public const TYPE_PRODUCT_ACCESS_EXPIRING = 'product_access_expiring';
+    public const TYPE_PRODUCT_PAYMENT_SUBMITTED = 'product_payment_submitted';
+
+    // Legacy workflow constants retained because older requisition services still reference them.
     public const TYPE_CREATED = 'requisition_created';
     public const TYPE_DEPT_APPROVED = 'dept_approved';
     public const TYPE_TRANSPORT_APPROVED = 'transport_approved';
@@ -47,9 +52,10 @@ class EmailTemplate extends Model
     public static function getTemplateTypes(): array
     {
         return [
-            self::TYPE_CREATED => 'Requisition Created',
-            self::TYPE_DEPT_APPROVED => 'Department Approved',
-            self::TYPE_TRANSPORT_APPROVED => 'Transport Approved',
+            self::TYPE_PRODUCT_PURCHASE_CONFIRMATION => 'Purchase Confirmation',
+            self::TYPE_PRODUCT_PAYMENT_SUBMITTED => 'Payment Submitted',
+            self::TYPE_PRODUCT_DELIVERY => 'Product Delivery',
+            self::TYPE_PRODUCT_ACCESS_EXPIRING => 'Access Expiring',
         ];
     }
 

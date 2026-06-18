@@ -18,42 +18,63 @@ class EmailTemplateController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = EmailTemplate::query()->latest();
+            $productTypes = array_keys(EmailTemplate::getTemplateTypes());
+            $query = EmailTemplate::query()
+                ->whereIn('type', $productTypes)
+                ->when($request->filled('type'), function ($query) use ($request) {
+                    $query->where('type', $request->type);
+                })
+                ->latest();
             $types = EmailTemplate::getTemplateTypes();
 
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('type_label', function (EmailTemplate $template) use ($types) {
-                    return $types[$template->type] ?? ($template->type ?: 'Custom');
+                    $label = $types[$template->type] ?? ($template->type ?: 'Custom');
+
+                    return '<span class="badge badge-type">'.e($label).'</span>';
                 })
                 ->editColumn('subject', function (EmailTemplate $template) {
                     return e(str($template->subject)->limit(60));
                 })
+                ->addColumn('variables_count', function (EmailTemplate $template) {
+                    return is_array($template->variables) ? count($template->variables) : 0;
+                })
+                ->editColumn('updated_at', function (EmailTemplate $template) {
+                    return optional($template->updated_at)->format('d M Y, h:i A');
+                })
                 ->editColumn('is_active', function (EmailTemplate $template) {
-                    $class = $template->is_active ? 'badge bg-success' : 'badge bg-danger';
+                    $class = $template->is_active ? 'badge badge-active' : 'badge badge-inactive';
                     $label = $template->is_active ? 'Active' : 'Inactive';
 
                     return '<span class="'.$class.'">'.$label.'</span>';
                 })
-                ->addColumn('preview', function (EmailTemplate $template) {
-                    return '<button type="button" class="btn btn-info btn-sm previewTemplateBtn" data-id="'.$template->id.'" data-name="'.e($template->name).'"><i class="fa fa-eye"></i></button>';
-                })
                 ->addColumn('action', function (EmailTemplate $template) {
                     $toggleIcon = $template->is_active ? 'fa-toggle-on' : 'fa-toggle-off';
-                    $toggleClass = $template->is_active ? 'btn-warning' : 'btn-success';
+                    $toggleClass = $template->is_active ? 'btn-outline-warning' : 'btn-outline-success';
+                    $toggleTitle = $template->is_active ? 'Deactivate' : 'Activate';
 
                     return '
-                        <a href="'.route('email-templates.show', $template).'" class="btn btn-info btn-sm" title="View"><i class="fa fa-eye"></i></a>
-                        <a href="'.route('email-templates.edit', $template).'" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
-                        <button type="button" class="btn '.$toggleClass.' btn-sm toggleStatusBtn" data-id="'.$template->id.'" data-active="'.(int) $template->is_active.'" title="Toggle"><i class="fa '.$toggleIcon.'"></i></button>
-                        <button type="button" class="btn btn-danger btn-sm deleteTemplateBtn" data-id="'.$template->id.'" title="Delete"><i class="fa fa-trash"></i></button>
+                        <div class="template-actions">
+                            <button type="button" class="btn btn-outline-info btn-sm previewTemplateBtn" data-id="'.$template->id.'" data-name="'.e($template->name).'" title="Preview"><i class="fa fa-display"></i></button>
+                            <a href="'.route('email-templates.edit', $template).'" class="btn btn-outline-primary btn-sm" title="Edit"><i class="fa fa-pen-to-square"></i></a>
+                            <button type="button" class="btn '.$toggleClass.' btn-sm toggleStatusBtn" data-id="'.$template->id.'" data-active="'.(int) $template->is_active.'" title="'.$toggleTitle.'"><i class="fa '.$toggleIcon.'"></i></button>
+                            <button type="button" class="btn btn-outline-danger btn-sm deleteTemplateBtn" data-id="'.$template->id.'" title="Delete"><i class="fa fa-trash"></i></button>
+                        </div>
                     ';
                 })
-                ->rawColumns(['is_active', 'preview', 'action'])
+                ->rawColumns(['type_label', 'is_active', 'action'])
                 ->make(true);
         }
 
-        return view('admin.dashboard.email-templates.index');
+        return view('admin.dashboard.email-templates.index', [
+            'types' => EmailTemplate::getTemplateTypes(),
+            'stats' => [
+                'total' => EmailTemplate::whereIn('type', array_keys(EmailTemplate::getTemplateTypes()))->count(),
+                'active' => EmailTemplate::whereIn('type', array_keys(EmailTemplate::getTemplateTypes()))->active()->count(),
+                'product' => count(EmailTemplate::getTemplateTypes()),
+            ],
+        ]);
     }
 
     public function create()
@@ -187,21 +208,24 @@ class EmailTemplateController extends Controller
     protected function sampleData(): array
     {
         return [
-            'requisition_number' => 'REQ-TEST-001',
-            'requester_name' => 'Test User',
-            'requester_email' => 'test@example.com',
-            'department_name' => 'IT',
-            'head_name' => 'Department Head',
-            'pickup_location' => 'Main Office',
-            'dropoff_location' => 'Airport',
-            'pickup_date' => now()->format('d M, Y'),
-            'pickup_time' => now()->format('H:i'),
-            'purpose' => 'Template preview',
+            'customer_name' => 'Ayesha Rahman',
+            'customer_email' => 'customer@example.com',
+            'transaction_id' => 'NDH-20260618-1001',
+            'product_name' => 'Premium Laravel SaaS Kit',
+            'product_price' => '49.00',
+            'quantity' => '1',
+            'total' => '49.00',
             'status' => 'Pending',
-            'approval_url' => url('/'),
+            'download_token' => 'sample-download-token',
+            'download_url' => url('/api/download/sample-download-token'),
+            'access_starts_at' => now()->format('d M Y'),
+            'access_expires_at' => now()->addDays(30)->format('d M Y'),
+            'remaining_access_days' => 30,
+            'validity_label' => '30 days',
+            'purchase_type' => 'Digital Download',
             'company_name' => config('app.name', 'Next Digi Home'),
             'admin_title' => config('app.name', 'Next Digi Home'),
-            'admin_description' => 'Email template preview',
+            'admin_description' => 'Premium Digital Products Marketplace',
             'admin_logo_url' => asset('public/admin_resource/assets/images/default.png'),
             'year' => date('Y'),
         ];
