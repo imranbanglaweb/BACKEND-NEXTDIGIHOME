@@ -501,6 +501,15 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     Route::post('settings/security/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateSecurity'])->name('settings.security.update');
 
     // SEO Management for Frontend Site (under marketing for menu compatibility)
+    Route::get('marketing/email-campaigns', function () {
+        return view('admin.marketing.email-campaigns');
+    })->name('marketing.email-campaigns');
+    Route::get('marketing/promotions', function () {
+        return view('admin.marketing.promotions');
+    })->name('marketing.promotions');
+    Route::get('marketing/coupons', function () {
+        return view('admin.marketing.coupons');
+    })->name('marketing.coupons');
     Route::get('marketing/seo', [App\Http\Controllers\Admin\SettingsController::class, 'seo'])->name('marketing.seo');
     Route::post('marketing/seo/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateSeo'])->name('marketing.seo.update');
     Route::resource('purchases', PurchaseController::class);

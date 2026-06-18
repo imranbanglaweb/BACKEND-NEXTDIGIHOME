@@ -13,15 +13,17 @@
     $twitterDescription = $settings->seo_twitter_description ?? $metaDescription;
 @endphp
 
-<section role="main" class="content-body seo-page">
+@include('admin.marketing.partials.premium-styles')
+
+<section role="main" class="content-body marketing-page seo-page">
     <div class="container-fluid">
-        <div class="seo-header">
+        <div class="marketing-header seo-header">
             <div>
-                <div class="seo-eyebrow">Marketing</div>
+                <div class="marketing-eyebrow seo-eyebrow">Marketing</div>
                 <h2>SEO Settings</h2>
                 <p>Manage frontend metadata, social sharing cards, search verification, and tracking scripts.</p>
             </div>
-            <div class="seo-header-actions">
+            <div class="marketing-header-actions seo-header-actions">
                 <button type="button" class="btn btn-light" id="auditBtn">
                     <i class="fas fa-search-plus me-2"></i>Check SEO
                 </button>

@@ -572,7 +572,7 @@
     }
     
     .sidebar-left .nav-children.show {
-        max-height: 500px;
+        max-height: none;
         opacity: 1;
     }
 }

@@ -9,6 +9,8 @@ Email Templates
 <link rel="stylesheet" href="{{ asset('public/admin_resource/plugins/sweetalert2/sweetalert2.min.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
+@include('admin.marketing.partials.premium-styles')
+
 <style>
     .stat-strip {
         display: grid;
@@ -194,33 +196,23 @@ Email Templates
 @endpush
 
 @section('main_content')
-@include('admin.partials.premium-ui')
-<section role="main" class="content-body premium-page premium-form">
+<section role="main" class="content-body marketing-page">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-envelope-open-text"></i> Digital Product Email Templates
-                        </h3>
-                        <div class="card-tools">
-                            <a href="{{ route('admin.email.test') }}" class="btn btn-sm btn-info mr-2">
-                                <i class="fas fa-paper-plane"></i> Test Email
-                            </a>
-                            <a href="{{ route('email-templates.create') }}" class="btn btn-sm btn-success mr-2">
-                                <i class="fas fa-plus-circle"></i> Add Template
-                            </a>
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Template Management:</strong> Manage purchase confirmation, payment, delivery, and access reminder emails for digital products.
-                        </div>
+        <div class="marketing-header">
+            <div>
+                <div class="marketing-eyebrow">Marketing</div>
+                <h2><i class="fas fa-envelope-open-text me-2"></i>Email Templates</h2>
+                <p>Manage purchase confirmation, payment, delivery, and access reminder email workflows.</p>
+            </div>
+            <div class="marketing-header-actions">
+                <a href="{{ route('admin.email.test') }}" class="btn btn-light">
+                    <i class="fas fa-paper-plane me-2"></i>Test Email
+                </a>
+                <a href="{{ route('email-templates.create') }}" class="btn btn-outline-light">
+                    <i class="fas fa-plus-circle me-2"></i>Add Template
+                </a>
+            </div>
+        </div>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -230,25 +222,43 @@ Email Templates
             <div class="alert alert-danger small">{{ session('error') }}</div>
         @endif
 
-        <div class="stat-strip">
-            <div class="stat-tile">
-                <div class="stat-label">Total Templates</div>
-                <div class="stat-value">{{ $stats['total'] ?? 0 }}</div>
+        <div class="row g-3 mb-3">
+            <div class="col-xl-4 col-md-6">
+                <div class="marketing-stat-card">
+                    <span class="stat-icon stat-blue"><i class="fas fa-envelope"></i></span>
+                    <div>
+                        <small>Total Templates</small>
+                        <strong>{{ $stats['total'] ?? 0 }}</strong>
+                    </div>
+                </div>
             </div>
-            <div class="stat-tile">
-                <div class="stat-label">Active Templates</div>
-                <div class="stat-value">{{ $stats['active'] ?? 0 }}</div>
+            <div class="col-xl-4 col-md-6">
+                <div class="marketing-stat-card">
+                    <span class="stat-icon stat-green"><i class="fas fa-toggle-on"></i></span>
+                    <div>
+                        <small>Active Templates</small>
+                        <strong>{{ $stats['active'] ?? 0 }}</strong>
+                    </div>
+                </div>
             </div>
-            <div class="stat-tile">
-                <div class="stat-label">Product Workflows</div>
-                <div class="stat-value">{{ $stats['product'] ?? 0 }}</div>
+            <div class="col-xl-4 col-md-6">
+                <div class="marketing-stat-card">
+                    <span class="stat-icon stat-violet"><i class="fas fa-diagram-project"></i></span>
+                    <div>
+                        <small>Product Workflows</small>
+                        <strong>{{ $stats['product'] ?? 0 }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card card-outline card-primary template-card">
-            <div class="card-header">
-                <h5 class="card-title"><i class="fas fa-list"></i> Template Library</h5>
-                <div class="card-tools template-filter-tools">
+        <div class="marketing-panel">
+            <div class="marketing-panel-title">
+                <div>
+                    <h5>Template Library</h5>
+                    <p>Filter, preview, activate, and maintain reusable customer email templates.</p>
+                </div>
+                <div class="marketing-tools">
                     <select id="templateTypeFilter" class="form-control form-control-sm">
                         <option value="">All product templates</option>
                         @foreach($types as $key => $label)
@@ -260,8 +270,7 @@ Email Templates
                     </button>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive template-table-wrap">
+                <div class="table-responsive marketing-table-wrap template-table-wrap">
                     <table id="emailTemplateTable" class="table table-striped table-bordered align-middle" style="width:100%">
                         <thead class="text-center">
                             <tr>
@@ -279,11 +288,6 @@ Email Templates
                         <tbody></tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>

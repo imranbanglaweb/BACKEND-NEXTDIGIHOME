@@ -125,7 +125,7 @@
     }
     
     .sidebar-left .nav.nav-children.show {
-        max-height: 1000px;
+        max-height: none;
         opacity: 1;
         margin-left: 20px;
         margin-top: 5px;
@@ -168,6 +168,16 @@
     
     .sidebar-left .nav.nav-children > li.nav-active > a::before {
         background: #fff;
+    }
+
+    .sidebar-left .nav.nav-children > li > a.menu-link-disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    .sidebar-left .nav.nav-children > li > a.menu-link-disabled:hover {
+        background: transparent;
+        color: rgba(255,255,255,0.75);
     }
     
     /* Arrow indicator for expanded menus */
@@ -324,9 +334,8 @@
                     @php 
                     $childUrl = $getUrl($child->menu_url);
                     @endphp
-                    @if($childUrl !== '#')
                     <li class="{{ request()->routeIs($child->menu_url) ? 'nav-active' : '' }}">
-                        <a href="{{ $childUrl }}" class="menu-link">
+                        <a href="{{ $childUrl }}" class="menu-link {{ $childUrl === '#' ? 'menu-link-disabled' : '' }}" @if($childUrl === '#') aria-disabled="true" onclick="return false;" @endif>
                             @if(!empty($child->menu_favicon))
                                 <img src="{{ asset('public/admin_resource/assets/images/'.$child->menu_favicon) }}" alt="" class="menu-favicon">
                             @else
@@ -335,7 +344,6 @@
                             <span>{{ trans(ensure_menu_translation($child->menu_name)) }}</span>
                         </a>
                     </li>
-                    @endif
                 @endforeach
             </ul>
         </li>
