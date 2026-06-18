@@ -33,7 +33,7 @@ use App\Http\Controllers\DepartmentHeadController;
 use App\Http\Controllers\DriverController;
 // Maintenance
 // use App\Http\Controllers\EmailLogController;
-// use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\GpsTrackingController;
 use App\Http\Controllers\HomeController;
@@ -64,7 +64,7 @@ use App\Http\Controllers\RequisitionApprovalController;
 use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
-// use App\Http\Controllers\TestEmailController;
+use App\Http\Controllers\TestEmailController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\TransportApprovalController;
 use App\Http\Controllers\TripSheetController;
@@ -84,19 +84,18 @@ use Illuminate\Support\Facades\Route;
 // });
 
 // ============================================================================
-// EMAIL TEMPLATES ROUTES - DISABLED (Controllers missing)
+// EMAIL TEMPLATES ROUTES
 // ============================================================================
-// Route::middleware(['auth'])->group(function () {
-//     Route::resource('email-templates', EmailTemplateController::class);
-//     Route::post('email-templates/toggle-status', [EmailTemplateController::class, 'toggleStatus'])->name('email-templates.toggle-status');
-//     Route::post('email-templates/{id}/restore', [EmailTemplateController::class, 'restore'])->name('email-templates.restore');
-//     Route::get('email-templates/{id}/preview', [EmailTemplateController::class, 'preview'])->name('email-templates.preview');
+Route::middleware(['auth'])->group(function () {
+    Route::resource('email-templates', EmailTemplateController::class)->parameters(['email-templates' => 'emailTemplate']);
+    Route::post('email-templates/toggle-status', [EmailTemplateController::class, 'toggleStatus'])->name('email-templates.toggle-status');
+    Route::get('email-templates/{emailTemplate}/preview', [EmailTemplateController::class, 'preview'])->name('email-templates.preview');
 
-//     // Test Email Routes
-//     Route::get('email/test', [TestEmailController::class, 'index'])->name('admin.email.test');
-//     Route::post('email/test/preview', [TestEmailController::class, 'preview'])->name('admin.email.test.preview');
-//     Route::post('email/test/send', [TestEmailController::class, 'send'])->name('admin.email.test.send');
-// });
+    // Template test email routes
+    Route::get('email/test', [TestEmailController::class, 'index'])->name('admin.email.test');
+    Route::post('email/test/preview', [TestEmailController::class, 'preview'])->name('admin.email.test.preview');
+    Route::post('email/template-test/send', [TestEmailController::class, 'send'])->name('admin.email.template-test.send');
+});
 
 // ============================================================================
 // 1. AUTHENTICATION ROUTES

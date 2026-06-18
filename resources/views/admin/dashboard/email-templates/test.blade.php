@@ -36,7 +36,7 @@ Test Email - Email Templates
                         <h5 class="mb-0"><i class="fa fa-cog"></i> Email Settings</h5>
                     </div>
                     <div class="card-body">
-                        <form id="testEmailForm" method="POST" action="{{ route('admin.email.test.send') }}">
+                        <form id="testEmailForm" method="POST" action="{{ route('admin.email.template-test.send') }}">
                             @csrf
                             
                             <div class="form-group mb-3">

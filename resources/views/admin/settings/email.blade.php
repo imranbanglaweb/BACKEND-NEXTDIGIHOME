@@ -14,6 +14,11 @@
                         <i class="fas fa-envelope"></i> Email Settings
                     </h3>
                     <div class="card-tools">
+                        @if(Route::has('email-templates.index'))
+                            <a href="{{ route('email-templates.index') }}" class="btn btn-sm btn-info mr-2">
+                                <i class="fas fa-envelope-open-text"></i> Email Templates
+                            </a>
+                        @endif
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
                         </button>

@@ -26,6 +26,16 @@ class EmailTemplate extends Model
         'is_active' => 'boolean'
     ];
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     // Template type constants for requisition workflow
     public const TYPE_CREATED = 'requisition_created';
     public const TYPE_DEPT_APPROVED = 'dept_approved';
