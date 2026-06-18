@@ -942,3 +942,33 @@ Route::post('/notifications/mark-read/{id}', function ($id) {
 // ============================================================================
 // END OF ROUTES FILE
 // ============================================================================
+
+Route::get('/smtp-port-test', function () {
+    $hosts = [
+        ['localhost', 25],
+        ['nextdigihome.com', 465],
+        ['nextdigihome.com', 587],
+        ['mail.nextdigihome.com', 465],
+        ['mail.nextdigihome.com', 587],
+        ['smtp.gmail.com', 587],
+        ['smtp.gmail.com', 465],
+    ];
+
+    $results = [];
+
+    foreach ($hosts as [$host, $port]) {
+        $fp = @fsockopen($host, $port, $errno, $errstr, 10);
+
+        $results[] = [
+            'host' => $host,
+            'port' => $port,
+            'status' => $fp ? 'CONNECTED' : 'FAILED',
+            'error' => $fp ? null : $errstr,
+            'errno' => $fp ? null : $errno,
+        ];
+
+        if ($fp) fclose($fp);
+    }
+
+    return response()->json($results);
+});
