@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class SettingsController extends Controller
 {
@@ -351,6 +352,10 @@ class SettingsController extends Controller
             'seo_meta_title' => 'nullable|string|max:70',
             'seo_meta_description' => 'nullable|string|max:180',
             'seo_meta_keywords' => 'nullable|string|max:500',
+            'seo_focus_keyword' => 'nullable|string|max:120',
+            'seo_secondary_keywords' => 'nullable|string|max:1000',
+            'seo_readability_target' => 'nullable|string|max:60',
+            'seo_content_score_target' => 'nullable|integer|min:0|max:100',
             'seo_og_title' => 'nullable|string|max:95',
             'seo_og_description' => 'nullable|string|max:220',
             'seo_og_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
@@ -363,6 +368,17 @@ class SettingsController extends Controller
             'robots_meta' => 'nullable|in:index, follow,noindex, follow,index, nofollow,noindex, nofollow',
             'canonical_url' => 'nullable|url|max:255',
             'custom_head_scripts' => 'nullable|string|max:5000',
+            'schema_type' => 'nullable|string|max:80',
+            'organization_name' => 'nullable|string|max:160',
+            'organization_phone' => 'nullable|string|max:80',
+            'organization_address' => 'nullable|string|max:1000',
+            'sitemap_url' => 'nullable|url|max:255',
+            'robots_txt_rules' => 'nullable|string|max:3000',
+            'semrush_project_url' => 'nullable|url|max:255',
+            'semrush_api_key' => 'nullable|string|max:255',
+            'ahrefs_site_audit_url' => 'nullable|url|max:255',
+            'facebook_domain_verification' => 'nullable|string|max:255',
+            'pinterest_domain_verification' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -379,6 +395,10 @@ class SettingsController extends Controller
                 'seo_meta_title' => $request->input('seo_meta_title'),
                 'seo_meta_description' => $request->input('seo_meta_description'),
                 'seo_meta_keywords' => $request->input('seo_meta_keywords'),
+                'seo_focus_keyword' => $request->input('seo_focus_keyword'),
+                'seo_secondary_keywords' => $request->input('seo_secondary_keywords'),
+                'seo_readability_target' => $request->input('seo_readability_target'),
+                'seo_content_score_target' => $request->input('seo_content_score_target'),
                 'seo_og_title' => $request->input('seo_og_title'),
                 'seo_og_description' => $request->input('seo_og_description'),
                 'seo_twitter_title' => $request->input('seo_twitter_title'),
@@ -389,8 +409,22 @@ class SettingsController extends Controller
                 'robots_meta' => $request->robots_meta ?? 'index, follow',
                 'canonical_url' => $request->input('canonical_url'),
                 'custom_head_scripts' => $request->input('custom_head_scripts'),
+                'schema_type' => $request->input('schema_type'),
+                'organization_name' => $request->input('organization_name'),
+                'organization_phone' => $request->input('organization_phone'),
+                'organization_address' => $request->input('organization_address'),
+                'sitemap_url' => $request->input('sitemap_url'),
+                'robots_txt_rules' => $request->input('robots_txt_rules'),
+                'semrush_project_url' => $request->input('semrush_project_url'),
+                'semrush_api_key' => $request->input('semrush_api_key'),
+                'ahrefs_site_audit_url' => $request->input('ahrefs_site_audit_url'),
+                'facebook_domain_verification' => $request->input('facebook_domain_verification'),
+                'pinterest_domain_verification' => $request->input('pinterest_domain_verification'),
                 'updated_at' => now(),
             ];
+
+            $settingColumns = Schema::getColumnListing('settings');
+            $data = array_intersect_key($data, array_flip($settingColumns));
 
             // Handle OG image upload
             if ($request->hasFile('seo_og_image')) {

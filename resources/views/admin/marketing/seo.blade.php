@@ -11,6 +11,10 @@
     $ogDescription = $settings->seo_og_description ?? $metaDescription;
     $twitterTitle = $settings->seo_twitter_title ?? $metaTitle;
     $twitterDescription = $settings->seo_twitter_description ?? $metaDescription;
+    $focusKeyword = $settings->seo_focus_keyword ?? '';
+    $secondaryKeywords = $settings->seo_secondary_keywords ?? '';
+    $contentScoreTarget = $settings->seo_content_score_target ?? 85;
+    $schemaType = $settings->schema_type ?? 'Organization';
 @endphp
 
 @include('admin.marketing.partials.premium-styles')
@@ -21,7 +25,7 @@
             <div>
                 <div class="marketing-eyebrow seo-eyebrow">Marketing</div>
                 <h2>SEO Settings</h2>
-                <p>Manage frontend metadata, social sharing cards, search verification, and tracking scripts.</p>
+                <p>Manage metadata, keyword focus, schema, sitemaps, search verification, and audit-tool integrations.</p>
             </div>
             <div class="marketing-header-actions seo-header-actions">
                 <button type="button" class="btn btn-light" id="auditBtn">
@@ -130,6 +134,41 @@
                     <div class="seo-panel mb-3">
                         <div class="seo-panel-title">
                             <div>
+                                <span class="seo-tool-badge"><i class="fas fa-feather-alt"></i> Yoast-style optimization</span>
+                                <h5>Content Focus & Readability</h5>
+                                <p>Set the primary keyword, related terms, and content quality targets used by your audit checklist.</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="seo_focus_keyword">Focus Keyphrase</label>
+                                <input type="text" class="form-control" id="seo_focus_keyword" name="seo_focus_keyword" value="{{ $focusKeyword }}" placeholder="best digital products marketplace">
+                                <small class="text-muted">Used to evaluate title, description, and snippet relevance.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="seo_content_score_target">SEO Score Target</label>
+                                <input type="number" class="form-control" id="seo_content_score_target" name="seo_content_score_target" min="0" max="100" value="{{ $contentScoreTarget }}" placeholder="85">
+                                <small class="text-muted">Common target range: 80-90.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="seo_readability_target">Readability Target</label>
+                                <select class="form-control" id="seo_readability_target" name="seo_readability_target">
+                                    @foreach(['Easy', 'Standard', 'Advanced', 'Technical'] as $level)
+                                        <option value="{{ $level }}" {{ ($settings->seo_readability_target ?? 'Standard') === $level ? 'selected' : '' }}>{{ $level }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="seo_secondary_keywords">Secondary Keywords</label>
+                                <textarea class="form-control" id="seo_secondary_keywords" name="seo_secondary_keywords" rows="3" placeholder="software templates, online resources, premium downloads">{{ $secondaryKeywords }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="seo-panel mb-3">
+                        <div class="seo-panel-title">
+                            <div>
                                 <h5>Social Sharing</h5>
                                 <p>Control how links appear on Facebook, LinkedIn, X, and messaging apps.</p>
                             </div>
@@ -206,6 +245,67 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="seo-panel mt-3">
+                        <div class="seo-panel-title">
+                            <div>
+                                <span class="seo-tool-badge"><i class="fas fa-plug"></i> Semrush / Ahrefs / technical SEO</span>
+                                <h5>Schema, Sitemap & Audit Integrations</h5>
+                                <p>Configure structured data, crawler files, and links to your external SEO tools.</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="schema_type">Default Schema Type</label>
+                                <select class="form-control" id="schema_type" name="schema_type">
+                                    @foreach(['Organization', 'LocalBusiness', 'WebSite', 'Store', 'SoftwareApplication', 'Product', 'Course'] as $type)
+                                        <option value="{{ $type }}" {{ $schemaType === $type ? 'selected' : '' }}>{{ $type }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="organization_name">Organization Name</label>
+                                <input type="text" class="form-control" id="organization_name" name="organization_name" value="{{ $settings->organization_name ?? $siteTitle }}" placeholder="Next Digi Home">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="organization_phone">Organization Phone</label>
+                                <input type="text" class="form-control" id="organization_phone" name="organization_phone" value="{{ $settings->organization_phone ?? '' }}" placeholder="+880 1XXX XXXXXX">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="sitemap_url">XML Sitemap URL</label>
+                                <input type="url" class="form-control" id="sitemap_url" name="sitemap_url" value="{{ $settings->sitemap_url ?? url('/sitemap.xml') }}" placeholder="https://example.com/sitemap.xml">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label" for="organization_address">Organization Address</label>
+                                <textarea class="form-control" id="organization_address" name="organization_address" rows="2" placeholder="Street, city, region, country">{{ $settings->organization_address ?? '' }}</textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label" for="robots_txt_rules">Robots.txt Rules</label>
+                                <textarea class="form-control code-field" id="robots_txt_rules" name="robots_txt_rules" rows="4" placeholder="User-agent: *&#10;Allow: /&#10;Sitemap: https://example.com/sitemap.xml">{{ $settings->robots_txt_rules ?? '' }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="semrush_project_url">Semrush Project URL</label>
+                                <input type="url" class="form-control" id="semrush_project_url" name="semrush_project_url" value="{{ $settings->semrush_project_url ?? '' }}" placeholder="https://www.semrush.com/projects/...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="semrush_api_key">Semrush API Key</label>
+                                <input type="password" class="form-control" id="semrush_api_key" name="semrush_api_key" value="{{ $settings->semrush_api_key ?? '' }}" placeholder="Paste API key">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="ahrefs_site_audit_url">Ahrefs Site Audit URL</label>
+                                <input type="url" class="form-control" id="ahrefs_site_audit_url" name="ahrefs_site_audit_url" value="{{ $settings->ahrefs_site_audit_url ?? '' }}" placeholder="https://app.ahrefs.com/site-audit/...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="facebook_domain_verification">Facebook Domain Verification</label>
+                                <input type="text" class="form-control" id="facebook_domain_verification" name="facebook_domain_verification" value="{{ $settings->facebook_domain_verification ?? '' }}" placeholder="Meta verification content">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="pinterest_domain_verification">Pinterest Verification</label>
+                                <input type="text" class="form-control" id="pinterest_domain_verification" name="pinterest_domain_verification" value="{{ $settings->pinterest_domain_verification ?? '' }}" placeholder="Pinterest verification content">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-xl-4">
@@ -250,6 +350,9 @@
                             <div class="check-item" data-check="canonical"><i class="fas fa-circle"></i><span>Canonical URL is configured.</span></div>
                             <div class="check-item" data-check="social"><i class="fas fa-circle"></i><span>Social title and description are configured.</span></div>
                             <div class="check-item" data-check="analytics"><i class="fas fa-circle"></i><span>Google Analytics ID is configured.</span></div>
+                            <div class="check-item" data-check="keyword"><i class="fas fa-circle"></i><span>Focus keyphrase appears in title or description.</span></div>
+                            <div class="check-item" data-check="schema"><i class="fas fa-circle"></i><span>Structured data schema is selected.</span></div>
+                            <div class="check-item" data-check="sitemap"><i class="fas fa-circle"></i><span>XML sitemap URL is configured.</span></div>
                         </div>
 
                         <div class="seo-actions">
@@ -269,26 +372,43 @@
 
 <style>
     .seo-page {
-        background: #f6f8fb;
+        background: #f4f7fb;
+        color: #172033;
+        font-size: 14px;
         min-height: calc(100vh - 70px);
         padding: 24px;
     }
 
     .seo-header {
         align-items: center;
-        background: #111827;
+        background: linear-gradient(135deg, #0f172a 0%, #123047 58%, #0f766e 100%);
         border-radius: 8px;
+        box-shadow: 0 24px 70px rgba(15, 23, 42, .2);
         color: #fff;
         display: flex;
         justify-content: space-between;
         margin-bottom: 18px;
-        padding: 22px 24px;
+        overflow: hidden;
+        padding: 26px 28px;
+        position: relative;
+    }
+
+    .seo-header::after {
+        background: linear-gradient(90deg, #22c55e, #38bdf8, #f59e0b);
+        bottom: 0;
+        content: '';
+        height: 4px;
+        left: 0;
+        position: absolute;
+        right: 0;
     }
 
     .seo-header h2 {
-        font-size: 26px;
-        font-weight: 700;
-        margin: 0 0 4px;
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1.1;
+        margin: 0 0 7px;
     }
 
     .seo-header p,
@@ -297,15 +417,18 @@
     }
 
     .seo-header p {
-        color: rgba(255, 255, 255, 0.72);
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 15px;
+        line-height: 1.55;
+        max-width: 760px;
     }
 
     .seo-eyebrow {
-        color: #60a5fa;
+        color: #a7f3d0;
         font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0;
-        margin-bottom: 3px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        margin-bottom: 6px;
         text-transform: uppercase;
     }
 
@@ -318,9 +441,9 @@
     .seo-stat-card,
     .seo-panel {
         background: #fff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid rgba(203, 213, 225, .82);
         border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
     }
 
     .seo-stat-card {
@@ -332,17 +455,21 @@
     }
 
     .seo-stat-card small {
-        color: #6b7280;
+        color: #64748b;
         display: block;
-        font-size: 13px;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .05em;
         margin-bottom: 5px;
+        text-transform: uppercase;
     }
 
     .seo-stat-card strong {
-        color: #111827;
+        color: #0f172a;
         display: block;
-        font-size: 22px;
-        line-height: 1;
+        font-size: 23px;
+        font-weight: 900;
+        line-height: 1.05;
     }
 
     .stat-icon {
@@ -361,7 +488,7 @@
     .stat-cyan { background: #cffafe; color: #0e7490; }
 
     .seo-panel {
-        padding: 18px;
+        padding: 22px;
     }
 
     .seo-panel-title {
@@ -369,31 +496,54 @@
         display: flex;
         justify-content: space-between;
         gap: 16px;
-        margin-bottom: 16px;
+        margin-bottom: 18px;
     }
 
     .seo-panel-title h5 {
-        color: #111827;
-        font-size: 18px;
-        font-weight: 700;
-        margin: 0 0 3px;
+        color: #0f172a;
+        font-size: 20px;
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1.2;
+        margin: 0 0 5px;
     }
 
     .seo-panel-title p {
-        color: #6b7280;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.55;
     }
 
     .seo-page .form-label {
-        color: #374151;
+        color: #1f2937;
         font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 6px;
+        font-weight: 900;
+        letter-spacing: 0;
+        margin-bottom: 7px;
     }
 
-    .seo-page .form-control {
-        border-color: #d1d5db;
+    .seo-page .form-control,
+    .seo-page .form-select {
+        background-color: #fff;
+        border-color: #cbd5e1;
         border-radius: 6px;
-        min-height: 38px;
+        color: #111827;
+        font-size: 14px;
+        font-weight: 650;
+        min-height: 42px;
+    }
+
+    .seo-page .form-control:focus,
+    .seo-page .form-select:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, .14);
+    }
+
+    .seo-page .form-control::placeholder,
+    .seo-page textarea.form-control::placeholder {
+        color: #4b5563;
+        font-weight: 700;
+        opacity: 1;
     }
 
     .seo-page textarea.form-control {
@@ -401,11 +551,28 @@
     }
 
     .seo-switch {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border: 1px solid #dbe3ef;
         border-radius: 8px;
+        font-weight: 800;
         padding: 10px 12px 10px 42px;
         white-space: nowrap;
+    }
+
+    .seo-tool-badge {
+        align-items: center;
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        border-radius: 999px;
+        color: #047857;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 900;
+        gap: 7px;
+        letter-spacing: .04em;
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        text-transform: uppercase;
     }
 
     .counter {
@@ -463,9 +630,10 @@
 
     .google-preview {
         background: #fff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #dbe3ef;
         border-radius: 8px;
-        padding: 14px;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, .06);
+        padding: 16px;
     }
 
     .preview-url {
@@ -478,7 +646,8 @@
 
     .preview-title {
         color: #1a0dab;
-        font-size: 19px;
+        font-size: 20px;
+        font-weight: 500;
         line-height: 1.25;
         margin: 4px 0;
     }
@@ -512,7 +681,8 @@
     .social-body strong {
         color: #111827;
         display: block;
-        font-size: 15px;
+        font-size: 16px;
+        font-weight: 900;
         line-height: 1.35;
     }
 
@@ -536,10 +706,15 @@
 
     .check-item {
         align-items: flex-start;
-        color: #6b7280;
+        background: #f8fafc;
+        border: 1px solid #e5edf6;
+        border-radius: 8px;
+        color: #64748b;
         display: flex;
         font-size: 13px;
+        font-weight: 750;
         gap: 8px;
+        padding: 10px;
     }
 
     .check-item i {
@@ -558,6 +733,13 @@
     .seo-actions {
         display: grid;
         gap: 10px;
+    }
+
+    .seo-actions .btn {
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 900;
+        min-height: 42px;
     }
 
     @media (max-width: 991px) {
@@ -595,6 +777,10 @@ document.addEventListener('DOMContentLoaded', function() {
         title: document.getElementById('seo_meta_title'),
         description: document.getElementById('seo_meta_description'),
         canonical: document.getElementById('canonical_url'),
+        focusKeyword: document.getElementById('seo_focus_keyword'),
+        scoreTarget: document.getElementById('seo_content_score_target'),
+        schemaType: document.getElementById('schema_type'),
+        sitemap: document.getElementById('sitemap_url'),
         ogTitle: document.getElementById('seo_og_title'),
         ogDescription: document.getElementById('seo_og_description'),
         twitterTitle: document.getElementById('seo_twitter_title'),
@@ -642,8 +828,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const title = textValue(fields.title) || @json($siteTitle);
         const description = textValue(fields.description) || 'No description configured.';
         const canonical = textValue(fields.canonical) || @json(url('/'));
+        const focusKeyword = textValue(fields.focusKeyword).toLowerCase();
         const ogTitle = textValue(fields.ogTitle) || title;
         const ogDescription = textValue(fields.ogDescription) || description;
+        const searchableSnippet = (title + ' ' + description).toLowerCase();
 
         document.getElementById('previewTitle').textContent = title;
         document.getElementById('previewDescription').textContent = description;
@@ -660,6 +848,9 @@ document.addEventListener('DOMContentLoaded', function() {
         setCheck('canonical', canonical.length > 0 && /^https?:\/\//i.test(canonical));
         setCheck('social', ogTitle.length > 0 && ogDescription.length > 0);
         setCheck('analytics', textValue(fields.analytics).length > 0);
+        setCheck('keyword', focusKeyword.length > 0 && searchableSnippet.indexOf(focusKeyword) !== -1);
+        setCheck('schema', textValue(fields.schemaType).length > 0);
+        setCheck('sitemap', textValue(fields.sitemap).length > 0 && /^https?:\/\//i.test(textValue(fields.sitemap)));
     }
 
     function previewImage(input, previewId, socialPreview) {

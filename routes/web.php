@@ -500,6 +500,144 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('settings/security', [App\Http\Controllers\Admin\SettingsController::class, 'security'])->name('settings.security');
     Route::post('settings/security/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateSecurity'])->name('settings.security.update');
 
+    // Commerce operations for digital products and Bangladesh market workflows
+    $commerceOpsPages = [
+        'payment-methods' => [
+            'title' => 'Payment Methods',
+            'subtitle' => 'Manage bKash, Nagad, Rocket, bank transfer, SSLCommerz, and aamarPay readiness.',
+            'icon' => 'fas fa-wallet',
+            'tone' => 'emerald',
+            'stats' => [
+                ['label' => 'Local Gateways', 'value' => '6', 'icon' => 'fas fa-mobile-alt', 'tone' => 'stat-green'],
+                ['label' => 'Manual Review', 'value' => 'Required', 'icon' => 'fas fa-user-check', 'tone' => 'stat-amber'],
+                ['label' => 'Settlement', 'value' => 'BDT', 'icon' => 'fas fa-money-bill-wave', 'tone' => 'stat-blue'],
+            ],
+            'sections' => [
+                ['title' => 'Mobile Financial Services', 'items' => ['bKash merchant number and app key', 'Nagad merchant ID and callback URL', 'Rocket merchant account and reference validation']],
+                ['title' => 'Gateway Readiness', 'items' => ['SSLCommerz sandbox/live credentials', 'aamarPay store ID and signature key', 'Webhook retry and payment status sync']],
+                ['title' => 'Manual Payment Controls', 'items' => ['Sender number capture', 'Transaction ID duplicate check', 'Payment proof image review']],
+            ],
+        ],
+        'payment-reconciliation' => [
+            'title' => 'Payment Reconciliation',
+            'subtitle' => 'Match orders against MFS statements, bank deposits, gateway callbacks, and invoice records.',
+            'icon' => 'fas fa-receipt',
+            'tone' => 'blue',
+            'stats' => [
+                ['label' => 'Pending Match', 'value' => '12', 'icon' => 'fas fa-hourglass-half', 'tone' => 'stat-amber'],
+                ['label' => 'Duplicate Risk', 'value' => '3', 'icon' => 'fas fa-copy', 'tone' => 'stat-red'],
+                ['label' => 'Channels', 'value' => 'MFS + Bank', 'icon' => 'fas fa-university', 'tone' => 'stat-cyan'],
+            ],
+            'sections' => [
+                ['title' => 'Daily Close', 'items' => ['Export gateway settlement report', 'Compare order amount vs received amount', 'Mark short/over payments for finance review']],
+                ['title' => 'Bangladesh Market Checks', 'items' => ['Validate TrxID format', 'Verify sender wallet number', 'Track cash-in/cash-out fee differences']],
+                ['title' => 'Accounting Handoff', 'items' => ['Invoice number mapping', 'Refund note tracking', 'Finance approval log']],
+            ],
+        ],
+        'digital-access' => [
+            'title' => 'Digital Access & License Delivery',
+            'subtitle' => 'Control download links, license keys, validity windows, product access, and customer delivery status.',
+            'icon' => 'fas fa-key',
+            'tone' => 'violet',
+            'stats' => [
+                ['label' => 'Download Rules', 'value' => 'Tokenized', 'icon' => 'fas fa-link', 'tone' => 'stat-blue'],
+                ['label' => 'License Mode', 'value' => 'Needed', 'icon' => 'fas fa-key', 'tone' => 'stat-violet'],
+                ['label' => 'Access Validity', 'value' => 'Active', 'icon' => 'fas fa-calendar-check', 'tone' => 'stat-green'],
+            ],
+            'sections' => [
+                ['title' => 'Access Controls', 'items' => ['Download token expiry', 'Maximum download count', 'Customer account access history']],
+                ['title' => 'License Operations', 'items' => ['License key pool', 'Activation limit per customer', 'Manual license reissue']],
+                ['title' => 'Delivery Automation', 'items' => ['Send product delivery email', 'Resend failed delivery', 'Revoke refunded access']],
+            ],
+        ],
+        'fraud-risk' => [
+            'title' => 'Fraud & Risk Review',
+            'subtitle' => 'Review suspicious orders, repeated transaction IDs, risky email patterns, and refund abuse.',
+            'icon' => 'fas fa-shield-alt',
+            'tone' => 'red',
+            'stats' => [
+                ['label' => 'Risk Rules', 'value' => '7', 'icon' => 'fas fa-shield-alt', 'tone' => 'stat-red'],
+                ['label' => 'Manual Holds', 'value' => '5', 'icon' => 'fas fa-pause-circle', 'tone' => 'stat-amber'],
+                ['label' => 'Refund Watch', 'value' => 'On', 'icon' => 'fas fa-undo', 'tone' => 'stat-blue'],
+            ],
+            'sections' => [
+                ['title' => 'Order Risk Signals', 'items' => ['Same TrxID on multiple orders', 'Mismatch between customer phone and sender number', 'High-value first order']],
+                ['title' => 'Digital Goods Protection', 'items' => ['Hold download until payment approval', 'Revoke access after refund', 'Log IP/device download attempts']],
+                ['title' => 'Review Queue', 'items' => ['Approve safe order', 'Request customer proof', 'Blacklist repeated abuse']],
+            ],
+        ],
+        'vat-tax' => [
+            'title' => 'VAT & Tax',
+            'subtitle' => 'Prepare VAT, invoice, TIN/BIN, and digital-service tax workflows for local compliance.',
+            'icon' => 'fas fa-file-invoice-dollar',
+            'tone' => 'amber',
+            'stats' => [
+                ['label' => 'Currency', 'value' => 'BDT', 'icon' => 'fas fa-coins', 'tone' => 'stat-amber'],
+                ['label' => 'Invoice Fields', 'value' => 'Missing', 'icon' => 'fas fa-file-invoice', 'tone' => 'stat-red'],
+                ['label' => 'Reports', 'value' => 'Monthly', 'icon' => 'fas fa-calendar-alt', 'tone' => 'stat-green'],
+            ],
+            'sections' => [
+                ['title' => 'Invoice Requirements', 'items' => ['Business BIN/TIN', 'Customer billing details', 'VAT amount line item']],
+                ['title' => 'Finance Reports', 'items' => ['Monthly sales by payment channel', 'Refund-adjusted revenue', 'Gateway fee summary']],
+                ['title' => 'Controls', 'items' => ['Tax-inclusive pricing', 'Invoice serial rules', 'Export for accountant']],
+            ],
+        ],
+        'affiliates-resellers' => [
+            'title' => 'Affiliates & Resellers',
+            'subtitle' => 'Manage influencer coupons, reseller commissions, referral attribution, and payout checks.',
+            'icon' => 'fas fa-handshake',
+            'tone' => 'cyan',
+            'stats' => [
+                ['label' => 'Partners', 'value' => 'Needed', 'icon' => 'fas fa-users', 'tone' => 'stat-cyan'],
+                ['label' => 'Commission', 'value' => 'Configurable', 'icon' => 'fas fa-percent', 'tone' => 'stat-green'],
+                ['label' => 'Payout', 'value' => 'MFS/Bank', 'icon' => 'fas fa-wallet', 'tone' => 'stat-blue'],
+            ],
+            'sections' => [
+                ['title' => 'Partner Setup', 'items' => ['Affiliate profile', 'Coupon/referral code', 'Commission tier']],
+                ['title' => 'Attribution', 'items' => ['Last-click tracking', 'Coupon sale mapping', 'Refund-adjusted commission']],
+                ['title' => 'Bangladesh Payouts', 'items' => ['bKash/Nagad payout number', 'Bank account details', 'Payout approval status']],
+            ],
+        ],
+        'abandoned-checkouts' => [
+            'title' => 'Abandoned Checkouts',
+            'subtitle' => 'Recover failed or abandoned purchases through email, SMS, WhatsApp, and retargeting audiences.',
+            'icon' => 'fas fa-cart-arrow-down',
+            'tone' => 'slate',
+            'stats' => [
+                ['label' => 'Recovery Flow', 'value' => 'Needed', 'icon' => 'fas fa-route', 'tone' => 'stat-blue'],
+                ['label' => 'Channels', 'value' => 'Email/SMS', 'icon' => 'fas fa-paper-plane', 'tone' => 'stat-green'],
+                ['label' => 'Audience', 'value' => 'Warm Leads', 'icon' => 'fas fa-bullseye', 'tone' => 'stat-amber'],
+            ],
+            'sections' => [
+                ['title' => 'Recovery Automation', 'items' => ['First reminder after 30 minutes', 'Payment instruction message', 'Coupon on second reminder']],
+                ['title' => 'Local Channels', 'items' => ['SMS reminder for phone-only buyers', 'WhatsApp support link', 'MFS payment instruction template']],
+                ['title' => 'Analytics', 'items' => ['Recovered revenue', 'Drop-off by payment method', 'Coupon conversion rate']],
+            ],
+        ],
+        'marketplace-channels' => [
+            'title' => 'Marketplace & Channel Sales',
+            'subtitle' => 'Track sales from Facebook, WhatsApp, Daraz-style marketplace listings, reseller pages, and campaigns.',
+            'icon' => 'fas fa-store',
+            'tone' => 'emerald',
+            'stats' => [
+                ['label' => 'Channels', 'value' => 'Social + Web', 'icon' => 'fas fa-share-alt', 'tone' => 'stat-green'],
+                ['label' => 'UTM Tracking', 'value' => 'Needed', 'icon' => 'fas fa-link', 'tone' => 'stat-blue'],
+                ['label' => 'Catalog Sync', 'value' => 'Planned', 'icon' => 'fas fa-sync', 'tone' => 'stat-cyan'],
+            ],
+            'sections' => [
+                ['title' => 'Sales Channels', 'items' => ['Website checkout', 'Facebook page inbox', 'WhatsApp assisted order']],
+                ['title' => 'Catalog Operations', 'items' => ['Channel-specific price', 'Product availability', 'Campaign landing links']],
+                ['title' => 'Reporting', 'items' => ['Revenue by channel', 'Best campaign source', 'Manual order source tagging']],
+            ],
+        ],
+    ];
+
+    foreach ($commerceOpsPages as $slug => $page) {
+        Route::get('commerce-ops/'.$slug, function () use ($page, $slug) {
+            return view('admin.commerce.ops', compact('page', 'slug'));
+        })->name('commerce-ops.'.$slug);
+    }
+
     // SEO Management for Frontend Site (under marketing for menu compatibility)
     Route::get('marketing/email-campaigns', function () {
         return view('admin.marketing.email-campaigns');

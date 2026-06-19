@@ -84,6 +84,17 @@ class MenuSeeder extends Seeder
             'customer-support',
             'customer-communication',
 
+            // Commerce Operations
+            'commerce-ops-manage',
+            'commerce-payment-methods',
+            'commerce-payment-reconciliation',
+            'commerce-digital-access',
+            'commerce-fraud-risk',
+            'commerce-vat-tax',
+            'commerce-affiliate-manage',
+            'commerce-abandoned-checkout',
+            'commerce-channel-sales',
+
             // Analytics & Reports
             'analytics-view',
             'analytics-dashboard',
@@ -196,102 +207,113 @@ class MenuSeeder extends Seeder
                 'menu_parent' => 0,
             ],
 
-            // 5. Subscriptions
+            // 5. Commerce Ops
+            [
+                'menu_name' => 'Commerce Ops',
+                'menu_slug' => 'commerce-ops',
+                'menu_icon' => 'fa-briefcase',
+                'menu_url' => null,
+                'menu_permission' => 'commerce-ops-manage',
+                'menu_order' => 5,
+                'menu_parent' => 0,
+            ],
+
+            // 6. Subscriptions
             [
                 'menu_name' => 'Subscriptions',
                 'menu_slug' => 'subscriptions',
                 'menu_icon' => 'fa-crown',
                 'menu_url' => null,
                 'menu_permission' => 'subscription-plan-manage',
-                'menu_order' => 5,
+                'menu_order' => 6,
                 'menu_parent' => 0,
             ],
 
-            // 6. Content Management
+            // 7. Content Management
             [
                 'menu_name' => 'Content',
                 'menu_slug' => 'content',
                 'menu_icon' => 'fa-file-alt',
                 'menu_url' => null,
                 'menu_permission' => 'content-manage',
-                'menu_order' => 6,
+                'menu_order' => 7,
                 'menu_parent' => 0,
             ],
 
-            // 7. Reports & Analytics
+            // 8. Reports & Analytics
             [
                 'menu_name' => 'Reports',
                 'menu_slug' => 'reports',
                 'menu_icon' => 'fa-chart-line',
                 'menu_url' => 'admin.reports.index',
                 'menu_permission' => 'analytics-view',
-                'menu_order' => 7,
+                'menu_order' => 8,
                 'menu_parent' => 0,
             ],
 
-            // 8. Marketing
+            // 9. Marketing
             [
                 'menu_name' => 'Marketing',
                 'menu_slug' => 'marketing',
                 'menu_icon' => 'fa-bullhorn',
                 'menu_url' => null,
                 'menu_permission' => 'marketing-manage',
-                'menu_order' => 8,
+                'menu_order' => 9,
                 'menu_parent' => 0,
             ],
 
-            // 9. Support
+            // 10. Support
             [
                 'menu_name' => 'Support',
                 'menu_slug' => 'support',
                 'menu_icon' => 'fa-headset',
                 'menu_url' => null,
                 'menu_permission' => 'support-manage',
-                'menu_order' => 9,
+                'menu_order' => 10,
                 'menu_parent' => 0,
             ],
 
-            // 10. User Management
+            // 11. User Management
             [
                 'menu_name' => 'Users',
                 'menu_slug' => 'user-management',
                 'menu_icon' => 'fa-user-circle',
                 'menu_url' => null,
                 'menu_permission' => 'user-manage',
-                'menu_order' => 10,
+                'menu_order' => 11,
                 'menu_parent' => 0,
             ],
 
-            // 11. System
+            // 12. System
             [
                 'menu_name' => 'System',
                 'menu_slug' => 'system',
                 'menu_icon' => 'fa-server',
                 'menu_url' => null,
                 'menu_permission' => 'system-configure',
-                'menu_order' => 11,
+                'menu_order' => 12,
                 'menu_parent' => 0,
             ],
 
-            // 12. Settings
+            // 13. Settings
             [
                 'menu_name' => 'Settings',
                 'menu_slug' => 'settings',
                 'menu_icon' => 'fa-cogs',
                 'menu_url' => 'admin.settings.index',
                 'menu_permission' => 'settings-manage',
-                'menu_order' => 12,
+                'menu_order' => 13,
                 'menu_parent' => 0,
             ],
 
-            // 13. My Profile
+            // 14. My Profile
             [
                 'menu_name' => 'My Profile',
                 'menu_slug' => 'my-profile',
                 'menu_icon' => 'fa-user',
                 'menu_url' => 'admin.profile.edit',
                 'menu_permission' => 'profile-view',
-                'menu_order' => 13,
+                'menu_order' => 14,
                 'menu_parent' => 0,
             ],
         ];
@@ -474,6 +496,80 @@ class MenuSeeder extends Seeder
                 'menu_permission' => 'customer-view',
                 'menu_order' => 5,
                 'parent_name' => 'Customers',
+            ],
+
+            // ===== Commerce Ops Children =====
+            [
+                'menu_name' => 'Payment Methods',
+                'menu_slug' => 'commerce-payment-methods',
+                'menu_icon' => 'fa-wallet',
+                'menu_url' => 'admin.commerce-ops.payment-methods',
+                'menu_permission' => 'commerce-payment-methods',
+                'menu_order' => 1,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'Payment Reconciliation',
+                'menu_slug' => 'commerce-payment-reconciliation',
+                'menu_icon' => 'fa-receipt',
+                'menu_url' => 'admin.commerce-ops.payment-reconciliation',
+                'menu_permission' => 'commerce-payment-reconciliation',
+                'menu_order' => 2,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'Digital Access & Licenses',
+                'menu_slug' => 'commerce-digital-access',
+                'menu_icon' => 'fa-key',
+                'menu_url' => 'admin.commerce-ops.digital-access',
+                'menu_permission' => 'commerce-digital-access',
+                'menu_order' => 3,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'Fraud & Risk Review',
+                'menu_slug' => 'commerce-fraud-risk',
+                'menu_icon' => 'fa-shield-alt',
+                'menu_url' => 'admin.commerce-ops.fraud-risk',
+                'menu_permission' => 'commerce-fraud-risk',
+                'menu_order' => 4,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'VAT & Tax',
+                'menu_slug' => 'commerce-vat-tax',
+                'menu_icon' => 'fa-file-invoice-dollar',
+                'menu_url' => 'admin.commerce-ops.vat-tax',
+                'menu_permission' => 'commerce-vat-tax',
+                'menu_order' => 5,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'Affiliates & Resellers',
+                'menu_slug' => 'commerce-affiliates-resellers',
+                'menu_icon' => 'fa-handshake',
+                'menu_url' => 'admin.commerce-ops.affiliates-resellers',
+                'menu_permission' => 'commerce-affiliate-manage',
+                'menu_order' => 6,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'Abandoned Checkouts',
+                'menu_slug' => 'commerce-abandoned-checkouts',
+                'menu_icon' => 'fa-cart-arrow-down',
+                'menu_url' => 'admin.commerce-ops.abandoned-checkouts',
+                'menu_permission' => 'commerce-abandoned-checkout',
+                'menu_order' => 7,
+                'parent_name' => 'Commerce Ops',
+            ],
+            [
+                'menu_name' => 'Marketplace Channels',
+                'menu_slug' => 'commerce-marketplace-channels',
+                'menu_icon' => 'fa-store',
+                'menu_url' => 'admin.commerce-ops.marketplace-channels',
+                'menu_permission' => 'commerce-channel-sales',
+                'menu_order' => 8,
+                'parent_name' => 'Commerce Ops',
             ],
 
             // ===== Subscriptions Children =====
