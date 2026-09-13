@@ -143,6 +143,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard/data', [HomeController::class, 'data'])->name('admin.dashboard.data');
     Route::get('/dashboard/recent-documents', [HomeController::class, 'getRecentDocuments'])->name('dashboard.recent-documents');
     Route::get('/dashboard/pending-approvals', [HomeController::class, 'getPendingApprovals'])->name('dashboard.pending-approvals');
+
+    // NextDigiHome Project Inquiries & Leads Management
+    Route::resource('inquiries', \App\Http\Controllers\Admin\InquiryController::class);
+    Route::patch('inquiries/{id}/status', [\App\Http\Controllers\Admin\InquiryController::class, 'updateStatus'])->name('inquiries.update-status');
 });
 
 // ============================================================================

@@ -47,7 +47,6 @@ class ContentManagementController extends Controller
                 'data' => $data,
             ]);
         } catch (\Exception $e) {
-            // Return empty data if database tables don't exist or other errors
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -123,6 +122,84 @@ class ContentManagementController extends Controller
         return response()->json([
             'success' => true,
             'data' => $content,
+        ]);
+    }
+
+    public function getRefundContent()
+    {
+        $content = PageContent::page('refund')->section('content')->active()->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => $content,
+        ]);
+    }
+
+    public function getSolutionsContent()
+    {
+        $hero = PageContent::page('solutions')->section('hero')->active()->first();
+        $sections = PageContent::page('solutions')->active()->ordered()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'hero' => $hero,
+                'sections' => $sections,
+            ],
+        ]);
+    }
+
+    public function getAiContent()
+    {
+        $hero = PageContent::page('ai')->section('hero')->active()->first();
+        $sections = PageContent::page('ai')->active()->ordered()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'hero' => $hero,
+                'sections' => $sections,
+            ],
+        ]);
+    }
+
+    public function getGrowthContent()
+    {
+        $hero = PageContent::page('growth')->section('hero')->active()->first();
+        $sections = PageContent::page('growth')->active()->ordered()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'hero' => $hero,
+                'sections' => $sections,
+            ],
+        ]);
+    }
+
+    public function getLabsContent()
+    {
+        $hero = PageContent::page('labs')->section('hero')->active()->first();
+        $sections = PageContent::page('labs')->active()->ordered()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'hero' => $hero,
+                'sections' => $sections,
+            ],
+        ]);
+    }
+
+    public function getCaseStudiesContent()
+    {
+        $sections = PageContent::page('case-studies')->active()->ordered()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'sections' => $sections,
+            ],
         ]);
     }
 

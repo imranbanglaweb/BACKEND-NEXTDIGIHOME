@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\DeliveryController;
 use App\Http\Controllers\Api\PublicApiController;
+use App\Http\Controllers\Api\InquiryController;
+use App\Http\Controllers\Api\ContentManagementController;
 use App\Http\Controllers\DepartmentHeadController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +18,12 @@ use NotificationChannels\WebPush\PushSubscription;
 // ============================================================================
 
 Route::middleware(['api'])->group(function () {
+    // Project Inquiries (Lead generation & contact form)
+    Route::post('inquiries', [InquiryController::class, 'store']);
+    Route::get('inquiries', [InquiryController::class, 'index']);
+    Route::get('inquiries/{id}', [InquiryController::class, 'show']);
+    Route::patch('inquiries/{id}/status', [InquiryController::class, 'updateStatus']);
+
     Route::post('/register', [PublicApiController::class, 'register']);
     Route::post('/login', [PublicApiController::class, 'login']);
 
@@ -137,9 +145,15 @@ Route::middleware(['api'])->group(function () {
     Route::get('content/home', [App\Http\Controllers\Api\ContentManagementController::class, 'getHomeContent']);
     Route::get('content/about', [App\Http\Controllers\Api\ContentManagementController::class, 'getAboutContent']);
     Route::get('content/contact', [App\Http\Controllers\Api\ContentManagementController::class, 'getContactContent']);
-    Route::get('content/privacy', [App\Http\Controllers\Api\ContentManagementController::class, 'getPrivacyContent']);
-    Route::get('content/terms', [App\Http\Controllers\Api\ContentManagementController::class, 'getTermsContent']);
-    Route::get('content/all', [App\Http\Controllers\Api\ContentManagementController::class, 'getAllContent']);
+    Route::get('content/privacy', [ContentManagementController::class, 'getPrivacyContent']);
+    Route::get('content/terms', [ContentManagementController::class, 'getTermsContent']);
+    Route::get('content/refund', [ContentManagementController::class, 'getRefundContent']);
+    Route::get('content/solutions', [ContentManagementController::class, 'getSolutionsContent']);
+    Route::get('content/ai', [ContentManagementController::class, 'getAiContent']);
+    Route::get('content/growth', [ContentManagementController::class, 'getGrowthContent']);
+    Route::get('content/labs', [ContentManagementController::class, 'getLabsContent']);
+    Route::get('content/case-studies', [ContentManagementController::class, 'getCaseStudiesContent']);
+    Route::get('content/all', [ContentManagementController::class, 'getAllContent']);
 });
 
 // ============================================================================

@@ -25,6 +25,13 @@ class RolePermissionSeeder extends Seeder
         // ================= SUPER ADMIN =================
         $superAdmin?->syncPermissions(Permission::all());
 
+        $existingPerms = Permission::pluck('name')->flip();
+        $safeSync = function ($role, array $permissions) use ($existingPerms) {
+            if (!$role) return;
+            $valid = array_values(array_filter($permissions, fn($p) => isset($existingPerms[$p])));
+            $role->syncPermissions($valid);
+        };
+
         // ================= ADMIN =================
         $adminPermissions = [
 
@@ -303,7 +310,7 @@ class RolePermissionSeeder extends Seeder
             'transport-approve',
         ];
 
-        $admin?->syncPermissions($adminPermissions);
+        $safeSync($admin, $adminPermissions);
 
         // ================= TRANSPORT =================
         $transportPermissions = [
@@ -411,7 +418,7 @@ class RolePermissionSeeder extends Seeder
             'employee-edit-own',
         ];
 
-        $transport?->syncPermissions($transportPermissions);
+        $safeSync($transport, $transportPermissions);
 
         // ================= EMPLOYEE =================
         $employeePermissions = [
@@ -477,7 +484,7 @@ class RolePermissionSeeder extends Seeder
             'gps-tracking-view',
         ];
 
-        $employee?->syncPermissions($employeePermissions);
+        $safeSync($employee, $employeePermissions);
 
         // ================= DEPARTMENT HEAD =================
         $deptHeadPermissions = [
@@ -581,7 +588,7 @@ class RolePermissionSeeder extends Seeder
             'trip-sheet-own',
         ];
 
-        $deptHead?->syncPermissions($deptHeadPermissions);
+        $safeSync($deptHead, $deptHeadPermissions);
 
         // ================= MANAGER =================
         $managerPermissions = [
@@ -684,7 +691,7 @@ class RolePermissionSeeder extends Seeder
             'notification-view',
         ];
 
-        $manager?->syncPermissions($managerPermissions);
+        $safeSync($manager, $managerPermissions);
 
         // ================= DRIVER =================
         $driverPermissions = [
@@ -728,7 +735,7 @@ class RolePermissionSeeder extends Seeder
             'gps-tracking-view',
         ];
 
-        $driver?->syncPermissions($driverPermissions);
+        $safeSync($driver, $driverPermissions);
 
         $this->command->info('RolePermissionSeeder completed successfully!');
     }

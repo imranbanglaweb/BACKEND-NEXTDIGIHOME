@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'গাড়িবন্ধু ৩৬০ – Fleet & Transport Management System'),
+    'name' => env('APP_NAME', 'NextDigiHome'),
 
     /*
     |--------------------------------------------------------------------------

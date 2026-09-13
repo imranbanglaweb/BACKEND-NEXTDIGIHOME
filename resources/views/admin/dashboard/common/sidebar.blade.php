@@ -259,6 +259,20 @@
     <div class="sidebar-content">
         <nav class="nav-main">
             <ul class="nav nav-main">
+                @php
+                    $newInquiryCount = \Illuminate\Support\Facades\Schema::hasTable('project_inquiries') 
+                        ? \App\Models\ProjectInquiry::where('status', 'new')->count() 
+                        : 0;
+                @endphp
+                <li class="{{ request()->routeIs('inquiries.*') ? 'nav-active' : '' }}">
+                    <a href="{{ route('inquiries.index') }}" class="menu-link" style="position: relative;">
+                        <i class="fa fa-paper-plane text-info"></i>
+                        <span>{{ trans('Project Inquiries') }}</span>
+                        @if($newInquiryCount > 0)
+                            <span class="badge badge-pill badge-warning" style="position: absolute; right: 15px; font-size: 11px; padding: 3px 7px; color: #111;">{{ $newInquiryCount }}</span>
+                        @endif
+                    </a>
+                </li>
 
 @forelse($sidebar_menus as $menu)
 

@@ -85,11 +85,15 @@ class AppServiceProvider extends ServiceProvider
         $this->loadAdminSettings();
 
         // Force HTTPS in production
-        if (config('app.env') === 'production') {
-            \URL::forceScheme('https');
-        }
+        if (! $this->app->runningInConsole()) {
+            if (config('app.env') === 'production') {
+                \URL::forceScheme('https');
+            }
 
-        \URL::forceRootUrl(config('app.url'));
+            if (config('app.url')) {
+                \URL::forceRootUrl(config('app.url'));
+            }
+        }
 
         // Custom translation loader
         $this->app->extend('translation.loader', function ($loader, $app) {
@@ -264,9 +268,11 @@ class AppServiceProvider extends ServiceProvider
                     : 'Fleet Management Solution';
 
                 // Set admin logo URL
-                $adminLogoUrl = ! empty($settings->admin_logo)
-                    ? asset('public/admin_resource/assets/images/'.$settings->admin_logo)
-                    : asset('public/admin_resource/assets/images/default.png');
+                $adminLogoUrl = (! $this->app->runningInConsole() && $this->app->bound('request'))
+                    ? (! empty($settings->admin_logo)
+                        ? asset('public/admin_resource/assets/images/'.$settings->admin_logo)
+                        : asset('public/admin_resource/assets/images/default.png'))
+                    : ($settings->admin_logo ?? 'default.png');
 
                 // Merge into config
                 Config::set('admin_settings', [

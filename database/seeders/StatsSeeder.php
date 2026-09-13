@@ -11,41 +11,44 @@ class StatsSeeder extends Seeder
     {
         $stats = [
             [
-                'key' => 'products_sold',
-                'value' => '10K+',
-                'label' => 'Products Sold',
-                'icon' => 'shopping-bag',
+                'key' => 'experience',
+                'value' => '8+ Years',
+                'label' => 'Combined Engineering Experience',
+                'icon' => 'code-bracket',
                 'sort_order' => 1,
                 'is_active' => true,
             ],
             [
-                'key' => 'happy_customers',
-                'value' => '50K+',
-                'label' => 'Happy Customers',
-                'icon' => 'users',
+                'key' => 'platforms',
+                'value' => 'Multiple',
+                'label' => 'SaaS Platforms in Active Production',
+                'icon' => 'cpu-chip',
                 'sort_order' => 2,
                 'is_active' => true,
             ],
             [
-                'key' => 'countries_served',
-                'value' => '150+',
-                'label' => 'Countries Served',
-                'icon' => 'globe',
+                'key' => 'ip_ownership',
+                'value' => '100%',
+                'label' => 'Code & IP Ownership',
+                'icon' => 'shield-check',
                 'sort_order' => 3,
                 'is_active' => true,
             ],
             [
-                'key' => 'average_rating',
-                'value' => '4.9★',
-                'label' => 'Average Rating',
-                'icon' => 'star',
+                'key' => 'sla_support',
+                'value' => '24/7',
+                'label' => 'Monitoring & SLA-Backed Support',
+                'icon' => 'clock',
                 'sort_order' => 4,
                 'is_active' => true,
             ],
         ];
 
         foreach ($stats as $stat) {
-            Stat::create($stat);
+            Stat::updateOrCreate(
+                ['key' => $stat['key']],
+                $stat
+            );
         }
     }
 }
