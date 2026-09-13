@@ -6,12 +6,14 @@ use App\Models\Category;
 use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\ProjectInquiry;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Services\TranslationService;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Support\Facades\Schema;
 // use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -105,15 +107,6 @@ class HomeController extends Controller
         $isSeller = $user->hasRole('Seller') || $user->hasRole('Creator');
         $isCustomer = $user->hasRole('Customer') || $user->hasRole('User');
 
-        // Debug: Log role detection
-        \Log::info('Role Detection', [
-            'isSuperAdmin' => $isSuperAdmin,
-            'isAdmin' => $isAdmin,
-            'isSeller' => $isSeller,
-            'isCustomer' => $isCustomer,
-            'user_roles' => $user->getRoleNames()->toArray(),
-        ]);
-
         // Fallback to 'role' column if no Spatie role is assigned
         if (! $isSuperAdmin && ! $isAdmin && ! $isSeller && ! $isCustomer) {
             $userRole = $user->role ?? 'customer';
@@ -121,34 +114,6 @@ class HomeController extends Controller
             $isAdmin = ($userRole === 'admin');
             $isSeller = ($userRole === 'seller');
             $isCustomer = ($userRole === 'customer');
-            \Log::info('Fallback to role column', ['userRole' => $userRole]);
-        }
-
-        // Default to customer for regular users
-        if (! $isSuperAdmin && ! $isAdmin && ! $isSeller) {
-            $isCustomer = true;
-        }
-
-        // Debug: Log final role detection
-        \Log::info('Final Role Detection', [
-            'isSuperAdmin' => $isSuperAdmin,
-            'isAdmin' => $isAdmin,
-            'isSeller' => $isSeller,
-            'isCustomer' => $isCustomer,
-            'user_roles' => $user->getRoleNames()->toArray(),
-        ]);
-
-        // Set admin flag for routing compatibility
-        $isAdmin = $isSuperAdmin || $isAdmin;
-
-        // Fallback to 'role' column if no Spatie role is assigned
-        if (! $isSuperAdmin && ! $isAdmin && ! $isSeller && ! $isCustomer) {
-            $userRole = $user->role ?? 'customer';
-            $isSuperAdmin = ($userRole === 'super_admin');
-            $isAdmin = ($userRole === 'admin');
-            $isSeller = ($userRole === 'seller');
-            $isCustomer = ($userRole === 'customer');
-            \Log::info('Fallback to role column', ['userRole' => $userRole]);
         }
 
         // Default to customer for regular users without specific roles
@@ -156,14 +121,8 @@ class HomeController extends Controller
             $isCustomer = true;
         }
 
-        // Debug: Log final role detection
-        \Log::info('Final Role Detection', [
-            'isSuperAdmin' => $isSuperAdmin,
-            'isAdmin' => $isAdmin,
-            'isSeller' => $isSeller,
-            'isCustomer' => $isCustomer,
-            'user_roles' => $user->getRoleNames()->toArray(),
-        ]);
+        // Set admin flag for routing compatibility
+        $isAdmin = $isSuperAdmin || $isAdmin;
 
         // Build queries based on role for marketplace data
         $productQuery = Product::query();
@@ -219,6 +178,12 @@ class HomeController extends Controller
             $totalCustomers = 0;
         }
 
+        // Project Inquiry stats (NextDigiHome lead generation)
+        $hasInquiryTable = Schema::hasTable('project_inquiries');
+        $totalInquiries = $hasInquiryTable ? ProjectInquiry::count() : 0;
+        $newInquiries = $hasInquiryTable ? ProjectInquiry::where('status', 'new')->count() : 0;
+        $recentInquiries = $hasInquiryTable ? ProjectInquiry::latest()->take(5)->get() : collect();
+
         // Overall marketplace stats
         $total = $totalProducts;
         $pending = Product::where('active', false)->count(); // Inactive products as "pending"
@@ -261,72 +226,45 @@ class HomeController extends Controller
             $monthlyQuery->where('created_by', $user->id);
         }
 
-        $monthlyCounts = $monthlyQuery
-            ->groupBy('ym')
-            ->pluck('total', 'ym')
-            ->toArray();
+        $monthlyCounts = $monthlyQuery->groupBy('ym')->pluck('total', 'ym')->all();
 
-        foreach ($months as $m) {
-            $monthlyData[] = isset($monthlyCounts[$m]) ? (int) $monthlyCounts[$m] : 0;
+        foreach ($months as $ym) {
+            $monthlyData[] = (int) ($monthlyCounts[$ym] ?? 0);
         }
 
-        // Category-wise products (pie) (chart 2) - role-based
+        // Department breakdown (chart 2) - using categories
         $categoryQuery = Product::select('categories.category_name as label', DB::raw('count(*) as value'))
             ->join('categories', 'products.category', '=', 'categories.id');
 
         if ($isSeller) {
             $categoryQuery->where('products.created_by', $user->id);
-            $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(10)->get();
-        } elseif ($isSuperAdmin || $isAdmin) {
-            $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(10)->get();
-        } else {
-            // For customers, show all categories
-            $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(10)->get();
         }
 
-        // Product status ratio (doughnut) (chart 3)
-        $statusCounts = collect([
-            'Active Products' => $activeProducts,
-            'Pending Products' => $pending,
-            'Total Sales' => $approved,
-            'Total Revenue' => $totalRevenue,
-        ]);
+        $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(5)->get();
 
-        // Top selling products (chart 4) - role-based
-        $topProductsQuery = Purchase::select('product_id', DB::raw('count(*) as total'))
-            ->groupBy('product_id')
-            ->orderBy('total', 'desc')
-            ->with('product')
-            ->limit(8);
+        // Status counts for doughnut (chart 3)
+        $statusCounts = [
+            'approved' => $approved,
+            'pending' => $pending,
+            'rejected' => $rejected,
+            'completed' => $completed,
+        ];
 
-        if ($isSeller) {
-            $topProductsQuery->whereHas('product', function ($q) use ($user) {
-                $q->where('created_by', $user->id);
-            });
-        }
+        // Top users by products (chart 4)
+        $topUsers = User::select('users.name as label', DB::raw('count(products.id) as value'))
+            ->join('products', 'products.created_by', '=', 'users.id')
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('value', 'desc')
+            ->limit(5)
+            ->get();
 
-        $topUsers = $topProductsQuery->get()
-            ->map(function ($p) {
-                return [
-                    'name' => optional($p->product)->name ?? 'Product '.$p->product_id,
-                    'total' => (int) $p->total,
-                ];
-            });
+        // Timeline: recent product additions
+        $timeline = Product::with('creator')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
 
-        // Recent marketplace activity (timeline) - role-based
-        $timelineQuery = DB::table('log_histories')
-            ->join('users', 'log_histories.user_id', '=', 'users.id')
-            ->select('log_histories.*', 'users.name as user_name')
-            ->orderBy('log_histories.created_at', 'desc')
-            ->limit(10);
-
-        if ($isSeller) {
-            $timelineQuery->where('log_histories.user_id', $user->id);
-        }
-
-        $timeline = $timelineQuery->get();
-
-        // Recent notifications - role-based
+        // Recent notifications
         $notificationsQuery = Notification::where('notifiable_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(5);
@@ -334,6 +272,7 @@ class HomeController extends Controller
 
         // Build payload for view
         $cards = [
+            ['key' => 'new_inquiries', 'label' => 'New Leads', 'value' => $newInquiries, 'color' => '#7c3aed', 'icon' => 'fa-paper-plane'],
             ['key' => 'total_products', 'label' => 'Total Products', 'value' => $totalProducts, 'color' => '#0d6efd', 'icon' => 'fa-box'],
             ['key' => 'active_products', 'label' => 'Active Products', 'value' => $activeProducts, 'color' => '#28a745', 'icon' => 'fa-check-circle'],
             ['key' => 'total_sales', 'label' => 'Total Sales', 'value' => $totalPurchases, 'color' => '#20c997', 'icon' => 'fa-shopping-cart'],
@@ -350,6 +289,8 @@ class HomeController extends Controller
             'completed' => $totalPurchases,
             'revenue' => $totalRevenue,
             'customers' => $totalCustomers,
+            'total_inquiries' => $totalInquiries,
+            'new_inquiries' => $newInquiries,
         ];
 
         // Debug: Log stats
@@ -399,6 +340,9 @@ class HomeController extends Controller
             'totalPurchases' => $totalPurchases,
             'totalRevenue' => $totalRevenue,
             'totalCustomers' => $totalCustomers,
+            'totalInquiries' => $totalInquiries,
+            'newInquiries' => $newInquiries,
+            'recentInquiries' => $recentInquiries,
             'latestProducts' => $latestProducts ?? collect(),
             'latestPurchases' => $latestPurchases ?? collect(),
         ];
@@ -476,11 +420,17 @@ class HomeController extends Controller
 
         $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(10)->get();
 
+        $hasInquiryTable = Schema::hasTable('project_inquiries');
+        $totalInquiries = $hasInquiryTable ? ProjectInquiry::count() : 0;
+        $newInquiries = $hasInquiryTable ? ProjectInquiry::where('status', 'new')->count() : 0;
+
         return response()->json([
             'total' => $totalProducts,
             'pending' => $totalPurchases,
             'completed' => $totalPurchases,
             'revenue' => $totalRevenue,
+            'totalInquiries' => $totalInquiries,
+            'newInquiries' => $newInquiries,
             'latest' => $latest,
             'deptData' => $deptData,
             'isAdmin' => $isSuperAdmin || $isAdmin,

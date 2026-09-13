@@ -21,6 +21,11 @@
     .premium-cyan { background:#0891b2; }
     .premium-amber { background:#d97706; }
     .premium-red { background:#dc2626; }
+    .premium-purple { background:#7c3aed; }
+    .badge-new { background:#7c3aed; color:#fff; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; }
+    .badge-in_review { background:#d97706; color:#fff; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; }
+    .badge-contacted { background:#2563eb; color:#fff; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; }
+    .badge-closed { background:#6b7280; color:#fff; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; }
     .premium-table thead th { background:#f9fafb; border-bottom:1px solid #e5e7eb; color:#4b5563; font-size:12px; font-weight:700; padding:13px 12px; text-transform:uppercase; white-space:nowrap; }
     .premium-table tbody td { border-top:1px solid #edf0f4; color:#1f2937; padding:13px 12px; vertical-align:middle; }
     .premium-form label { color:#374151; font-size:13px; font-weight:700; margin-bottom:7px; }

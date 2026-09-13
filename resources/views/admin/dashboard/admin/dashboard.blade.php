@@ -1,6 +1,6 @@
 @extends('admin.dashboard.master')
 
-@section('title', 'Admin Dashboard')
+@section('title', 'NextDigiHome — Agency Dashboard')
 
 @php
     $user = $user ?? Auth::user();
@@ -11,6 +11,9 @@
     $latestPurchases = collect($latestPurchases ?? []);
     $latestProducts = collect($latestProducts ?? []);
     $timeline = collect($timeline ?? []);
+    $newInquiries = $newInquiries ?? 0;
+    $totalInquiries = $totalInquiries ?? 0;
+    $recentInquiries = collect($recentInquiries ?? []);
     $chartMonthLabels = $monthLabels ?: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     $chartMonthlyData = $monthlyData ?: [0,0,0,0,0,0,0,0,0,0,0,0];
     $chartCategoryRows = $deptData->values();
@@ -24,14 +27,17 @@
     <div class="container-fluid">
         <div class="premium-header">
             <div>
-                <div class="premium-eyebrow">Dashboard</div>
-                <h2>Next Digi Home</h2>
-                <p>Welcome back, {{ $user->name }}. Monitor products, sales, customers, and recent activity.</p>
+                <div class="premium-eyebrow">Agency Dashboard</div>
+                <h2>NextDigiHome</h2>
+                <p>Welcome back, {{ $user->name }}. Monitor project inquiries, digital marketplace, content, and revenue.</p>
             </div>
             <div class="premium-actions">
                 <button type="button" onclick="window.location.reload()" class="btn btn-outline-light">
                     <i class="fas fa-sync-alt me-2"></i>Refresh
                 </button>
+                <a href="{{ route('inquiries.index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-paper-plane me-2"></i>Inquiries
+                </a>
                 <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Add Product
                 </a>
@@ -40,8 +46,10 @@
 
         <div class="premium-nav">
             <a href="{{ route('admin.dashboard') }}" class="active">Overview</a>
+            <a href="{{ route('inquiries.index') }}">Inquiries @if($newInquiries > 0)<span class="badge bg-primary ms-1">{{ $newInquiries }}</span>@endif</a>
             <a href="{{ route('admin.products.index') }}">Products</a>
             <a href="{{ route('admin.orders.index') }}">Orders</a>
+            <a href="{{ route('admin.pages.index') }}">Content</a>
             <a href="{{ route('admin.customers.index') }}">Customers</a>
             <a href="{{ route('admin.reports.index') }}">Reports</a>
             <a href="{{ route('admin.settings.general') }}">Settings</a>
@@ -52,14 +60,25 @@
         @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
         <div class="row g-3 mb-3">
-            <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="col-xl-3 col-md-6 col-sm-6">
+                <a href="{{ route('inquiries.index') }}" class="dashboard-stat-link">
+                    <div class="premium-stat">
+                        <span class="premium-icon" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-paper-plane"></i></span>
+                        <div>
+                            <small>New Project Leads</small>
+                            <strong>{{ number_format($newInquiries) }} <span style="font-size:12px;font-weight:400;color:#6b7280">({{ number_format($totalInquiries) }} total)</span></strong>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-xl-3 col-md-6 col-sm-6">
                 <a href="{{ route('admin.products.index') }}" class="dashboard-stat-link">
                     <div class="premium-stat"><span class="premium-icon premium-blue"><i class="fas fa-box"></i></span><div><small>Total Products</small><strong>{{ number_format($totalProducts ?? 0) }}</strong></div></div>
                 </a>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6">
                 <a href="{{ route('admin.products.index') }}" class="dashboard-stat-link">
-                    <div class="premium-stat"><span class="premium-icon premium-green"><i class="fas fa-check-circle"></i></span><div><small>Active</small><strong>{{ number_format($activeProducts ?? 0) }}</strong></div></div>
+                    <div class="premium-stat"><span class="premium-icon premium-green"><i class="fas fa-check-circle"></i></span><div><small>Active Items</small><strong>{{ number_format($activeProducts ?? 0) }}</strong></div></div>
                 </a>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6">
@@ -70,16 +89,6 @@
             <div class="col-xl-2 col-md-4 col-sm-6">
                 <a href="{{ route('admin.reports.revenue') }}" class="dashboard-stat-link">
                     <div class="premium-stat"><span class="premium-icon premium-amber"><i class="fas fa-dollar-sign"></i></span><div><small>Revenue</small><strong>${{ number_format($totalRevenue ?? 0, 0) }}</strong></div></div>
-                </a>
-            </div>
-            <div class="col-xl-2 col-md-4 col-sm-6">
-                <a href="{{ route('admin.customers.index') }}" class="dashboard-stat-link">
-                    <div class="premium-stat"><span class="premium-icon premium-blue"><i class="fas fa-users"></i></span><div><small>Customers</small><strong>{{ number_format($totalCustomers ?? ($stats['customers'] ?? 0)) }}</strong></div></div>
-                </a>
-            </div>
-            <div class="col-xl-2 col-md-4 col-sm-6">
-                <a href="{{ route('admin.products.index', ['featured' => 1]) }}" class="dashboard-stat-link">
-                    <div class="premium-stat"><span class="premium-icon premium-amber"><i class="fas fa-star"></i></span><div><small>Featured</small><strong>{{ number_format($featuredProducts ?? 0) }}</strong></div></div>
                 </a>
             </div>
         </div>
@@ -198,22 +207,71 @@
             </div>
         </div>
 
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                <div class="premium-card">
+                    <div class="premium-card-title">
+                        <div>
+                            <h5>Recent Inquiries & Leads</h5>
+                            <p>Project consultations and inquiries submitted from NextDigiHome website.</p>
+                        </div>
+                        <a href="{{ route('inquiries.index') }}" class="btn btn-sm btn-outline-primary">View All Inquiries</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table premium-table mb-0">
+                            <thead><tr><th>Client / Name</th><th>Email & Phone</th><th>Service Interest</th><th>Budget</th><th>Status</th><th>Submitted</th><th>Action</th></tr></thead>
+                            <tbody>
+                            @forelse($recentInquiries as $inquiry)
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ $inquiry->name }}</div>
+                                        @if($inquiry->company)<small class="text-muted">{{ $inquiry->company }}</small>@endif
+                                    </td>
+                                    <td>
+                                        <div><a href="mailto:{{ $inquiry->email }}">{{ $inquiry->email }}</a></div>
+                                        @if($inquiry->phone)<small class="text-muted">{{ $inquiry->phone }}</small>@endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">{{ $inquiry->service_interest ?? 'General' }}</span>
+                                    </td>
+                                    <td class="text-success fw-bold">{{ $inquiry->budget ?: 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ $inquiry->status }}">{{ ucfirst(str_replace('_', ' ', $inquiry->status)) }}</span>
+                                    </td>
+                                    <td>{{ optional($inquiry->created_at)->diffForHumans() }}</td>
+                                    <td>
+                                        <a href="{{ route('inquiries.show', $inquiry->id) }}" class="btn btn-xs btn-outline-primary"><i class="fas fa-eye me-1"></i>View</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="7" class="text-center premium-muted py-4">No inquiries received yet.</td></tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-3">
             <div class="col-xl-7">
                 <div class="premium-card">
                     <div class="premium-card-title">
                         <div>
                             <h5>Quick Actions</h5>
-                            <p>Common admin workflows for daily operations.</p>
+                            <p>Common admin workflows for agency operations.</p>
                         </div>
                     </div>
                     <div class="quick-action-grid">
                         <a href="{{ route('admin.products.create') }}"><i class="fas fa-plus"></i><span>Add Product</span></a>
                         <a href="{{ route('admin.orders.index') }}"><i class="fas fa-clipboard-list"></i><span>Manage Orders</span></a>
-                        <a href="{{ route('admin.customers.index') }}"><i class="fas fa-users"></i><span>Customers</span></a>
-                        <a href="{{ route('admin.reports.index') }}"><i class="fas fa-chart-line"></i><span>Reports</span></a>
+                        <a href="{{ route('inquiries.index') }}"><i class="fas fa-paper-plane"></i><span>Project Leads</span></a>
+                        <a href="{{ route('admin.pages.index') }}"><i class="fas fa-file-alt"></i><span>Page Content</span></a>
+                        <a href="{{ route('admin.team-members.index') }}"><i class="fas fa-user-friends"></i><span>Team Members</span></a>
+                        <a href="{{ route('admin.testimonials.index') }}"><i class="fas fa-comment-dots"></i><span>Testimonials</span></a>
+                        <a href="{{ route('admin.contact-info.index') }}"><i class="fas fa-address-book"></i><span>Contact Info</span></a>
                         <a href="{{ route('admin.marketing.seo') }}"><i class="fas fa-search"></i><span>SEO Settings</span></a>
-                        <a href="{{ route('admin.system.info') }}"><i class="fas fa-server"></i><span>System</span></a>
+                        <a href="{{ route('admin.system.info') }}"><i class="fas fa-server"></i><span>System Info</span></a>
                     </div>
                 </div>
             </div>

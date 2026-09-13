@@ -239,7 +239,7 @@
                   @elseif(!empty($settings->logo))
                       <img src="{{ asset('public/uploads/logo/'.$settings->logo) }}" alt="Logo" class="logo-image" style="display: block; max-height: 40px; max-width: 150px;">
                   @else
-                      <span class="logo-text" style="font-size: 20px; font-weight: 700; color: #fff;">Next Digi-Home</span>
+                      <span class="logo-text" style="font-size: 20px; font-weight: 700; color: #fff;">NextDigiHome</span>
                   @endif
               </a>
           </div>
