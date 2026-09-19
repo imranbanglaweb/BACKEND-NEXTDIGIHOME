@@ -84,14 +84,13 @@ class AppServiceProvider extends ServiceProvider
         // Load admin settings into config
         $this->loadAdminSettings();
 
-        // Force HTTPS in production
+        // Force HTTPS and root URL in production only
         if (! $this->app->runningInConsole()) {
             if (config('app.env') === 'production') {
                 \URL::forceScheme('https');
-            }
-
-            if (config('app.url')) {
-                \URL::forceRootUrl(config('app.url'));
+                if (config('app.url')) {
+                    \URL::forceRootUrl(config('app.url'));
+                }
             }
         }
 

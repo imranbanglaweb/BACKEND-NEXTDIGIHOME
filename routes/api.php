@@ -19,10 +19,16 @@ use NotificationChannels\WebPush\PushSubscription;
 
 Route::middleware(['api'])->group(function () {
     // Project Inquiries (Lead generation & contact form)
+    Route::get('inquiries/summary', [InquiryController::class, 'summary']);
     Route::post('inquiries', [InquiryController::class, 'store']);
     Route::get('inquiries', [InquiryController::class, 'index']);
     Route::get('inquiries/{id}', [InquiryController::class, 'show']);
     Route::patch('inquiries/{id}/status', [InquiryController::class, 'updateStatus']);
+    Route::patch('inquiries/{id}/priority', [InquiryController::class, 'updatePriority']);
+    Route::post('inquiries/{id}/notes', [InquiryController::class, 'addNote']);
+
+    // Server-Side Event Tracking Dispatcher
+    Route::post('tracking/event', [\App\Http\Controllers\Api\TrackingController::class, 'trackEvent']);
 
     Route::post('/register', [PublicApiController::class, 'register']);
     Route::post('/login', [PublicApiController::class, 'login']);
@@ -152,7 +158,9 @@ Route::middleware(['api'])->group(function () {
     Route::get('content/ai', [ContentManagementController::class, 'getAiContent']);
     Route::get('content/growth', [ContentManagementController::class, 'getGrowthContent']);
     Route::get('content/labs', [ContentManagementController::class, 'getLabsContent']);
-    Route::get('content/case-studies', [ContentManagementController::class, 'getCaseStudiesContent']);
+    Route::get('content/enterprise-software', [ContentManagementController::class, 'getEnterpriseSoftware']);
+    Route::get('content/global-reach', [ContentManagementController::class, 'getGlobalReach']);
+    Route::get('content/divisions', [ContentManagementController::class, 'getDivisions']);
     Route::get('content/all', [ContentManagementController::class, 'getAllContent']);
 });
 
@@ -330,7 +338,9 @@ Route::get('/settings', function () {
         'seo_meta_description' => $settings->seo_meta_description ?? $settings->site_description ?? '',
         'seo_meta_keywords' => $settings->seo_meta_keywords ?? '',
         'seo_og_image' => $settings->seo_og_image ? $baseUrl . '/public/admin_resource/assets/images/' . $settings->seo_og_image : null,
-        'google_analytics_id' => $settings->google_analytics_id ?? null,
+        'google_analytics_id' => $settings->ga4_measurement_id ?? $settings->google_analytics_id ?? config('server_tracking.ga4.measurement_id'),
+        'meta_pixel_id' => $settings->meta_pixel_id ?? config('server_tracking.meta_capi.pixel_id'),
+        'tiktok_pixel_code' => $settings->tiktok_pixel_code ?? config('server_tracking.tiktok.pixel_code'),
     ]);
 });
 

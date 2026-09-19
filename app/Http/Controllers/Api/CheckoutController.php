@@ -145,6 +145,30 @@ class CheckoutController extends Controller
                 SendProductPurchaseEmail::dispatchAfterResponse($purchase->load('product'));
             }
 
+            // Dispatch Server-Side Tracking (GA4, Meta CAPI, TikTok & Webhooks)
+            try {
+                $totalOrderValue = collect($purchases)->sum('amount');
+                app(\App\Services\ServerTrackingService::class)->trackPurchase([
+                    'transaction_id' => $transactionId,
+                    'value' => $totalOrderValue,
+                    'currency' => 'BDT',
+                    'customer_email' => $request->customer_email,
+                    'customer_name' => $request->customer_name,
+                    'customer_phone' => $request->customer_phone,
+                    'payment_method' => $request->payment_method,
+                    'items' => collect($purchases)->map(function ($p) {
+                        return [
+                            'product_id' => $p->product_id,
+                            'name' => $p->product ? $p->product->name : 'Digital Product',
+                            'price' => $p->price,
+                            'quantity' => $p->quantity,
+                        ];
+                    })->all(),
+                ], $request->all());
+            } catch (\Exception $trackingEx) {
+                \Illuminate\Support\Facades\Log::warning("Server tracking dispatch error for checkout {$transactionId}: " . $trackingEx->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => count($purchases).' order(s) created successfully',

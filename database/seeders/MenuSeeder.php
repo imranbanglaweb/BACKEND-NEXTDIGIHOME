@@ -20,7 +20,6 @@ class MenuSeeder extends Seeder
         DB::table('menus')->truncate();
         Schema::enableForeignKeyConstraints();
 
-        
         $adminId = 1;
         $now = Carbon::now();
 
@@ -60,29 +59,24 @@ class MenuSeeder extends Seeder
             'product-category-edit',
             'product-category-delete',
             'content-manage',
-            'content-create',
-            'content-edit',
-            'content-delete',
 
             // Orders & Sales
             'order-manage',
             'order-view',
-            'order-create',
             'order-edit',
+            'order-delete',
             'order-fulfill',
-            'order-cancel',
             'order-refund',
-            'sales-report',
             'order-export',
+            'sales-report',
 
-            // Customers
+            // Customers & Leads
             'customer-manage',
             'customer-view',
             'customer-create',
             'customer-edit',
             'customer-delete',
             'customer-support',
-            'customer-communication',
 
             // Commerce Operations
             'commerce-ops-manage',
@@ -161,7 +155,7 @@ class MenuSeeder extends Seeder
             );
         }
 
-        // Define parent menus for Next Digi Home (Digital Products Marketplace)
+        // Define parent menus for Next Digi Home (Digital Products Marketplace & Agency)
         $parentMenus = [
             // 1. Dashboard
             [
@@ -174,151 +168,172 @@ class MenuSeeder extends Seeder
                 'menu_parent' => 0,
             ],
 
-            // 2. Products
+            // 2. Project Inquiries
+            [
+                'menu_name' => 'Project Inquiries',
+                'menu_slug' => 'inquiries',
+                'menu_icon' => 'fa-paper-plane',
+                'menu_url' => 'inquiries.index',
+                'menu_permission' => 'customer-manage',
+                'menu_order' => 2,
+                'menu_parent' => 0,
+            ],
+
+            // 3. Products
             [
                 'menu_name' => 'Products',
                 'menu_slug' => 'products',
                 'menu_icon' => 'fa-box',
                 'menu_url' => null,
                 'menu_permission' => 'product-manage',
-                'menu_order' => 2,
+                'menu_order' => 3,
                 'menu_parent' => 0,
             ],
 
-            // 3. Orders
+            // 4. Orders
             [
                 'menu_name' => 'Orders',
                 'menu_slug' => 'orders',
                 'menu_icon' => 'fa-shopping-cart',
                 'menu_url' => null,
                 'menu_permission' => 'order-manage',
-                'menu_order' => 3,
+                'menu_order' => 4,
                 'menu_parent' => 0,
             ],
 
-            // 4. Customers
+            // 5. Customers
             [
                 'menu_name' => 'Customers',
                 'menu_slug' => 'customers',
                 'menu_icon' => 'fa-users',
                 'menu_url' => null,
                 'menu_permission' => 'customer-manage',
-                'menu_order' => 4,
+                'menu_order' => 5,
                 'menu_parent' => 0,
             ],
 
-            // 5. Commerce Ops
+            // 6. Commerce Ops
             [
                 'menu_name' => 'Commerce Ops',
                 'menu_slug' => 'commerce-ops',
                 'menu_icon' => 'fa-briefcase',
                 'menu_url' => null,
                 'menu_permission' => 'commerce-ops-manage',
-                'menu_order' => 5,
+                'menu_order' => 6,
                 'menu_parent' => 0,
             ],
 
-            // 6. Subscriptions
+            // 7. Server Tracking & CAPI
+            [
+                'menu_name' => 'Server Tracking & CAPI',
+                'menu_slug' => 'server-tracking',
+                'menu_icon' => 'fa-satellite-dish',
+                'menu_url' => null,
+                'menu_permission' => 'analytics-view',
+                'menu_order' => 7,
+                'menu_parent' => 0,
+            ],
+
+            // 8. Subscriptions
             [
                 'menu_name' => 'Subscriptions',
                 'menu_slug' => 'subscriptions',
                 'menu_icon' => 'fa-crown',
                 'menu_url' => null,
                 'menu_permission' => 'subscription-plan-manage',
-                'menu_order' => 6,
+                'menu_order' => 8,
                 'menu_parent' => 0,
             ],
 
-            // 7. Content Management
+            // 9. Content Management
             [
                 'menu_name' => 'Content',
                 'menu_slug' => 'content',
                 'menu_icon' => 'fa-file-alt',
                 'menu_url' => null,
                 'menu_permission' => 'content-manage',
-                'menu_order' => 7,
+                'menu_order' => 9,
                 'menu_parent' => 0,
             ],
 
-            // 8. Reports & Analytics
+            // 10. Reports & Analytics
             [
                 'menu_name' => 'Reports',
                 'menu_slug' => 'reports',
                 'menu_icon' => 'fa-chart-line',
                 'menu_url' => 'admin.reports.index',
                 'menu_permission' => 'analytics-view',
-                'menu_order' => 8,
+                'menu_order' => 10,
                 'menu_parent' => 0,
             ],
 
-            // 9. Marketing
+            // 11. Marketing
             [
                 'menu_name' => 'Marketing',
                 'menu_slug' => 'marketing',
                 'menu_icon' => 'fa-bullhorn',
                 'menu_url' => null,
                 'menu_permission' => 'marketing-manage',
-                'menu_order' => 9,
+                'menu_order' => 11,
                 'menu_parent' => 0,
             ],
 
-            // 10. Support
+            // 12. Support
             [
                 'menu_name' => 'Support',
                 'menu_slug' => 'support',
                 'menu_icon' => 'fa-headset',
                 'menu_url' => null,
                 'menu_permission' => 'support-manage',
-                'menu_order' => 10,
+                'menu_order' => 12,
                 'menu_parent' => 0,
             ],
 
-            // 11. User Management
+            // 13. User Management
             [
                 'menu_name' => 'Users',
                 'menu_slug' => 'user-management',
                 'menu_icon' => 'fa-user-circle',
                 'menu_url' => null,
                 'menu_permission' => 'user-manage',
-                'menu_order' => 11,
+                'menu_order' => 13,
                 'menu_parent' => 0,
             ],
 
-            // 12. System
+            // 14. System
             [
                 'menu_name' => 'System',
                 'menu_slug' => 'system',
                 'menu_icon' => 'fa-server',
                 'menu_url' => null,
                 'menu_permission' => 'system-configure',
-                'menu_order' => 12,
+                'menu_order' => 14,
                 'menu_parent' => 0,
             ],
 
-            // 13. Settings
+            // 15. Settings
             [
                 'menu_name' => 'Settings',
                 'menu_slug' => 'settings',
                 'menu_icon' => 'fa-cogs',
-                'menu_url' => 'admin.settings.index',
+                'menu_url' => 'admin.settings.general',
                 'menu_permission' => 'settings-manage',
-                'menu_order' => 13,
+                'menu_order' => 15,
                 'menu_parent' => 0,
             ],
 
-            // 14. My Profile
+            // 16. My Profile
             [
                 'menu_name' => 'My Profile',
                 'menu_slug' => 'my-profile',
                 'menu_icon' => 'fa-user',
-                'menu_url' => 'admin.profile.edit',
+                'menu_url' => 'user-profile',
                 'menu_permission' => 'profile-view',
-                'menu_order' => 14,
+                'menu_order' => 16,
                 'menu_parent' => 0,
             ],
         ];
 
-        // Insert parent menus and create parent ID map
         $parentIdMap = [];
         foreach ($parentMenus as $menu) {
             $id = DB::table('menus')->insertGetId([
@@ -339,6 +354,26 @@ class MenuSeeder extends Seeder
 
         // Now insert child menus with correct parent IDs
         $childMenus = [
+            // ===== Project Inquiries Children =====
+            [
+                'menu_name' => 'All Inquiries',
+                'menu_slug' => 'inquiries-all',
+                'menu_icon' => 'fa-list',
+                'menu_url' => 'inquiries.index',
+                'menu_permission' => 'customer-manage',
+                'menu_order' => 1,
+                'parent_name' => 'Project Inquiries',
+            ],
+            [
+                'menu_name' => 'New Leads',
+                'menu_slug' => 'inquiries-new',
+                'menu_icon' => 'fa-bolt',
+                'menu_url' => 'inquiries.index',
+                'menu_permission' => 'customer-manage',
+                'menu_order' => 2,
+                'parent_name' => 'Project Inquiries',
+            ],
+
             // ===== Products Children =====
             [
                 'menu_name' => 'All Products',
@@ -483,7 +518,7 @@ class MenuSeeder extends Seeder
                 'menu_name' => 'Support Tickets',
                 'menu_slug' => 'customers-support',
                 'menu_icon' => 'fa-headset',
-                'menu_url' => 'admin.support.tickets',
+                'menu_url' => 'admin.support.tickets.index',
                 'menu_permission' => 'customer-support',
                 'menu_order' => 4,
                 'parent_name' => 'Customers',
@@ -570,6 +605,35 @@ class MenuSeeder extends Seeder
                 'menu_permission' => 'commerce-channel-sales',
                 'menu_order' => 8,
                 'parent_name' => 'Commerce Ops',
+            ],
+
+            // ===== Server Tracking & CAPI Children =====
+            [
+                'menu_name' => 'Tracking Dashboard',
+                'menu_slug' => 'tracking-dashboard',
+                'menu_icon' => 'fa-chart-pie',
+                'menu_url' => 'admin.server-tracking.dashboard',
+                'menu_permission' => 'analytics-view',
+                'menu_order' => 1,
+                'parent_name' => 'Server Tracking & CAPI',
+            ],
+            [
+                'menu_name' => 'CAPI & Pixel Setup',
+                'menu_slug' => 'tracking-config',
+                'menu_icon' => 'fa-sliders-h',
+                'menu_url' => 'admin.server-tracking.config',
+                'menu_permission' => 'analytics-view',
+                'menu_order' => 2,
+                'parent_name' => 'Server Tracking & CAPI',
+            ],
+            [
+                'menu_name' => 'Conversion Logs',
+                'menu_slug' => 'tracking-logs',
+                'menu_icon' => 'fa-clipboard-list',
+                'menu_url' => 'admin.server-tracking.logs',
+                'menu_permission' => 'analytics-view',
+                'menu_order' => 3,
+                'parent_name' => 'Server Tracking & CAPI',
             ],
 
             // ===== Subscriptions Children =====

@@ -25,9 +25,9 @@
                 var overlay = document.querySelector('.sidebar-overlay');
                 var hasOpenDialog = isOpenDialogPresent();
 
-                if (loader) {
+                if (loader && (loader.classList.contains('fade-out') || loader.classList.contains('is-hidden'))) {
                     loader.style.pointerEvents = 'none';
-                    loader.classList.add('fade-out', 'is-hidden');
+                    loader.classList.add('is-hidden');
                 }
 
                 if (overlay && (!sidebar || !sidebar.classList.contains('show'))) {
@@ -36,49 +36,18 @@
                 }
 
                 if (!hasOpenDialog) {
-                    if (document.body) {
+                    if (document.body && (document.body.classList.contains('modal-open') || document.body.classList.contains('swal2-shown'))) {
                         document.body.classList.remove('modal-open', 'swal2-shown', 'swal2-height-auto');
                         document.body.style.overflow = '';
                         document.body.style.paddingRight = '';
+                        document.querySelectorAll('.modal-backdrop, .swal2-container:empty, .mfp-bg, .mfp-wrap').forEach(removeElement);
                     }
-                    document.documentElement.classList.remove('mfp-ready', 'mfp-removing');
-
-                    document.querySelectorAll('.modal-backdrop, .swal2-container, .mfp-bg, .mfp-wrap').forEach(removeElement);
                 }
-
-                document.querySelectorAll('[id*="overlay" i], [id*="loader" i], [id*="preloader" i], [class*="overlay" i], [class*="loader" i], [class*="preloader" i], [class*="backdrop" i]').forEach(function(element) {
-                    if (element.closest('.sidebar-left, .modal.show, .modal.in, .swal2-popup.swal2-show, .mfp-wrap.mfp-ready')) {
-                        return;
-                    }
-
-                    var style = window.getComputedStyle(element);
-                    var rect = element.getBoundingClientRect();
-                    var coversPage = style.position === 'fixed'
-                        && rect.width >= window.innerWidth * 0.75
-                        && rect.height >= window.innerHeight * 0.75;
-
-                    if (coversPage || element.id === 'loader' || element.classList.contains('sidebar-overlay')) {
-                        element.style.pointerEvents = 'none';
-                        element.style.display = 'none';
-                        element.classList.remove('show', 'in', 'active');
-                    }
-                });
             }
 
             window.recoverDashboardInput = disableStaleFullScreenBlockers;
-            disableStaleFullScreenBlockers();
             document.addEventListener('DOMContentLoaded', disableStaleFullScreenBlockers);
-            window.addEventListener('load', disableStaleFullScreenBlockers);
             window.addEventListener('pageshow', disableStaleFullScreenBlockers);
-
-            var attempts = 0;
-            var recoveryTimer = setInterval(function() {
-                attempts += 1;
-                disableStaleFullScreenBlockers();
-                if (attempts >= 20) {
-                    clearInterval(recoveryTimer);
-                }
-            }, 500);
         })();
     </script>
 
@@ -86,6 +55,15 @@
     <link href="{{ asset('public/css/responsive-dashboard.css') }}" rel="stylesheet">
 
     <style>
+        /* Mobile toggle - strictly hidden on desktop */
+        .mobile-sidebar-toggle {
+            display: none !important;
+        }
+        @media (max-width: 991.98px) {
+            .mobile-sidebar-toggle {
+                display: flex !important;
+            }
+        }
         :root {
             --primary-color: #00d4aa;
             --primary-light: #00b894;
@@ -111,377 +89,297 @@
         }
         
         body {
-            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--content-bg);
             color: var(--text-color);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         /* Wrapper Layout */
         .wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
         
-        /* Sidebar Premium Styling */
+        /* Main Layout Base */
         .sidebar-left {
-            width: 260px;
-            background: linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-bg) 100%);
             position: fixed;
             left: 0;
             top: 0;
             height: 100vh;
+            width: 260px;
             z-index: 1000;
-            box-shadow: var(--shadow-lg);
-            transition: width 0.3s ease;
-            display: flex;
-            flex-direction: column;
+            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s ease;
         }
-        
-        .sidebar-left.collapsed {
-            width: 70px;
-        }
-        
+
         .sidebar-collapsed .sidebar-left {
-            width: 70px;
+            width: 72px !important;
         }
-        
-        .sidebar-collapsed .body {
-            margin-left: 70px;
-        }
-        
-        .body {
-            margin-left: 260px;
-            transition: margin-left 0.3s ease;
-        }
-        
-        .sidebar-left .sidebar-header {
-            /* padding: 20px; */
-            background: rgba(0,0,0,0.15);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            z-index: 10;
-        }
-        
-        .sidebar-left .sidebar-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .sidebar-left .logo {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .sidebar-left .logo img {
-            max-height: 50px;
-            max-width: 180px;
-            width: auto;
-        }
-        
-        .sidebar-left .sidebar-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            font-size: 18px;
-            transition: var(--transition);
-        }
-        
-        .sidebar-left .sidebar-toggle:hover {
-            color: #fff;
-        }
-        
-        .sidebar-left .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 15px 0;
-        }
-        
-        .sidebar-left .nav-main {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .sidebar-left .nav-main > li {
-            /* margin: 2px 10px; */
-        }
-        
-        .sidebar-left .nav-main > li > a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            border-radius: 6px;
-            transition: var(--transition);
-            gap: 12px;
-        }
-        
-        .sidebar-left .nav-main > li > a:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
-        
-        .sidebar-left .nav-main > li.nav-active > a {
-            background: var(--primary-light);
-            color: #fff;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .sidebar-left .nav-main > li > a i:not(.arrow) {
-            width: 20px;
-            text-align: center;
-            font-size: 18px;
-        }
-        
-        .sidebar-left .nav-main > li > a .arrow {
-            font-size: 10px;
-            width: 16px;
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-left .nav-parent.nav-expanded > a .arrow {
-            transform: rotate(90deg);
-        }
-        
-        .sidebar-left .nav-main > li > a span {
-            display: inline-block;
-            transition: opacity 0.3s ease;
-        }
-        
-        /* Hide header content but keep toggle button when collapsed */
-        .sidebar-collapsed .sidebar-left .sidebar-header {
-            /* padding: 10px; */
-        }
-        
-        .sidebar-collapsed .sidebar-left .sidebar-title {
-            display: none;
-        }
-        
-        .sidebar-collapsed .sidebar-left .sidebar-toggle {
-            position: relative;
-            right: auto;
-            top: auto;
-            transform: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 40px;
-        }
-        
-        .sidebar-collapsed .sidebar-left .sidebar-toggle i {
-            font-size: 20px;
-        }
-        
-        .sidebar-collapsed .sidebar-left .nav-main > li > a span,
-        .sidebar-collapsed .sidebar-left .nav-main > li > a .arrow {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-        }
-        
-        .sidebar-collapsed .sidebar-left .nav-main > li > a {
-            justify-content: center;
-            padding: 12px;
-        }
-        
-        .sidebar-collapsed .sidebar-left .nav-main > li > a i:not(.arrow) {
-            margin: 0;
-        }
-        
-        .sidebar-left .nav-children {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: none;
-            background: rgba(0,0,0,0.1);
-            border-radius: 6px;
-            margin-top: 5px;
-        }
-        
-        .sidebar-left .nav-children.show {
-            display: block;
-        }
-        
-        .sidebar-left .nav-children > li > a {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px 10px 45px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            transition: var(--transition);
-            gap: 10px;
-        }
-        
-        .sidebar-left .nav-children > li > a:hover {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-        }
-        
-        .sidebar-left .nav-children > li.nav-active > a {
-            background: rgba(52, 152, 219, 0.3);
-            color: #fff;
-        }
-        
-        .sidebar-left .nav-children > li > a i {
-            width: 16px;
-            text-align: center;
-            font-size: 14px;
-        }
-        
-        .sidebar-left .nav-parent > a .fa-chevron-right {
-            margin-left: auto;
-            font-size: 10px;
-            transition: var(--transition);
-        }
-        
-        .sidebar-left .nav-parent.nav-expanded > a .fa-chevron-right {
-            transform: rotate(90deg);
-        }
-        
-        /* Main Content Area */
+
         .body {
             margin-left: 260px;
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            min-width: 0;
+            background: #f8fafc;
+            transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        /* Header Styling */
+
+        .sidebar-collapsed .body {
+            margin-left: 72px !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar-left {
+                transform: translateX(-100%);
+                width: 270px !important;
+            }
+            .sidebar-left.show {
+                transform: translateX(0);
+            }
+            .body,
+            .sidebar-collapsed .body {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Top Header Styling */
         .header {
-            background: var(--header-bg);
-            padding: 15px 25px;
-            box-shadow: var(--shadow-sm);
+            background: #ffffff;
+            height: 66px;
+            padding: 0 20px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: sticky;
             top: 0;
-            z-index: 999;
-            border-bottom: 1px solid var(--border-color);
+            z-index: 990;
+            border-bottom: 1px solid #e2e8f0;
+            backdrop-filter: blur(8px);
         }
-        
+
         .header-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            min-width: 0;
         }
-        
+
         .header-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--text-color);
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 15px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
         }
-        
+
+        .header-toggle:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        /* Top Header Brand (Shown on mobile & collapsed mode, or as sleek pill) */
+        .header-brand {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none !important;
+            padding: 5px 12px 5px 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .header-brand:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-brand-emblem {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .header-brand-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+        }
+
+        .header-brand-accent {
+            background: linear-gradient(135deg, #00d4aa 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Show header brand when sidebar is collapsed or on screens < 992px */
+        @media (max-width: 991.98px) {
+            .header-brand {
+                display: inline-flex !important;
+            }
+        }
+        .sidebar-collapsed .header-brand {
+            display: inline-flex !important;
+        }
+
         .header-search {
             display: flex;
             align-items: center;
-            background: var(--content-bg);
-            border-radius: 8px;
-            padding: 8px 15px;
-            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9999px;
+            padding: 6px 14px;
+            gap: 9px;
+            transition: all 0.2s ease;
         }
-        
+
+        .header-search:focus-within {
+            background: #ffffff;
+            border-color: #00d4aa;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.12);
+        }
+
         .header-search input {
             border: none;
             background: transparent;
             outline: none;
-            width: 250px;
-            font-size: 14px;
+            width: 220px;
+            font-size: 13.5px;
+            color: #0f172a;
+            font-family: inherit;
         }
-        
+
+        .header-search input::placeholder {
+            color: #94a3b8;
+        }
+
+        @media (max-width: 575.98px) {
+            .header-search {
+                display: none !important;
+            }
+        }
+
         .header-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            flex-shrink: 0;
         }
-        
+
         .header-icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: none;
-            background: var(--content-bg);
-            color: var(--text-light);
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
+            transition: all 0.2s ease;
             position: relative;
-            text-decoration: none;
+            text-decoration: none !important;
+            font-size: 14px;
         }
-        
+
         .header-icon-btn:hover {
-            background: var(--border-color);
-            color: var(--text-color);
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
         }
-        
+
         .header-icon-btn .badge {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--accent-color);
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
             color: #fff;
             font-size: 10px;
+            font-weight: 700;
             padding: 2px 6px;
             border-radius: 10px;
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.5);
+            border: 1.5px solid #ffffff;
         }
-        
+
         .user-dropdown {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 4px 12px 4px 6px;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s ease;
+            text-decoration: none !important;
         }
-        
+
         .user-dropdown:hover {
-            background: var(--content-bg);
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
-        
+
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            background: linear-gradient(135deg, #00d4aa 0%, #38bdf8 100%);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(0, 212, 170, 0.25);
+            flex-shrink: 0;
         }
-        
+
         .user-info {
             display: flex;
             flex-direction: column;
+            line-height: 1.2;
+            text-align: left;
         }
-        
+
         .user-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-color);
+            font-weight: 700;
+            font-size: 13px;
+            color: #0f172a;
+            white-space: nowrap;
         }
-        
+
         .user-role {
-            font-size: 12px;
-            color: var(--text-light);
+            font-size: 10.5px;
+            color: #64748b;
+            font-weight: 500;
+            white-space: nowrap;
         }
         
         /* Content Area */
@@ -548,51 +446,159 @@
             padding: 20px;
         }
         
-        /* Loader */
+        /* ==========================================================================
+           NEXTDIGIHOME ULTRA-FAST BRAND PRELOADER
+           ========================================================================== */
         #loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+            background: radial-gradient(circle at 50% 40%, #0d1424 0%, #060911 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 99999;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            z-index: 999999;
+            transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
         }
-        
-        #loader::before {
-            content: '';
-            position: absolute;
+
+        /* Top High-Velocity Progress Track */
+        .ndh-progress-track {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 40%);
-            animation: ambientGlow 8s ease-in-out infinite;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1000000;
+            overflow: hidden;
         }
-        
-        @keyframes ambientGlow {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
+
+        .ndh-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4aa 0%, #38bdf8 50%, #8b5cf6 100%);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
+            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
+
+        /* Central Glass Card */
+        .ndh-loader-card {
+            background: rgba(13, 19, 34, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 24px;
+            padding: 32px 42px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 50px rgba(0, 212, 170, 0.08);
+            position: relative;
+            transform: translateY(0);
+            animation: ndhCardFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes ndhCardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* Logo Emblem with Pulse Ring */
+        .ndh-loader-emblem-wrap {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .ndh-loader-pulse-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.4), rgba(56, 189, 248, 0.4), rgba(139, 92, 246, 0.4)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: ndhRingPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes ndhRingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 0.3; }
+        }
+
+        .ndh-loader-logo-svg {
+            width: 52px;
+            height: 52px;
+            filter: drop-shadow(0 0 16px rgba(0, 212, 170, 0.5));
+        }
+
+        .ndh-loader-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            color: #ffffff;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .ndh-loader-title .accent {
+            background: linear-gradient(135deg, #00d4aa 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ndh-loader-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        /* Micro Loader Indicator */
+        .ndh-micro-loader {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ndh-micro-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: ndhDotBounce 1.2s ease-in-out infinite;
+        }
+
+        .ndh-micro-dot:nth-child(1) { background: #00d4aa; animation-delay: 0s; }
+        .ndh-micro-dot:nth-child(2) { background: #38bdf8; animation-delay: 0.2s; }
+        .ndh-micro-dot:nth-child(3) { background: #8b5cf6; animation-delay: 0.4s; }
+
+        @keyframes ndhDotBounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
         #loader.fade-out {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+            opacity: 0 !important;
+            transform: scale(0.985);
+            pointer-events: none !important;
         }
-        
+
         #loader.is-hidden {
             display: none !important;
         }
-        
+
         .sidebar-overlay:not(.show),
         .modal-backdrop:not(.show),
         .swal2-container:empty,
@@ -600,84 +606,11 @@
         .mfp-wrap:not(.mfp-ready) {
             pointer-events: none !important;
         }
-        
-        .animate_loader {
-            width: 70px;
-            height: 70px;
-            border: 3px solid transparent;
-            border-top-color: #6366f1;
-            border-right-color: #a855f7;
-            border-bottom-color: #ec4899;
-            border-left-color: #f43f5e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite, borderGlow 2s linear infinite;
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.4), 0 0 60px rgba(168, 85, 247, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1);
-        }
-        
-        .loader-title {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #f472b6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-top: 40px;
-            text-align: center;
-            animation: fadeInUp 0.6s ease-out, textShimmer 3s ease-in-out infinite;
-            text-shadow: 0 0 40px rgba(129, 140, 248, 0.3);
-            letter-spacing: -0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        @keyframes textShimmer {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); }
-        }
-        
-        .loader-description {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 12px;
-            text-align: center;
-            animation: fadeInUp 0.6s ease-out 0.2s both;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .loader-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 
-                0 20px 60px rgba(99, 102, 241, 0.4),
-                0 0 0 4px rgba(99, 102, 241, 0.1),
-                inset 0 2px 10px rgba(255, 255, 255, 0.2);
-            animation: logoFloat 3s ease-in-out infinite, logoGlow 2s ease-in-out infinite;
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-        }
-        
-        .loader-logo img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 8px;
-        }
-        
-        .loader-logo i {
-            font-size: 48px;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
+        /* Inner Page Smooth Structure */
+        .content-body {
+            transition: opacity 0.2s ease-in-out;
+            min-height: calc(100vh - 66px);
         }
         
         @keyframes logoFloat {
@@ -1143,14 +1076,51 @@
 <body>
     <div class="wrapper">
         <div id="loader">
-            @if(!empty($settings->admin_logo))
-            <div class="loader-logo">
-                <img src="{{ asset('public/admin_resource/assets/images/'.$settings->admin_logo) }}" alt="Logo">
+            <div class="ndh-progress-track">
+                <div class="ndh-progress-bar" id="ndhProgressBar"></div>
             </div>
-            @endif
-            <div class="animate_loader"></div>
-            <div class="loader-title">{{ $settings->admin_title ?? 'Transport Management System' }}</div>
-            <div class="loader-description">{{ $settings->admin_description ?? 'Fleet Management Solution' }}</div>
+            <div class="ndh-loader-card">
+                <div class="ndh-loader-emblem-wrap">
+                    <div class="ndh-loader-pulse-ring"></div>
+                    @if(!empty($settings->admin_logo))
+                        <img src="{{ asset('public/admin_resource/assets/images/'.$settings->admin_logo) }}" alt="Logo" style="width: 52px; height: 52px; object-fit: contain; border-radius: 12px;">
+                    @else
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="ndh-loader-logo-svg">
+                            <defs>
+                                <linearGradient id="ldrPillarLeft" x1="16" y1="8" x2="16" y2="56" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#00f2fe" />
+                                    <stop offset="100%" stop-color="#00d4aa" />
+                                </linearGradient>
+                                <linearGradient id="ldrDiagFold" x1="16" y1="8" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#00f2fe" />
+                                    <stop offset="25%" stop-color="#00d4aa" />
+                                    <stop offset="75%" stop-color="#8b5cf6" />
+                                    <stop offset="100%" stop-color="#ec4899" />
+                                </linearGradient>
+                                <linearGradient id="ldrPillarRight" x1="48" y1="8" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#a855f7" />
+                                    <stop offset="100%" stop-color="#6366f1" />
+                                </linearGradient>
+                                <linearGradient id="ldrSpecular" x1="10" y1="8" x2="30" y2="28" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="42" y="8" width="12" height="48" rx="6" fill="url(#ldrPillarRight)" />
+                            <rect x="10" y="8" width="12" height="48" rx="6" fill="url(#ldrPillarLeft)" />
+                            <path d="M 10 14 C 10 10.7 12.7 8 16 8 C 17.8 8 19.4 8.8 20.5 10.1 L 47.5 45.9 C 48.6 47.2 49.2 48.8 49.2 50.5 C 49.2 53.5 46.8 56 43.8 56 C 42 56 40.4 55.2 39.3 53.9 L 12.5 18.1 C 10.9 16.9 10 15.6 10 14 Z" fill="url(#ldrDiagFold)" />
+                            <path d="M 10 14 C 10 10.7 12.7 8 16 8 C 17.8 8 19.4 8.8 20.5 10.1 L 28 20 L 22 25 L 10 14 Z" fill="url(#ldrSpecular)" opacity="0.75" />
+                        </svg>
+                    @endif
+                </div>
+                <div class="ndh-loader-title">Next<span class="accent">DigiHome</span></div>
+                <div class="ndh-loader-sub">{{ $settings->admin_title ?? 'Agency Command Center' }}</div>
+                <div class="ndh-micro-loader">
+                    <span class="ndh-micro-dot"></span>
+                    <span class="ndh-micro-dot"></span>
+                    <span class="ndh-micro-dot"></span>
+                </div>
+            </div>
         </div>
         
         <!-- Sidebar -->
@@ -1159,7 +1129,7 @@
         <!-- Main Content -->
         <section class="body">
             <!-- Mobile Sidebar Toggle -->
-            <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle navigation menu">
+            <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle navigation menu" style="display: none;" type="button">
                 <i class="fa fa-bars"></i>
             </button>
             
@@ -1169,12 +1139,44 @@
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
-                    <button class="header-toggle" onclick="toggleSidebar()">
+                    <button class="header-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation" type="button">
                         <i class="fa fa-bars"></i>
                     </button>
+                    <!-- Header Brand Logo & Name -->
+                    <a href="{{ route('home') }}" class="header-brand" title="NextDigiHome">
+                        <div class="header-brand-emblem">
+                            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 26px; height: 26px;">
+                                <defs>
+                                    <linearGradient id="hbPillarLeft" x1="16" y1="8" x2="16" y2="56" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#00f2fe" />
+                                        <stop offset="100%" stop-color="#00d4aa" />
+                                    </linearGradient>
+                                    <linearGradient id="hbDiagFold" x1="16" y1="8" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#00f2fe" />
+                                        <stop offset="25%" stop-color="#00d4aa" />
+                                        <stop offset="75%" stop-color="#8b5cf6" />
+                                        <stop offset="100%" stop-color="#ec4899" />
+                                    </linearGradient>
+                                    <linearGradient id="hbPillarRight" x1="48" y1="8" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#a855f7" />
+                                        <stop offset="100%" stop-color="#6366f1" />
+                                    </linearGradient>
+                                    <linearGradient id="hbSpecular" x1="10" y1="8" x2="30" y2="28" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="42" y="8" width="12" height="48" rx="6" fill="url(#hbPillarRight)" />
+                                <rect x="10" y="8" width="12" height="48" rx="6" fill="url(#hbPillarLeft)" />
+                                <path d="M 10 14 C 10 10.7 12.7 8 16 8 C 17.8 8 19.4 8.8 20.5 10.1 L 47.5 45.9 C 48.6 47.2 49.2 48.8 49.2 50.5 C 49.2 53.5 46.8 56 43.8 56 C 42 56 40.4 55.2 39.3 53.9 L 12.5 18.1 C 10.9 16.9 10 15.6 10 14 Z" fill="url(#hbDiagFold)" />
+                                <path d="M 10 14 C 10 10.7 12.7 8 16 8 C 17.8 8 19.4 8.8 20.5 10.1 L 28 20 L 22 25 L 10 14 Z" fill="url(#hbSpecular)" opacity="0.75" />
+                            </svg>
+                        </div>
+                        <span class="header-brand-title">Next<span class="header-brand-accent">DigiHome</span></span>
+                    </a>
                     <div class="header-search">
-                        <i class="fa fa-search" style="color: var(--text-light);"></i>
-                        <input type="text" placeholder="Search...">
+                        <i class="fa fa-search" style="color: #94a3b8; font-size: 13px;"></i>
+                        <input type="text" placeholder="Search resources, leads...">
                     </div>
                 </div>
                 
@@ -1296,19 +1298,35 @@
     @stack('scripts')
     
     <script>
-        // Loader - defensive cleanup so it never blocks dashboard clicks.
+        // NextDigiHome High-Velocity Progress & Preloader Controller
+        function setProgressBar(percent) {
+            var bar = document.getElementById('ndhProgressBar');
+            if (bar) {
+                bar.style.width = percent + '%';
+            }
+        }
+
+        // Set quick initial velocity
+        setProgressBar(35);
+        document.addEventListener('readystatechange', function() {
+            if (document.readyState === 'interactive') {
+                setProgressBar(75);
+            } else if (document.readyState === 'complete') {
+                setProgressBar(100);
+            }
+        });
+
         function hideLoader() {
             var loader = document.getElementById('loader');
-            if (loader) {
-                if (loader.classList.contains('is-hidden')) {
-                    return;
-                }
-                loader.style.pointerEvents = 'none';
-                loader.classList.add('fade-out');
-                setTimeout(function() {
-                    loader.classList.add('is-hidden');
-                }, 400);
+            if (!loader || loader.classList.contains('is-hidden')) {
+                return;
             }
+            setProgressBar(100);
+            loader.style.pointerEvents = 'none';
+            loader.classList.add('fade-out');
+            setTimeout(function() {
+                loader.classList.add('is-hidden');
+            }, 220);
         }
         
         function unlockDashboardOverlays() {
@@ -1355,13 +1373,18 @@
             }
         }
         
+        // Fast dismissal on DOMContentLoaded with micro requestAnimationFrame
         document.addEventListener('DOMContentLoaded', function() {
             unlockDashboardOverlays();
-            setTimeout(hideLoader, 300);
+            setProgressBar(90);
+            requestAnimationFrame(function() {
+                setTimeout(hideLoader, 60);
+            });
         });
         
         window.addEventListener('load', function() {
-            setTimeout(hideLoader, 500);
+            unlockDashboardOverlays();
+            hideLoader();
         });
         
         window.addEventListener('pageshow', function() {
@@ -1369,19 +1392,22 @@
             hideLoader();
         });
         
-        setTimeout(hideLoader, 2000);
-        setTimeout(unlockDashboardOverlays, 2500);
-        setTimeout(unlockDashboardOverlays, 5000);
+        // Safety timeout: loader NEVER stays longer than 700ms under any network condition
+        setTimeout(hideLoader, 700);
         
-        // Sidebar Toggle for Mobile
+        // Responsive Sidebar Toggle
         function toggleSidebar() {
+            if (window.innerWidth < 992) {
+                toggleMobileSidebar();
+            } else {
+                toggleSidebarCollapse();
+            }
+        }
+        
+        function toggleMobileSidebar() {
             var sidebar = document.querySelector('.sidebar-left');
             var overlay = document.querySelector('.sidebar-overlay');
-            
-            if (!sidebar) {
-                return;
-            }
-            
+            if (!sidebar) return;
             sidebar.classList.toggle('show');
             if (overlay) {
                 overlay.classList.toggle('show', sidebar.classList.contains('show'));
@@ -1389,7 +1415,7 @@
             document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
         }
         
-        // Sidebar Collapse
+        // Sidebar Collapse (Desktop)
         function toggleSidebarCollapse() {
             document.body.classList.toggle('sidebar-collapsed');
         }

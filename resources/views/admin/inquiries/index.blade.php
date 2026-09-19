@@ -33,20 +33,23 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="btn-group flex-wrap" role="group">
-                    <a href="{{ route('inquiries.index', ['status' => 'all']) }}" class="btn btn-sm {{ request('status', 'all') === 'all' ? 'btn-primary' : 'btn-outline-secondary text-white' }} px-3">
-                        All <span class="badge badge-light ml-1">{{ $counts['all'] }}</span>
+                    <a href="{{ route('inquiries.index', ['status' => 'all']) }}" class="btn btn-sm {{ request('status', 'all') === 'all' && !request('priority') ? 'btn-primary' : 'btn-outline-secondary text-white' }} px-3">
+                        All <span class="badge badge-light ml-1">{{ $counts['all'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('inquiries.index', ['status' => 'new']) }}" class="btn btn-sm {{ request('status') === 'new' ? 'btn-warning text-dark font-weight-bold' : 'btn-outline-warning' }} px-3">
-                        New / Unread <span class="badge badge-light ml-1">{{ $counts['new'] }}</span>
+                        New / Unread <span class="badge badge-light ml-1">{{ $counts['new'] ?? 0 }}</span>
+                    </a>
+                    <a href="{{ route('inquiries.index', ['priority' => 'HIGH']) }}" class="btn btn-sm {{ request('priority') === 'HIGH' ? 'btn-danger font-weight-bold' : 'btn-outline-danger' }} px-3">
+                        <i class="fas fa-fire mr-1"></i> High Priority <span class="badge badge-light ml-1">{{ $counts['high_priority'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('inquiries.index', ['status' => 'in_review']) }}" class="btn btn-sm {{ request('status') === 'in_review' ? 'btn-info' : 'btn-outline-info' }} px-3">
-                        In Review <span class="badge badge-light ml-1">{{ $counts['in_review'] }}</span>
+                        In Review <span class="badge badge-light ml-1">{{ $counts['in_review'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('inquiries.index', ['status' => 'contacted']) }}" class="btn btn-sm {{ request('status') === 'contacted' ? 'btn-success' : 'btn-outline-success' }} px-3">
-                        Contacted <span class="badge badge-light ml-1">{{ $counts['contacted'] }}</span>
+                        Contacted <span class="badge badge-light ml-1">{{ $counts['contacted'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('inquiries.index', ['status' => 'closed']) }}" class="btn btn-sm {{ request('status') === 'closed' ? 'btn-secondary' : 'btn-outline-secondary' }} px-3">
-                        Closed <span class="badge badge-light ml-1">{{ $counts['closed'] }}</span>
+                        Closed <span class="badge badge-light ml-1">{{ $counts['closed'] ?? 0 }}</span>
                     </a>
                 </div>
             </div>
@@ -59,12 +62,15 @@
                     @if(request('status'))
                         <input type="hidden" name="status" value="{{ request('status') }}">
                     @endif
+                    @if(request('priority'))
+                        <input type="hidden" name="priority" value="{{ request('priority') }}">
+                    @endif
                     <div class="col-md-9 mb-2 mb-md-0">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text bg-dark border-secondary text-muted"><i class="fas fa-search"></i></span>
                             </div>
-                            <input type="text" name="search" class="form-control bg-dark text-white border-secondary" placeholder="Search by client name, email, phone, company, or service..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control bg-dark text-white border-secondary" placeholder="Search by client name, email, phone, company, lead ID, or service..." value="{{ request('search') }}">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -80,7 +86,7 @@
         <div class="card border-0 shadow-lg" style="background: #111827; border-radius: 14px; overflow: hidden; border: 1px solid #1f2937;">
             <div class="card-header border-bottom border-dark d-flex justify-content-between align-items-center py-3" style="background: #1a2234;">
                 <h5 class="mb-0 text-white font-weight-bold">
-                    <i class="fas fa-list-alt mr-2 text-info"></i> Inquiries ({{ $inquiries->total() }})
+                    <i class="fas fa-list-alt mr-2 text-info"></i> Inquiries &amp; Leads ({{ $inquiries->total() }})
                 </h5>
             </div>
             <div class="card-body p-0">
@@ -89,9 +95,10 @@
                         <thead style="background: #1e293b; color: #94a3b8; font-size: 13px; text-transform: uppercase;">
                             <tr>
                                 <th style="width: 50px;">#</th>
-                                <th>Client Details</th>
+                                <th>Client &amp; Lead ID</th>
                                 <th>Target Service</th>
-                                <th>Budget & Timeline</th>
+                                <th>Budget &amp; Timeline</th>
+                                <th>Priority &amp; Score</th>
                                 <th>Status</th>
                                 <th>Received</th>
                                 <th class="text-right" style="width: 160px;">Actions</th>
@@ -102,12 +109,22 @@
                                 <tr style="border-bottom: 1px solid #1f2937; {{ $inquiry->status === 'new' ? 'background: rgba(59, 130, 246, 0.05);' : '' }}">
                                     <td class="text-muted small align-middle">#{{ $inquiry->id }}</td>
                                     <td class="align-middle">
-                                        <div class="font-weight-bold text-white">{{ $inquiry->name }}</div>
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="font-weight-bold text-white mr-2">{{ $inquiry->name }}</span>
+                                            @if($inquiry->lead_id)
+                                                <span class="badge badge-dark font-mono text-muted small" style="font-size: 10px;">{{ $inquiry->lead_id }}</span>
+                                            @endif
+                                        </div>
                                         <div class="small text-muted">
                                             <i class="fas fa-envelope mr-1 text-primary"></i> <a href="mailto:{{ $inquiry->email }}" class="text-info">{{ $inquiry->email }}</a>
                                         </div>
                                         <div class="small text-muted">
                                             <i class="fas fa-phone-alt mr-1 text-success"></i> <a href="tel:{{ $inquiry->phone }}" class="text-light">{{ $inquiry->phone }}</a>
+                                            @if($inquiry->whatsapp && $inquiry->whatsapp !== $inquiry->phone)
+                                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $inquiry->whatsapp) }}" target="_blank" class="text-success ml-2" title="WhatsApp: {{ $inquiry->whatsapp }}">
+                                                    <i class="fab fa-whatsapp"></i>
+                                                </a>
+                                            @endif
                                             @if($inquiry->company)
                                                 <span class="ml-2 badge badge-dark"><i class="fas fa-building mr-1"></i> {{ $inquiry->company }}</span>
                                             @endif
@@ -117,6 +134,11 @@
                                         <span class="badge badge-pill badge-primary px-2 py-1 font-weight-normal" style="font-size: 12px;">
                                             {{ $inquiry->service }}
                                         </span>
+                                        @if($inquiry->lead_source)
+                                            <div class="mt-1 small text-muted" style="font-size: 11px;">
+                                                <i class="fas fa-bullhorn mr-1 text-secondary"></i> {{ $inquiry->lead_source }}
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="align-middle">
                                         <div class="small font-weight-bold text-success">
@@ -124,6 +146,24 @@
                                         </div>
                                         <div class="small text-muted">
                                             <i class="fas fa-calendar-alt mr-1"></i> {{ $inquiry->timeline ?: 'Flexible' }}
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        @php
+                                            $priority = strtoupper($inquiry->priority ?: 'LOW');
+                                            $score = $inquiry->lead_score ?: 20;
+                                        @endphp
+                                        <div>
+                                            @if($priority === 'HIGH')
+                                                <span class="badge badge-danger px-2 py-1 font-weight-bold">HIGH</span>
+                                            @elseif($priority === 'MEDIUM')
+                                                <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold">MEDIUM</span>
+                                            @else
+                                                <span class="badge badge-secondary px-2 py-1">LOW</span>
+                                            @endif
+                                        </div>
+                                        <div class="small mt-1 text-muted" style="font-size: 11px;">
+                                            <span class="text-info font-weight-bold">{{ $score }}/100</span> Score
                                         </div>
                                     </td>
                                     <td class="align-middle">

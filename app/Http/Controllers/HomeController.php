@@ -233,14 +233,19 @@ class HomeController extends Controller
         }
 
         // Department breakdown (chart 2) - using categories
-        $categoryQuery = Product::select('categories.category_name as label', DB::raw('count(*) as value'))
-            ->join('categories', 'products.category', '=', 'categories.id');
+        $deptData = collect();
+        try {
+            $categoryQuery = Product::select('categories.category_name as label', DB::raw('count(*) as value'))
+                ->join('categories', 'products.category', '=', 'categories.id');
 
-        if ($isSeller) {
-            $categoryQuery->where('products.created_by', $user->id);
+            if ($isSeller && Schema::hasColumn('products', 'created_by')) {
+                $categoryQuery->where('products.created_by', $user->id);
+            }
+
+            $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(5)->get();
+        } catch (\Exception $e) {
+            $deptData = collect();
         }
-
-        $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(5)->get();
 
         // Status counts for doughnut (chart 3)
         $statusCounts = [
@@ -251,18 +256,29 @@ class HomeController extends Controller
         ];
 
         // Top users by products (chart 4)
-        $topUsers = User::select('users.name as label', DB::raw('count(products.id) as value'))
-            ->join('products', 'products.created_by', '=', 'users.id')
-            ->groupBy('users.id', 'users.name')
-            ->orderBy('value', 'desc')
-            ->limit(5)
-            ->get();
+        $topUsers = collect();
+        try {
+            if (Schema::hasColumn('products', 'created_by')) {
+                $topUsers = User::select('users.name as label', DB::raw('count(products.id) as value'))
+                    ->join('products', 'products.created_by', '=', 'users.id')
+                    ->groupBy('users.id', 'users.name')
+                    ->orderBy('value', 'desc')
+                    ->limit(5)
+                    ->get();
+            }
+        } catch (\Exception $e) {
+            $topUsers = collect();
+        }
 
         // Timeline: recent product additions
-        $timeline = Product::with('creator')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
+        try {
+            $timeline = Product::with('creator')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+        } catch (\Exception $e) {
+            $timeline = Product::orderBy('created_at', 'desc')->limit(5)->get();
+        }
 
         // Recent notifications
         $notificationsQuery = Notification::where('notifiable_id', $user->id)
@@ -386,13 +402,14 @@ class HomeController extends Controller
             $totalPurchases = Purchase::count();
             $totalRevenue = Payment::where('status', 'completed')->sum('amount');
         } elseif ($isSeller) {
-            $totalProducts = Product::where('created_by', $user->id)->count();
-            $totalPurchases = Purchase::whereHas('product', function ($q) use ($user) {
+            $hasCreatedBy = Schema::hasColumn('products', 'created_by');
+            $totalProducts = $hasCreatedBy ? Product::where('created_by', $user->id)->count() : Product::count();
+            $totalPurchases = $hasCreatedBy ? Purchase::whereHas('product', function ($q) use ($user) {
                 $q->where('created_by', $user->id);
-            })->count();
-            $totalRevenue = Payment::whereHas('purchase.product', function ($q) use ($user) {
+            })->count() : 0;
+            $totalRevenue = $hasCreatedBy ? Payment::whereHas('purchase.product', function ($q) use ($user) {
                 $q->where('created_by', $user->id);
-            })->where('status', 'completed')->sum('amount');
+            })->where('status', 'completed')->sum('amount') : 0;
         } else {
             $totalProducts = Product::where('active', true)->count();
             $totalPurchases = Purchase::where('user_id', $user->id)->count();
@@ -402,7 +419,7 @@ class HomeController extends Controller
         // Latest items
         if ($isSuperAdmin || $isAdmin) {
             $latest = Purchase::with(['user', 'product'])->orderBy('created_at', 'desc')->take(10)->get();
-        } elseif ($isSeller) {
+        } elseif ($isSeller && Schema::hasColumn('products', 'created_by')) {
             $latest = Purchase::whereHas('product', function ($q) use ($user) {
                 $q->where('created_by', $user->id);
             })->with(['user', 'product'])->orderBy('created_at', 'desc')->take(10)->get();
@@ -411,14 +428,19 @@ class HomeController extends Controller
         }
 
         // Category breakdown
-        $categoryQuery = Product::select('categories.category_name as label', DB::raw('count(*) as value'))
-            ->join('categories', 'products.category', '=', 'categories.id');
+        $deptData = collect();
+        try {
+            $categoryQuery = Product::select('categories.category_name as label', DB::raw('count(*) as value'))
+                ->join('categories', 'products.category', '=', 'categories.id');
 
-        if ($isSeller) {
-            $categoryQuery->where('products.created_by', $user->id);
+            if ($isSeller && Schema::hasColumn('products', 'created_by')) {
+                $categoryQuery->where('products.created_by', $user->id);
+            }
+
+            $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(10)->get();
+        } catch (\Exception $e) {
+            $deptData = collect();
         }
-
-        $deptData = $categoryQuery->groupBy('categories.category_name')->orderBy('value', 'desc')->limit(10)->get();
 
         $hasInquiryTable = Schema::hasTable('project_inquiries');
         $totalInquiries = $hasInquiryTable ? ProjectInquiry::count() : 0;

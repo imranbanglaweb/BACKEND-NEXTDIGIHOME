@@ -33,34 +33,34 @@
             </div>
             <div class="premium-actions">
                 <button type="button" onclick="window.location.reload()" class="btn btn-outline-light">
-                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                    <i class="fas fa-sync-alt"></i><span>Refresh</span>
                 </button>
                 <a href="{{ route('inquiries.index') }}" class="btn btn-outline-light">
-                    <i class="fas fa-paper-plane me-2"></i>Inquiries
+                    <i class="fas fa-paper-plane"></i><span>Inquiries</span>
                 </a>
                 <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Add Product
+                    <i class="fas fa-plus"></i><span>Add Product</span>
                 </a>
             </div>
         </div>
 
         <div class="premium-nav">
-            <a href="{{ route('admin.dashboard') }}" class="active">Overview</a>
-            <a href="{{ route('inquiries.index') }}">Inquiries @if($newInquiries > 0)<span class="badge bg-primary ms-1">{{ $newInquiries }}</span>@endif</a>
-            <a href="{{ route('admin.products.index') }}">Products</a>
-            <a href="{{ route('admin.orders.index') }}">Orders</a>
-            <a href="{{ route('admin.pages.index') }}">Content</a>
-            <a href="{{ route('admin.customers.index') }}">Customers</a>
-            <a href="{{ route('admin.reports.index') }}">Reports</a>
-            <a href="{{ route('admin.settings.general') }}">Settings</a>
+            <a href="{{ route('admin.dashboard') }}" class="active"><i class="fas fa-th-large"></i> Overview</a>
+            <a href="{{ route('inquiries.index') }}"><i class="fas fa-paper-plane"></i> Inquiries @if($newInquiries > 0)<span class="badge badge-new">{{ $newInquiries }}</span>@endif</a>
+            <a href="{{ route('admin.products.index') }}"><i class="fas fa-box"></i> Products</a>
+            <a href="{{ route('admin.orders.index') }}"><i class="fas fa-shopping-cart"></i> Orders</a>
+            <a href="{{ route('admin.pages.index') }}"><i class="fas fa-file-alt"></i> Content</a>
+            <a href="{{ route('admin.customers.index') }}"><i class="fas fa-users"></i> Customers</a>
+            <a href="{{ route('admin.reports.index') }}"><i class="fas fa-chart-bar"></i> Reports</a>
+            <a href="{{ route('admin.settings.general') }}"><i class="fas fa-cog"></i> Settings</a>
         </div>
 
         @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         @if(session('info'))<div class="alert alert-info">{{ session('info') }}</div>@endif
         @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
-        <div class="row g-3 mb-3">
-            <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="premium-stats-grid">
+            <div class="stat-grid-item">
                 <a href="{{ route('inquiries.index') }}" class="dashboard-stat-link">
                     <div class="premium-stat">
                         <span class="premium-icon" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-paper-plane"></i></span>
@@ -71,30 +71,30 @@
                     </div>
                 </a>
             </div>
-            <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="stat-grid-item">
                 <a href="{{ route('admin.products.index') }}" class="dashboard-stat-link">
                     <div class="premium-stat"><span class="premium-icon premium-blue"><i class="fas fa-box"></i></span><div><small>Total Products</small><strong>{{ number_format($totalProducts ?? 0) }}</strong></div></div>
                 </a>
             </div>
-            <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-grid-item">
                 <a href="{{ route('admin.products.index') }}" class="dashboard-stat-link">
                     <div class="premium-stat"><span class="premium-icon premium-green"><i class="fas fa-check-circle"></i></span><div><small>Active Items</small><strong>{{ number_format($activeProducts ?? 0) }}</strong></div></div>
                 </a>
             </div>
-            <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-grid-item">
                 <a href="{{ route('admin.orders.index') }}" class="dashboard-stat-link">
                     <div class="premium-stat"><span class="premium-icon premium-cyan"><i class="fas fa-shopping-cart"></i></span><div><small>Purchases</small><strong>{{ number_format($totalPurchases ?? 0) }}</strong></div></div>
                 </a>
             </div>
-            <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-grid-item">
                 <a href="{{ route('admin.reports.revenue') }}" class="dashboard-stat-link">
                     <div class="premium-stat"><span class="premium-icon premium-amber"><i class="fas fa-dollar-sign"></i></span><div><small>Revenue</small><strong>${{ number_format($totalRevenue ?? 0, 0) }}</strong></div></div>
                 </a>
             </div>
         </div>
 
-        <div class="row g-3 mb-3">
-            <div class="col-xl-8">
+        <div class="dashboard-grid-2col">
+            <div>
                 <div class="premium-card dashboard-chart-card">
                     <div class="premium-card-title">
                         <div>
@@ -118,7 +118,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4">
+            <div>
                 <div class="premium-card dashboard-chart-card">
                     <div class="premium-card-title">
                         <div>
@@ -147,8 +147,8 @@
             </div>
         </div>
 
-        <div class="row g-3 mb-3">
-            <div class="col-xl-7">
+        <div class="dashboard-grid-2col-table">
+            <div>
                 <div class="premium-card">
                     <div class="premium-card-title">
                         <div>
@@ -185,7 +185,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-5">
+            <div>
                 <div class="premium-card">
                     <div class="premium-card-title">
                         <div>
@@ -253,8 +253,8 @@
             </div>
         </div>
 
-        <div class="row g-3">
-            <div class="col-xl-7">
+        <div class="dashboard-grid-2col-table">
+            <div>
                 <div class="premium-card">
                     <div class="premium-card-title">
                         <div>
@@ -275,7 +275,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-5">
+            <div>
                 <div class="premium-card">
                     <div class="premium-card-title">
                         <div>
@@ -304,6 +304,31 @@
 
 <style>
     .dashboard-page .premium-header { margin-bottom:16px; }
+    .premium-stats-grid {
+        display: grid !important;
+        grid-template-columns: 1.25fr 1fr 1fr 1fr 1fr !important;
+        gap: 16px !important;
+        margin-bottom: 20px !important;
+    }
+    .stat-grid-item {
+        min-width: 0;
+        width: 100%;
+    }
+    @media (max-width: 1280px) {
+        .premium-stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+    }
+    @media (max-width: 820px) {
+        .premium-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
+    @media (max-width: 520px) {
+        .premium-stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
     .dashboard-page .row { margin-left:-8px; margin-right:-8px; }
     .dashboard-page .row > [class*="col-"] { padding-left:8px; padding-right:8px; }
     .dashboard-stat-link { display:block; text-decoration:none; }

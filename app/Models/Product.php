@@ -42,7 +42,9 @@ class Product extends Model
         'og_description',
         'og_image',
         'robots_index',
-        'robots_follow'
+        'robots_follow',
+        'created_by',
+        'updated_by'
     ];
 
     protected $casts = [
@@ -56,6 +58,11 @@ class Product extends Model
         'robots_index' => 'boolean',
         'robots_follow' => 'boolean'
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     public function purchases()
     {

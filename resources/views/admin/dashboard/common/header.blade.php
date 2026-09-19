@@ -49,18 +49,26 @@
      <!-- Flag Icons -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.6.6/css/flag-icons.min.css">
    
+		<!-- Google Fonts Inter & Plus Jakarta Sans -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     	<style>
-	  	.logo {
-	  		height: 100px !important;
+	  	.sidebar-left .logo,
+	  	.sidebar-left .logo-link {
+	  		height: auto !important;
 	  		display: flex !important;
 	  		align-items: center !important;
-	  		justify-content: center !important;
-	  		margin-top: -18px !important;
+	  		justify-content: flex-start !important;
+	  		margin-top: 0 !important;
+	  		text-decoration: none !important;
 	  	}
 	  	
-	  	.logo img {
-	  		max-height: 90px !important;
-	  		max-width: 250px !important;
+	  	.sidebar-left .logo img,
+	  	.sidebar-left .logo-link img {
+	  		max-height: 38px !important;
+	  		max-width: 140px !important;
 	  		width: auto !important;
 	  		height: auto !important;
 	  		object-fit: contain !important;
@@ -98,8 +106,8 @@
             background-color: #e9ecef;
             font-weight: bold;
         }
-		  .text-start { text-align: right !important; }
-        .text-end { text-align: left !important; }
+		  [dir="rtl"] .text-start { text-align: right !important; }
+        [dir="rtl"] .text-end { text-align: left !important; }
     	</style>
          
     <meta name="csrf-token" content="{{ csrf_token() }}">

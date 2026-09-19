@@ -463,7 +463,7 @@
             </a>
         </div>
         <div class="activity-card-body">
-            @if($timeline && $timeline->count() > 0)
+            @if(!empty($timeline) && $timeline->count() > 0)
             <div class="activity-timeline">
                 @foreach($timeline as $activity)
                 <div class="activity-timeline-item">

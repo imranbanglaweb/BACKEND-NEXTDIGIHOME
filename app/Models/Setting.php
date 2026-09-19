@@ -73,5 +73,19 @@ class Setting extends Model
         'ahrefs_site_audit_url',
         'facebook_domain_verification',
         'pinterest_domain_verification',
+        // Server Tracking Settings
+        'ga4_measurement_id',
+        'ga4_api_secret',
+        'ga4_server_enabled',
+        'meta_pixel_id',
+        'meta_capi_access_token',
+        'meta_capi_test_event_code',
+        'meta_capi_enabled',
+        'tiktok_pixel_code',
+        'tiktok_access_token',
+        'tiktok_test_event_code',
+        'tiktok_server_enabled',
+        'server_tracking_webhook_url',
+        'server_tracking_webhook_enabled',
     ];
 }

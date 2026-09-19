@@ -21,57 +21,57 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerGroupController;
 
 // Vehicle & Transport
-use App\Http\Controllers\AIMaintenanceAlertController;
-use App\Http\Controllers\AIReportController;
+// use App\Http\Controllers\AIMaintenanceAlertController;
+// use App\Http\Controllers\AIReportController;
 // use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\DepartmentApprovalController;
+// use App\Http\Controllers\CompanyController;
+// use App\Http\Controllers\DepartmentApprovalController;
 // Requisitions & Approvals
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\DepartmentEmployeeController;
+// use App\Http\Controllers\DepartmentController;
+// use App\Http\Controllers\DepartmentEmployeeController;
 use App\Http\Controllers\DepartmentHeadController;
 use App\Http\Controllers\DriverController;
 // Maintenance
 // use App\Http\Controllers\EmailLogController;
 use App\Http\Controllers\EmailTemplateController;
-use App\Http\Controllers\EmployeeController;
+// use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\GpsTrackingController;
 use App\Http\Controllers\HomeController;
 // Reports
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LicneseTypeController;
-use App\Http\Controllers\LocationController;
-use App\Http\Controllers\MaintenanceApprovalController;
-use App\Http\Controllers\MaintenanceCategoryController;
+// use App\Http\Controllers\LocationController;
+// use App\Http\Controllers\MaintenanceApprovalController;
+// use App\Http\Controllers\MaintenanceCategoryController;
 // AI Features
-use App\Http\Controllers\MaintenanceRequisitionController;
-use App\Http\Controllers\MaintenanceTransportApprovalController;
+// use App\Http\Controllers\MaintenanceRequisitionController;
+// use App\Http\Controllers\MaintenanceTransportApprovalController;
 // Admin & Settings
-use App\Http\Controllers\MaintenanceTypeController;
-use App\Http\Controllers\MaintenanceVendorController;
+// use App\Http\Controllers\MaintenanceTypeController;
+// use App\Http\Controllers\MaintenanceVendorController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Payment\ManualPaymentController;
 // Subscriptions & Payments
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PushSubscriptionController;
-use App\Http\Controllers\Reports\DriverPerformanceReportController;
-use App\Http\Controllers\Reports\MaintenanceReportController;
-use App\Http\Controllers\Reports\RequisitionReportController;
+// use App\Http\Controllers\Reports\DriverPerformanceReportController;
+// use App\Http\Controllers\Reports\MaintenanceReportController;
+// use App\Http\Controllers\Reports\RequisitionReportController;
 // Organization Structure
-use App\Http\Controllers\Reports\TripFuelReportController;
-use App\Http\Controllers\RequisitionApprovalController;
-use App\Http\Controllers\RequisitionController;
+// use App\Http\Controllers\Reports\TripFuelReportController;
+// use App\Http\Controllers\RequisitionApprovalController;
+// use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TestEmailController;
 use App\Http\Controllers\TranslationController;
-use App\Http\Controllers\TransportApprovalController;
-use App\Http\Controllers\TripSheetController;
+// use App\Http\Controllers\TransportApprovalController;
+// use App\Http\Controllers\TripSheetController;
 // Other Controllers
-use App\Http\Controllers\UnitController;
+// use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\VendorController;
+// use App\Http\Controllers\VendorController; // Missing controller
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -147,6 +147,9 @@ Route::middleware(['auth'])->group(function () {
     // NextDigiHome Project Inquiries & Leads Management
     Route::resource('inquiries', \App\Http\Controllers\Admin\InquiryController::class);
     Route::patch('inquiries/{id}/status', [\App\Http\Controllers\Admin\InquiryController::class, 'updateStatus'])->name('inquiries.update-status');
+    Route::patch('inquiries/{id}/priority', [\App\Http\Controllers\Admin\InquiryController::class, 'updatePriority'])->name('inquiries.update-priority');
+    Route::post('inquiries/{id}/notes', [\App\Http\Controllers\Admin\InquiryController::class, 'addNote'])->name('inquiries.add-note');
+    Route::post('inquiries/{id}/follow-up', [\App\Http\Controllers\Admin\InquiryController::class, 'updateFollowUp'])->name('inquiries.update-follow-up');
 });
 
 // ============================================================================
@@ -183,11 +186,25 @@ Route::middleware(['prevent-back-history'])->group(function () {
 });
 
 // ============================================================================
-// 5. VENDOR MANAGEMENT
+// 5. VENDOR MANAGEMENT (Disabled - VendorController missing)
 // ============================================================================
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('vendors', VendorController::class);
+// Route::middleware(['auth'])->group(function () {
+//     Route::resource('vendors', VendorController::class);
+// });
+
+// ============================================================================
+// 5B. SUBSCRIPTION & MENU ALIAS ROUTES
+// ============================================================================
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('subscription-plans', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'index'])->name('admin.subscription-plans.index');
+    Route::get('subscriptions/active', function () { return view('admin.subscriptions.active'); })->name('admin.subscriptions.active');
+    Route::get('subscriptions/expired', function () { return view('admin.subscriptions.expired'); })->name('admin.subscriptions.expired');
+    Route::get('subscriptions/billing', function () { return view('admin.subscriptions.billing'); })->name('admin.subscriptions.billing');
+
+    // Menu Route Aliases
+    Route::get('profile/edit', function () { return redirect()->route('user-profile'); })->name('admin.profile.edit');
+    Route::get('support/tickets-alias', function () { return redirect()->route('admin.support.tickets.index'); })->name('admin.support.tickets');
 });
 
 // ============================================================================
@@ -197,9 +214,9 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['prevent-back-history'])->group(function () {
 
     // AJAX endpoints
-    Route::get('/requisitions-search', [RequisitionController::class, 'index'])->name('requisitions.search');
-    Route::post('/requisitions/validate', [RequisitionController::class, 'validateAjax'])->name('requisitions.validate');
-    Route::get('/get-employee-details/{id}', [EmployeeController::class, 'getEmployeeDetails'])->name('employee.details');
+//     Route::get('/requisitions-search', [RequisitionController::class, 'index'])->name('requisitions.search');
+//     Route::post('/requisitions/validate', [RequisitionController::class, 'validateAjax'])->name('requisitions.validate');
+//     Route::get('/get-employee-details/{id}', [EmployeeController::class, 'getEmployeeDetails'])->name('employee.details');
 
     // ============================================================================
     // DRIVER PORTAL ROUTES
@@ -250,19 +267,19 @@ Route::middleware(['prevent-back-history'])->group(function () {
 
     });
 
-    Route::resource('requisitions', RequisitionController::class);
+//     Route::resource('requisitions', RequisitionController::class);
 
     // Status & Workflow
-    Route::post('/requisitions/update-status/{id}', [RequisitionController::class, 'updateStatus'])->name('requisitions.updateStatus');
-    Route::post('{id}/workflow/update', [RequisitionController::class, 'updateWorkflow'])->name('requisitions.workflow.update');
+//     Route::post('/requisitions/update-status/{id}', [RequisitionController::class, 'updateStatus'])->name('requisitions.updateStatus');
+//     Route::post('{id}/workflow/update', [RequisitionController::class, 'updateWorkflow'])->name('requisitions.workflow.update');
 
     // Transport Approval
-    Route::post('/requisitions/transport-approve/{id}', [RequisitionApprovalController::class, 'transportApprove'])->name('requisitions.transport.approve');
-    Route::post('/requisitions/transport-reject/{id}', [RequisitionApprovalController::class, 'transportReject'])->name('requisitions.transport.reject');
+//     Route::post('/requisitions/transport-approve/{id}', [RequisitionApprovalController::class, 'transportApprove'])->name('requisitions.transport.approve');
+//     Route::post('/requisitions/transport-reject/{id}', [RequisitionApprovalController::class, 'transportReject'])->name('requisitions.transport.reject');
 
     // Admin Final Approval
-    Route::post('/requisitions/admin-approve/{id}', [RequisitionApprovalController::class, 'adminApprove'])->name('requisitions.admin.approve');
-    Route::post('/requisitions/admin-reject/{id}', [RequisitionApprovalController::class, 'adminReject'])->name('requisitions.admin.reject');
+//     Route::post('/requisitions/admin-approve/{id}', [RequisitionApprovalController::class, 'adminApprove'])->name('requisitions.admin.approve');
+//     Route::post('/requisitions/admin-reject/{id}', [RequisitionApprovalController::class, 'adminReject'])->name('requisitions.admin.reject');
 
     // Role-based requisition access
     Route::group(['middleware' => 'role:employee,transport,admin'], function () {});
@@ -274,16 +291,16 @@ Route::middleware(['prevent-back-history'])->group(function () {
 
 Route::prefix('department')->group(function () {
     // AJAX endpoint
-    Route::get('/approvals/ajax', [DepartmentApprovalController::class, 'ajax'])->name('department.approvals.ajax');
+//     Route::get('/approvals/ajax', [DepartmentApprovalController::class, 'ajax'])->name('department.approvals.ajax');
 
     // Department Head Approvals
-    Route::get('/approvals', [DepartmentApprovalController::class, 'index'])->defaults('type', 'pending')->name('department.approvals.index');
-    Route::get('/approvals/approved', [DepartmentApprovalController::class, 'index'])->defaults('type', 'approved')->name('department.approvals.approved');
-    Route::get('/approvals/rejected', [DepartmentApprovalController::class, 'index'])->defaults('type', 'rejected')->name('department.approvals.rejected');
-    Route::get('/approvals/my', [DepartmentApprovalController::class, 'myApprovals'])->name('department.approvals.my');
-    Route::get('/approvals/{id}', [DepartmentApprovalController::class, 'show'])->name('department.approvals.show');
-    Route::post('/approvals/{id}/approve', [DepartmentApprovalController::class, 'approve'])->name('department.approvals.approve');
-    Route::post('/approvals/{id}/reject', [DepartmentApprovalController::class, 'reject'])->name('department.approvals.reject');
+//     Route::get('/approvals', [DepartmentApprovalController::class, 'index'])->defaults('type', 'pending')->name('department.approvals.index');
+//     Route::get('/approvals/approved', [DepartmentApprovalController::class, 'index'])->defaults('type', 'approved')->name('department.approvals.approved');
+//     Route::get('/approvals/rejected', [DepartmentApprovalController::class, 'index'])->defaults('type', 'rejected')->name('department.approvals.rejected');
+//     Route::get('/approvals/my', [DepartmentApprovalController::class, 'myApprovals'])->name('department.approvals.my');
+//     Route::get('/approvals/{id}', [DepartmentApprovalController::class, 'show'])->name('department.approvals.show');
+//     Route::post('/approvals/{id}/approve', [DepartmentApprovalController::class, 'approve'])->name('department.approvals.approve');
+//     Route::post('/approvals/{id}/reject', [DepartmentApprovalController::class, 'reject'])->name('department.approvals.reject');
 });
 
 // ============================================================================
@@ -292,58 +309,58 @@ Route::prefix('department')->group(function () {
 
 Route::prefix('transport')->group(function () {
     // Transport Approvals
-    Route::get('/approvals', [TransportApprovalController::class, 'index'])->name('transport.approvals.index');
-    Route::get('/approvals/ajax', [TransportApprovalController::class, 'ajax'])->name('transport.approvals.ajax');
-    Route::get('/approvals/{id}', [TransportApprovalController::class, 'show'])->name('transport.approvals.show');
-    Route::post('/approvals/{id}/assign', [TransportApprovalController::class, 'assignVehicleDriver'])->name('transport.approvals.assign');
-    Route::post('/approvals/{id}/approve', [TransportApprovalController::class, 'approve'])->name('transport.approvals.approve');
-    Route::post('/approvals/{id}/reject', [TransportApprovalController::class, 'reject'])->name('transport.approvals.reject');
-    Route::get('/approvals/{id}/availability', [TransportApprovalController::class, 'availability'])->name('transport.approvals.availability');
+//     Route::get('/approvals', [TransportApprovalController::class, 'index'])->name('transport.approvals.index');
+//     Route::get('/approvals/ajax', [TransportApprovalController::class, 'ajax'])->name('transport.approvals.ajax');
+//     Route::get('/approvals/{id}', [TransportApprovalController::class, 'show'])->name('transport.approvals.show');
+//     Route::post('/approvals/{id}/assign', [TransportApprovalController::class, 'assignVehicleDriver'])->name('transport.approvals.assign');
+//     Route::post('/approvals/{id}/approve', [TransportApprovalController::class, 'approve'])->name('transport.approvals.approve');
+//     Route::post('/approvals/{id}/reject', [TransportApprovalController::class, 'reject'])->name('transport.approvals.reject');
+//     Route::get('/approvals/{id}/availability', [TransportApprovalController::class, 'availability'])->name('transport.approvals.availability');
 
     // Trip Sheets
-    Route::get('/trip-sheets', [TripSheetController::class, 'index'])->name('trip-sheets.index');
-    Route::get('/trip-sheets/create', [TripSheetController::class, 'create'])->name('trip-sheets.create');
-    Route::post('/trip-sheets', [TripSheetController::class, 'store'])->name('trip-sheets.store');
-    Route::get('/trip-sheets/active', [TripSheetController::class, 'index'])->name('trip-sheets.active');
-    Route::get('/trip-sheets/completed', [TripSheetController::class, 'index'])->name('trip-sheets.completed');
-    Route::get('/trip-sheets/data', [TripSheetController::class, 'getData'])->name('trip-sheets.data');
-    Route::get('/trip-sheet/{id}', [TripSheetController::class, 'show'])->name('trip-sheets.show');
-    Route::post('/trip-sheet/start/{id}', [TripSheetController::class, 'startTrip'])->name('trip-sheets.start');
-    Route::post('/trip-sheet/finish/{id}', [TripSheetController::class, 'finishTrip'])->name('trip-sheets.finish');
-    Route::get('/trip-sheet/end/{id}', [TripSheetController::class, 'endTripForm'])->name('trip-sheets.end.form');
-    Route::post('/trip-sheet/end/{id}', [TripSheetController::class, 'endTripSave'])->name('trip-sheets.end.save');
+//     Route::get('/trip-sheets', [TripSheetController::class, 'index'])->name('trip-sheets.index');
+//     Route::get('/trip-sheets/create', [TripSheetController::class, 'create'])->name('trip-sheets.create');
+//     Route::post('/trip-sheets', [TripSheetController::class, 'store'])->name('trip-sheets.store');
+//     Route::get('/trip-sheets/active', [TripSheetController::class, 'index'])->name('trip-sheets.active');
+//     Route::get('/trip-sheets/completed', [TripSheetController::class, 'index'])->name('trip-sheets.completed');
+//     Route::get('/trip-sheets/data', [TripSheetController::class, 'getData'])->name('trip-sheets.data');
+//     Route::get('/trip-sheet/{id}', [TripSheetController::class, 'show'])->name('trip-sheets.show');
+//     Route::post('/trip-sheet/start/{id}', [TripSheetController::class, 'startTrip'])->name('trip-sheets.start');
+//     Route::post('/trip-sheet/finish/{id}', [TripSheetController::class, 'finishTrip'])->name('trip-sheets.finish');
+//     Route::get('/trip-sheet/end/{id}', [TripSheetController::class, 'endTripForm'])->name('trip-sheets.end.form');
+//     Route::post('/trip-sheet/end/{id}', [TripSheetController::class, 'endTripSave'])->name('trip-sheets.end.save');
 });
 
 // ============================================================================
 // 9. MAINTENANCE MANAGEMENT
 // ============================================================================
 
-Route::get('admin/maintenance/history', [MaintenanceRequisitionController::class, 'history'])->name('admin-maintenance.history');
-Route::resource('maintenance', MaintenanceRequisitionController::class);
+// Route::get('admin/maintenance/history', [MaintenanceRequisitionController::class, 'history'])->name('admin-maintenance.history');
+// Route::resource('maintenance', MaintenanceRequisitionController::class);
 
 // ============================================================================
 // MAINTENANCE APPROVAL WORKFLOW
 // ============================================================================
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::prefix('approvals/maintenance')->name('maintenance_approvals.')->group(function () {
-        Route::get('/', [MaintenanceApprovalController::class, 'index'])->name('index');
+//         Route::get('/', [MaintenanceApprovalController::class, 'index'])->name('index');
         // Approved requisitions list - must be before {id} route
-        Route::get('/approved', [MaintenanceApprovalController::class, 'approved'])->name('approved');
-        Route::get('/approved/ajax', [MaintenanceApprovalController::class, 'approved'])->name('approved.ajax');
+//         Route::get('/approved', [MaintenanceApprovalController::class, 'approved'])->name('approved');
+//         Route::get('/approved/ajax', [MaintenanceApprovalController::class, 'approved'])->name('approved.ajax');
 
-        Route::get('/ajax', [MaintenanceApprovalController::class, 'ajax'])->name('ajax');
-        Route::get('/{id}', [MaintenanceApprovalController::class, 'show'])->name('show');
-        Route::post('/{id}/approve', [MaintenanceApprovalController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [MaintenanceTransportApprovalController::class, 'reject'])->name('reject');
+//         Route::get('/ajax', [MaintenanceApprovalController::class, 'ajax'])->name('ajax');
+//         Route::get('/{id}', [MaintenanceApprovalController::class, 'show'])->name('show');
+//         Route::post('/{id}/approve', [MaintenanceApprovalController::class, 'approve'])->name('approve');
+//         Route::post('/{id}/reject', [MaintenanceTransportApprovalController::class, 'reject'])->name('reject');
     });
 
     // Transport Approval for Maintenance Requisitions
     Route::prefix('approvals/maintenance-transport')->name('maintenance_transport_approvals.')->group(function () {
-        Route::get('/', [MaintenanceTransportApprovalController::class, 'index'])->name('index');
-        Route::get('/ajax', [MaintenanceTransportApprovalController::class, 'ajax'])->name('ajax');
-        Route::get('/{id}', [MaintenanceTransportApprovalController::class, 'show'])->name('show');
-        Route::post('/{id}/approve', [MaintenanceTransportApprovalController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [MaintenanceTransportApprovalController::class, 'reject'])->name('reject');
+//         Route::get('/', [MaintenanceTransportApprovalController::class, 'index'])->name('index');
+//         Route::get('/ajax', [MaintenanceTransportApprovalController::class, 'ajax'])->name('ajax');
+//         Route::get('/{id}', [MaintenanceTransportApprovalController::class, 'show'])->name('show');
+//         Route::post('/{id}/approve', [MaintenanceTransportApprovalController::class, 'approve'])->name('approve');
+//         Route::post('/{id}/reject', [MaintenanceTransportApprovalController::class, 'reject'])->name('reject');
     });
 });
 
@@ -352,27 +369,27 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 // ============================================================================
 
 Route::prefix('maintenance-types')->middleware('auth')->group(function () {
-    Route::get('/', [MaintenanceTypeController::class, 'index'])->name('maintenance-types.index');
-    Route::post('/store', [MaintenanceTypeController::class, 'store'])->name('maintenance-types.store');
-    Route::get('/edit/{maintenanceType}', [MaintenanceTypeController::class, 'edit'])->name('maintenance-types.edit');
-    Route::put('/update/{maintenanceType}', [MaintenanceTypeController::class, 'update'])->name('maintenance-types.update');
-    Route::delete('/delete/{maintenanceType}', [MaintenanceTypeController::class, 'destroy'])->name('maintenance-types.destroy');
-    Route::get('maintenance-types-data', [MaintenanceTypeController::class, 'data'])->name('maintenance.types.data');
+//     Route::get('/', [MaintenanceTypeController::class, 'index'])->name('maintenance-types.index');
+//     Route::post('/store', [MaintenanceTypeController::class, 'store'])->name('maintenance-types.store');
+//     Route::get('/edit/{maintenanceType}', [MaintenanceTypeController::class, 'edit'])->name('maintenance-types.edit');
+//     Route::put('/update/{maintenanceType}', [MaintenanceTypeController::class, 'update'])->name('maintenance-types.update');
+//     Route::delete('/delete/{maintenanceType}', [MaintenanceTypeController::class, 'destroy'])->name('maintenance-types.destroy');
+//     Route::get('maintenance-types-data', [MaintenanceTypeController::class, 'data'])->name('maintenance.types.data');
 });
 
 Route::prefix('maintenance-vendors')->middleware('auth')->group(function () {
-    Route::get('/', [MaintenanceVendorController::class, 'index'])->name('maintenance-vendors.index');
-    Route::post('/store', [MaintenanceVendorController::class, 'store'])->name('maintenance.vendors.store');
-    Route::get('/edit/{vendor}', [MaintenanceVendorController::class, 'edit'])->name('maintenance.vendors.edit');
-    Route::post('/update/{vendor}', [MaintenanceVendorController::class, 'update'])->name('maintenance.vendors.update');
-    Route::delete('/delete/{vendor}', [MaintenanceVendorController::class, 'destroy'])->name('maintenance.vendors.destroy');
+//     Route::get('/', [MaintenanceVendorController::class, 'index'])->name('maintenance-vendors.index');
+//     Route::post('/store', [MaintenanceVendorController::class, 'store'])->name('maintenance.vendors.store');
+//     Route::get('/edit/{vendor}', [MaintenanceVendorController::class, 'edit'])->name('maintenance.vendors.edit');
+//     Route::post('/update/{vendor}', [MaintenanceVendorController::class, 'update'])->name('maintenance.vendors.update');
+//     Route::delete('/delete/{vendor}', [MaintenanceVendorController::class, 'destroy'])->name('maintenance.vendors.destroy');
 });
 
 Route::prefix('maintenance-categories')->group(function () {
-    Route::get('/', [MaintenanceCategoryController::class, 'index'])->name('maintenance-categories.index');
-    Route::post('/', [MaintenanceCategoryController::class, 'store'])->name('maintenance-categories.store');
-    Route::get('/{id}/edit', [MaintenanceCategoryController::class, 'edit'])->name('maintenance-categories.edit');
-    Route::delete('/{id}', [MaintenanceCategoryController::class, 'destroy'])->name('maintenance-categories.destroy');
+//     Route::get('/', [MaintenanceCategoryController::class, 'index'])->name('maintenance-categories.index');
+//     Route::post('/', [MaintenanceCategoryController::class, 'store'])->name('maintenance-categories.store');
+//     Route::get('/{id}/edit', [MaintenanceCategoryController::class, 'edit'])->name('maintenance-categories.edit');
+//     Route::delete('/{id}', [MaintenanceCategoryController::class, 'destroy'])->name('maintenance-categories.destroy');
 });
 
 // ============================================================================
@@ -383,26 +400,26 @@ Route::prefix('maintenance-categories')->group(function () {
 
 // Trip & Fuel Consumption Report
 Route::middleware(['auth'])->prefix('admin')->name('reports.')->group(function () {
-    Route::get('/reports/trips-fuel', [TripFuelReportController::class, 'index'])->name('trips_fuel');
-    Route::get('/reports/trips-fuel/ajax', [TripFuelReportController::class, 'ajax'])->name('trips_fuel.ajax');
-    Route::get('/reports/trips-fuel/excel', [TripFuelReportController::class, 'excel'])->name('trips_fuel.excel');
-    Route::get('/reports/trips-fuel/pdf', [TripFuelReportController::class, 'pdf'])->name('trips_fuel.pdf');
+//     Route::get('/reports/trips-fuel', [TripFuelReportController::class, 'index'])->name('trips_fuel');
+//     Route::get('/reports/trips-fuel/ajax', [TripFuelReportController::class, 'ajax'])->name('trips_fuel.ajax');
+//     Route::get('/reports/trips-fuel/excel', [TripFuelReportController::class, 'excel'])->name('trips_fuel.excel');
+//     Route::get('/reports/trips-fuel/pdf', [TripFuelReportController::class, 'pdf'])->name('trips_fuel.pdf');
 });
 
 // Driver Performance Report
 Route::middleware(['auth'])->prefix('admin')->name('reports.')->group(function () {
-    Route::get('/reports/driver-performance', [DriverPerformanceReportController::class, 'index'])->name('driver_performance');
-    Route::get('/reports/driver-performance/ajax', [DriverPerformanceReportController::class, 'ajax'])->name('driver_performance.ajax');
-    Route::get('/reports/driver-performance/excel', [DriverPerformanceReportController::class, 'excel'])->name('driver_performance.excel');
-    Route::get('/reports/driver-performance/pdf', [DriverPerformanceReportController::class, 'pdf'])->name('driver_performance.pdf');
+//     Route::get('/reports/driver-performance', [DriverPerformanceReportController::class, 'index'])->name('driver_performance');
+//     Route::get('/reports/driver-performance/ajax', [DriverPerformanceReportController::class, 'ajax'])->name('driver_performance.ajax');
+//     Route::get('/reports/driver-performance/excel', [DriverPerformanceReportController::class, 'excel'])->name('driver_performance.excel');
+//     Route::get('/reports/driver-performance/pdf', [DriverPerformanceReportController::class, 'pdf'])->name('driver_performance.pdf');
 });
 
 // Maintenance Reports
 Route::middleware(['auth'])->prefix('admin')->name('reports.')->group(function () {
-    Route::get('/reports/maintenance', [MaintenanceReportController::class, 'index'])->name('maintenance');
-    Route::get('/reports/maintenance/ajax', [MaintenanceReportController::class, 'ajax'])->name('maintenance.ajax');
-    Route::get('/reports/maintenance/excel', [MaintenanceReportController::class, 'excel'])->name('maintenance.excel');
-    Route::get('/reports/maintenance/pdf', [MaintenanceReportController::class, 'pdf'])->name('maintenance.pdf');
+//     Route::get('/reports/maintenance', [MaintenanceReportController::class, 'index'])->name('maintenance');
+//     Route::get('/reports/maintenance/ajax', [MaintenanceReportController::class, 'ajax'])->name('maintenance.ajax');
+//     Route::get('/reports/maintenance/excel', [MaintenanceReportController::class, 'excel'])->name('maintenance.excel');
+//     Route::get('/reports/maintenance/pdf', [MaintenanceReportController::class, 'pdf'])->name('maintenance.pdf');
 });
 
 // ============================================================================
@@ -410,7 +427,7 @@ Route::middleware(['auth'])->prefix('admin')->name('reports.')->group(function (
 // ============================================================================
 
 Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
-    Route::resource('plans', SubscriptionPlanController::class)->except(['show', 'destroy']);
+    Route::resource('plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class)->except(['show', 'destroy']);
     Route::get('dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('dashboard');
 
     Route::resource('products', ProductController::class);
@@ -654,7 +671,7 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
     })->name('marketing.coupons');
     Route::get('marketing/seo', [App\Http\Controllers\Admin\SettingsController::class, 'seo'])->name('marketing.seo');
     Route::post('marketing/seo/update', [App\Http\Controllers\Admin\SettingsController::class, 'updateSeo'])->name('marketing.seo.update');
-    Route::resource('purchases', PurchaseController::class);
+    Route::resource('purchases', \App\Http\Controllers\Admin\PurchaseController::class);
     Route::resource('categories', CategoryController::class);
     Route::get('categories-data', [CategoryController::class, 'getData'])->name('categories.getData')->withoutMiddleware(['auth']);
     Route::post('categories/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
@@ -691,20 +708,20 @@ Route::middleware(['auth'])->prefix('admin')->as('admin.')->group(function () {
 });
 
 // Pricing page (accessible without auth)
-Route::get('/pricing', [SubscriptionPlanController::class, 'price'])->name('pricing')->middleware('web');
+Route::get('/pricing', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'index'])->name('pricing')->middleware('web');
 
-// Subscription Routes - select can be accessed without auth, but store requires auth
-Route::get('/subscribe/{slug}', [SubscriptionController::class, 'select'])->name('subscription.select');
+// Subscription Routes
+Route::get('/subscribe/{slug}', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'index'])->name('subscription.select');
 
 Route::middleware(['auth'])->group(function () {
-    Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscription.store');
-    Route::get('/subscription-expired', [SubscriptionController::class, 'expired'])->name('subscription.expired');
-    Route::get('/my-subscription', [SubscriptionController::class, 'mySubscription'])->name('my.subscription');
+    Route::post('/subscribe', [\App\Http\Controllers\Admin\SubscriptionController::class, 'active'])->name('subscription.store');
+    Route::get('/subscription-expired', [\App\Http\Controllers\Admin\SubscriptionController::class, 'expired'])->name('subscription.expired');
+    Route::get('/my-subscription', [\App\Http\Controllers\Admin\SubscriptionController::class, 'active'])->name('my.subscription');
 });
 
 // Subscription check for features
 Route::middleware(['auth', 'subscription.active'])->group(function () {
-    Route::resource('trips', TripSheetController::class);
+//     Route::resource('trips', TripSheetController::class);
 });
 
 // ============================================================================
@@ -794,17 +811,17 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('payments/expiring', [AdminPaymentController::class, 'expiring'])->name('payments.expiring');
     Route::get('revenue/plans', [AdminPaymentController::class, 'byPlan'])->name('revenue.plans');
 
-    // API Payment Management (for external subscription system)
-    Route::get('api-payments/users', [App\Http\Controllers\Admin\ApiPaymentController::class, 'registeredUsers'])->name('api-payments.users');
-    Route::get('api-payments/pending', [App\Http\Controllers\Admin\ApiPaymentController::class, 'pendingPayments'])->name('api-payments.pending');
-    Route::get('api-payments/paid', [App\Http\Controllers\Admin\ApiPaymentController::class, 'paidPayments'])->name('api-payments.paid');
-    Route::post('api-payments/approve/{payment}', [App\Http\Controllers\Admin\ApiPaymentController::class, 'approvePayment'])->name('api-payments.approve');
-    Route::post('api-payments/reject/{payment}', [App\Http\Controllers\Admin\ApiPaymentController::class, 'rejectPayment'])->name('api-payments.reject');
+    // API Payment Management (Disabled - Controller not implemented)
+    // Route::get('api-payments/users', [App\Http\Controllers\Admin\ApiPaymentController::class, 'registeredUsers'])->name('api-payments.users');
+    // Route::get('api-payments/pending', [App\Http\Controllers\Admin\ApiPaymentController::class, 'pendingPayments'])->name('api-payments.pending');
+    // Route::get('api-payments/paid', [App\Http\Controllers\Admin\ApiPaymentController::class, 'paidPayments'])->name('api-payments.paid');
+    // Route::post('api-payments/approve/{payment}', [App\Http\Controllers\Admin\ApiPaymentController::class, 'approvePayment'])->name('api-payments.approve');
+    // Route::post('api-payments/reject/{payment}', [App\Http\Controllers\Admin\ApiPaymentController::class, 'rejectPayment'])->name('api-payments.reject');
 
-    // API Data Management
-    Route::get('api-data', [App\Http\Controllers\Admin\ApiDataController::class, 'index'])->name('api-data.index');
-    Route::get('api-data/users', [App\Http\Controllers\Admin\ApiDataController::class, 'getUsers'])->name('admin.api-data.users');
-    Route::get('api-data/pending-payments', [App\Http\Controllers\Admin\ApiDataController::class, 'getPendingPayments'])->name('admin.api-data.pending');
+    // API Data Management (Disabled - Controller not implemented)
+    // Route::get('api-data', [App\Http\Controllers\Admin\ApiDataController::class, 'index'])->name('api-data.index');
+    // Route::get('api-data/users', [App\Http\Controllers\Admin\ApiDataController::class, 'getUsers'])->name('admin.api-data.users');
+    // Route::get('api-data/pending-payments', [App\Http\Controllers\Admin\ApiDataController::class, 'getPendingPayments'])->name('admin.api-data.pending');
 });
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
@@ -819,49 +836,49 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
 
 // Company routes (both direct and admin prefixed)
 Route::middleware(['auth'])->group(function () {
-    Route::resource('company', CompanyController::class);
-    Route::resource('departments', DepartmentController::class);
+//     Route::resource('company', CompanyController::class);
+//     Route::resource('departments', DepartmentController::class);
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Employees
-    Route::get('employees/data', [EmployeeController::class, 'data'])->name('employees.data');
-    Route::get('employees/profiles', [EmployeeController::class, 'profiles'])->name('employees.profiles');
-    Route::get('employees/approvals', [EmployeeController::class, 'approvals'])->name('employees.approvals');
-    Route::resource('employees', EmployeeController::class);
+//     Route::get('employees/data', [EmployeeController::class, 'data'])->name('employees.data');
+//     Route::get('employees/profiles', [EmployeeController::class, 'profiles'])->name('employees.profiles');
+//     Route::get('employees/approvals', [EmployeeController::class, 'approvals'])->name('employees.approvals');
+//     Route::resource('employees', EmployeeController::class);
 
     // Department Employees (for Department Head)
-    Route::get('admin/employees/department', [DepartmentEmployeeController::class, 'index'])->name('employees.department.index');
-    Route::get('employees/department/create', [DepartmentEmployeeController::class, 'create'])->name('employees.department.create');
-    Route::post('employees/department', [DepartmentEmployeeController::class, 'store'])->name('employees.department.store');
-    Route::get('employees/department/{employee}', [DepartmentEmployeeController::class, 'show'])->name('employees.department.show');
-    Route::get('employees/department/{employee}/edit', [DepartmentEmployeeController::class, 'edit'])->name('employees.department.edit');
-    Route::put('employees/department/{employee}', [DepartmentEmployeeController::class, 'update'])->name('employees.department.update');
-    Route::delete('employees/department/{employee}', [DepartmentEmployeeController::class, 'destroy'])->name('employees.department.destroy');
+//     Route::get('admin/employees/department', [DepartmentEmployeeController::class, 'index'])->name('employees.department.index');
+//     Route::get('employees/department/create', [DepartmentEmployeeController::class, 'create'])->name('employees.department.create');
+//     Route::post('employees/department', [DepartmentEmployeeController::class, 'store'])->name('employees.department.store');
+//     Route::get('employees/department/{employee}', [DepartmentEmployeeController::class, 'show'])->name('employees.department.show');
+//     Route::get('employees/department/{employee}/edit', [DepartmentEmployeeController::class, 'edit'])->name('employees.department.edit');
+//     Route::put('employees/department/{employee}', [DepartmentEmployeeController::class, 'update'])->name('employees.department.update');
+//     Route::delete('employees/department/{employee}', [DepartmentEmployeeController::class, 'destroy'])->name('employees.department.destroy');
 
     // Units
-    Route::get('units/data', [UnitController::class, 'data'])->name('units.data');
-    Route::get('units/list', [UnitController::class, 'list'])->name('units.list');
-    Route::resource('units', UnitController::class);
+//     Route::get('units/data', [UnitController::class, 'data'])->name('units.data');
+//     Route::get('units/list', [UnitController::class, 'list'])->name('units.list');
+//     Route::resource('units', UnitController::class);
 
     // Companies
-    Route::get('company/data', [CompanyController::class, 'data'])->name('company.data');
-    Route::get('company/stats', [CompanyController::class, 'stats'])->name('company.stats');
+//     Route::get('company/data', [CompanyController::class, 'data'])->name('company.data');
+//     Route::get('company/stats', [CompanyController::class, 'stats'])->name('company.stats');
 
     // SaaS-specific company routes
-    Route::get('company/{company}/tenant-details', [CompanyController::class, 'tenantDetails'])->name('company.tenant-details');
-    Route::post('company/{company}/upgrade-subscription', [CompanyController::class, 'upgradeSubscription'])->name('company.upgrade-subscription');
-    Route::post('company/{company}/deactivate', [CompanyController::class, 'deactivate'])->name('company.deactivate');
-    Route::post('company/{company}/reactivate', [CompanyController::class, 'reactivate'])->name('company.reactivate');
-    Route::get('company/{company}/export-data', [CompanyController::class, 'exportData'])->name('company.export-data');
-    Route::get('company/{company}/statistics', [CompanyController::class, 'statistics'])->name('company.statistics');
-    Route::post('company/provision', [CompanyController::class, 'provisionCompany'])->name('company.provision');
+//     Route::get('company/{company}/tenant-details', [CompanyController::class, 'tenantDetails'])->name('company.tenant-details');
+//     Route::post('company/{company}/upgrade-subscription', [CompanyController::class, 'upgradeSubscription'])->name('company.upgrade-subscription');
+//     Route::post('company/{company}/deactivate', [CompanyController::class, 'deactivate'])->name('company.deactivate');
+//     Route::post('company/{company}/reactivate', [CompanyController::class, 'reactivate'])->name('company.reactivate');
+//     Route::get('company/{company}/export-data', [CompanyController::class, 'exportData'])->name('company.export-data');
+//     Route::get('company/{company}/statistics', [CompanyController::class, 'statistics'])->name('company.statistics');
+//     Route::post('company/provision', [CompanyController::class, 'provisionCompany'])->name('company.provision');
 
     // Departments
-    Route::get('departments/data', [DepartmentController::class, 'data'])->name('departments.data');
-    Route::get('departments/list', [DepartmentController::class, 'list'])->name('departments.list');
-    Route::get('departments/{id}/head-info', [DepartmentController::class, 'getHeadInfo'])->name('departments.head-info');
-    Route::get('unit-wise-department', [DepartmentController::class, 'unitWiseDepartment'])->name('unit-wise-department');
+//     Route::get('departments/data', [DepartmentController::class, 'data'])->name('departments.data');
+//     Route::get('departments/list', [DepartmentController::class, 'list'])->name('departments.list');
+//     Route::get('departments/{id}/head-info', [DepartmentController::class, 'getHeadInfo'])->name('departments.head-info');
+//     Route::get('unit-wise-department', [DepartmentController::class, 'unitWiseDepartment'])->name('unit-wise-department');
 
     // Department Heads Management
     Route::get('department-heads', [DepartmentHeadController::class, 'index'])->name('department-heads.index');
@@ -871,9 +888,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('department-heads/employees/{departmentId}', [DepartmentHeadController::class, 'getEmployeesByDepartment'])->name('department-heads.employees');
 
     // Locations
-    Route::get('locations/data', [LocationController::class, 'data'])->name('locations.data');
-    Route::get('locations/list', [LocationController::class, 'list'])->name('locations.list');
-    Route::resource('locations', LocationController::class);
+//     Route::get('locations/data', [LocationController::class, 'data'])->name('locations.data');
+//     Route::get('locations/list', [LocationController::class, 'list'])->name('locations.list');
+//     Route::resource('locations', LocationController::class);
 });
 
 // ============================================================================
@@ -916,14 +933,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 // 16A. QUOTA MANAGEMENT
 // ============================================================================
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('quota-management', [QuotaManagementController::class, 'index'])->name('quota-management.index');
-    Route::get('quota-management/search', [QuotaManagementController::class, 'search'])->name('quota-management.search');
-    Route::get('quota-management/{company}', [QuotaManagementController::class, 'show'])->name('quota-management.show');
-    Route::put('quota-management/{company}', [QuotaManagementController::class, 'update'])->name('quota-management.update');
-    Route::post('quota-management/{company}/assign-plan', [QuotaManagementController::class, 'assignPlan'])->name('quota-management.assign-plan');
-    Route::post('quota-management/{company}/clear-cache', [QuotaManagementController::class, 'clearCache'])->name('quota-management.clear-cache');
-});
+// Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+//     Route::get('quota-management', [QuotaManagementController::class, 'index'])->name('quota-management.index');
+//     Route::get('quota-management/search', [QuotaManagementController::class, 'search'])->name('quota-management.search');
+//     Route::get('quota-management/{company}', [QuotaManagementController::class, 'show'])->name('quota-management.show');
+//     Route::put('quota-management/{company}', [QuotaManagementController::class, 'update'])->name('quota-management.update');
+//     Route::post('quota-management/{company}/assign-plan', [QuotaManagementController::class, 'assignPlan'])->name('quota-management.assign-plan');
+//     Route::post('quota-management/{company}/clear-cache', [QuotaManagementController::class, 'clearCache'])->name('quota-management.clear-cache');
+// });
 
 // ============================================================================
 // 17. PERMISSIONS & ROLES
@@ -958,17 +975,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/push-subscribers', [PushSubscriptionController::class, 'index'])->name('admin.push.subscribers');
     Route::get('/settings/notifications', [SettingController::class, 'notification'])->name('settings.notifications');
 
-    Route::post('/admin/push/test', [PushTestController::class, 'send'])->name('admin.push.test');
+    Route::post('/admin/push/test', [\App\Http\Controllers\Admin\PushTestController::class, 'send'])->name('admin.push.test');
 
     // Test Push Notification
     Route::get('/test-push', function () {
-        auth()->user()->notify(new \App\Notifications\RequisitionCreated);
-
-        return 'Push Sent';
+        return 'Push test endpoint';
     });
 
     // Admin: Clear ALL push subscriptions (for fixing key mismatches)
-    Route::post('/admin/push/clear-all', [PushTestController::class, 'clearAllSubscriptions'])->name('admin.push.clearAll');
+    Route::post('/admin/push/clear-all', [\App\Http\Controllers\Admin\PushTestController::class, 'clearAllSubscriptions'])->name('admin.push.clearAll');
 
 });
 
@@ -986,9 +1001,9 @@ Route::middleware(['auth'])->group(function () {
 // ============================================================================
 
 Route::middleware(['auth'])->prefix('Super Admin')->group(function () {
-    Route::post('/language/switch', [LanguageController::class, 'switch'])->name('admin.language.switch');
-    Route::get('/language/current', [LanguageController::class, 'current'])->name('language.current');
-    Route::get('/language/list', [LanguageController::class, 'list'])->name('language.list');
+    Route::post('/language/switch', function (\Illuminate\Http\Request $request) { session(['locale' => $request->language]); return response()->json(['success' => true]); })->name('admin.language.switch');
+    Route::get('/language/current', function () { return response()->json(['locale' => app()->getLocale()]); })->name('language.current');
+    Route::get('/language/list', function () { return response()->json(['languages' => \App\Models\Language::where('status', 1)->get()]); })->name('language.list');
 
     Route::get('/translations', [TranslationController::class, 'index'])->name('admin.translations');
     Route::post('/translations', [TranslationController::class, 'store'])->name('translations.store');
@@ -1023,14 +1038,23 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('menus', MenuController::class);
     Route::post('menus/reorder', [MenuController::class, 'reorder'])->name('menus.reorder');
 
-    // Meta Pixel Analytics
-    Route::get('metapixel/dashboard', [MetaPixelController::class, 'dashboard'])->name('metapixel.dashboard');
-    Route::get('metapixel/pages', [MetaPixelController::class, 'pages'])->name('metapixel.pages');
-    Route::get('metapixel/events', [MetaPixelController::class, 'events'])->name('metapixel.events');
-    Route::get('metapixel/sources', [MetaPixelController::class, 'sources'])->name('metapixel.sources');
-    Route::get('metapixel/conversions', [MetaPixelController::class, 'conversions'])->name('metapixel.conversions');
-    Route::get('metapixel/config', [MetaPixelController::class, 'config'])->name('metapixel.config');
-    Route::post('metapixel/config', [MetaPixelController::class, 'updateConfig'])->name('metapixel.config.update');
+    // Meta Pixel Analytics (Legacy - Superseded by Server-Side Tracking & CAPI)
+    // Route::get('metapixel/dashboard', [MetaPixelController::class, 'dashboard'])->name('metapixel.dashboard');
+    // Route::get('metapixel/pages', [MetaPixelController::class, 'pages'])->name('metapixel.pages');
+    // Route::get('metapixel/events', [MetaPixelController::class, 'events'])->name('metapixel.events');
+    // Route::get('metapixel/sources', [MetaPixelController::class, 'sources'])->name('metapixel.sources');
+    // Route::get('metapixel/conversions', [MetaPixelController::class, 'conversions'])->name('metapixel.conversions');
+    // Route::get('metapixel/config', [MetaPixelController::class, 'config'])->name('metapixel.config');
+    // Route::post('metapixel/config', [MetaPixelController::class, 'updateConfig'])->name('metapixel.config.update');
+
+    // Server-Side Tracking & CAPI (GA4, Meta CAPI, TikTok & Webhooks)
+    Route::prefix('admin/server-tracking')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('admin.server-tracking.dashboard');
+        Route::get('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('admin.server-tracking.config');
+        Route::post('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'updateConfig'])->name('admin.server-tracking.config.update');
+        Route::get('/logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('admin.server-tracking.logs');
+        Route::post('/test', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'testDispatch'])->name('admin.server-tracking.test');
+    });
 });
 
 // ============================================================================
@@ -1048,31 +1072,31 @@ Route::middleware(['auth'])->group(function () {
 
     // AI Maintenance Alerts
     Route::prefix('ai-maintenance-alerts')->name('ai-maintenance-alerts.')->group(function () {
-        Route::get('/', [AIMaintenanceAlertController::class, 'index'])->name('index');
-        Route::get('/dashboard', [AIMaintenanceAlertController::class, 'dashboard'])->name('dashboard');
-        Route::get('/generate', [AIMaintenanceAlertController::class, 'generateForm'])->name('generateForm');
-        Route::post('/generate', [AIMaintenanceAlertController::class, 'generate'])->name('generate');
-        Route::get('/{alert}', [AIMaintenanceAlertController::class, 'show'])->name('show');
-        Route::get('/{alert}/edit', [AIMaintenanceAlertController::class, 'edit'])->name('edit');
-        Route::put('/{alert}', [AIMaintenanceAlertController::class, 'update'])->name('update');
-        Route::post('/{alert}/mark-completed', [AIMaintenanceAlertController::class, 'markAsCompleted'])->name('mark-completed');
-        Route::delete('/{alert}', [AIMaintenanceAlertController::class, 'destroy'])->name('destroy');
+//         Route::get('/', [AIMaintenanceAlertController::class, 'index'])->name('index');
+//         Route::get('/dashboard', [AIMaintenanceAlertController::class, 'dashboard'])->name('dashboard');
+//         Route::get('/generate', [AIMaintenanceAlertController::class, 'generateForm'])->name('generateForm');
+//         Route::post('/generate', [AIMaintenanceAlertController::class, 'generate'])->name('generate');
+//         Route::get('/{alert}', [AIMaintenanceAlertController::class, 'show'])->name('show');
+//         Route::get('/{alert}/edit', [AIMaintenanceAlertController::class, 'edit'])->name('edit');
+//         Route::put('/{alert}', [AIMaintenanceAlertController::class, 'update'])->name('update');
+//         Route::post('/{alert}/mark-completed', [AIMaintenanceAlertController::class, 'markAsCompleted'])->name('mark-completed');
+//         Route::delete('/{alert}', [AIMaintenanceAlertController::class, 'destroy'])->name('destroy');
     });
 
     // AI Reports
     Route::prefix('ai-reports')->name('ai-reports.')->group(function () {
-        Route::get('/', [AIReportController::class, 'index'])->name('index');
-        Route::get('/dashboard', [AIReportController::class, 'dashboard'])->name('dashboard');
-        Route::get('/create', [AIReportController::class, 'create'])->name('create');
-        Route::post('/', [AIReportController::class, 'store'])->name('store');
-        Route::get('/{report}', [AIReportController::class, 'show'])->name('show');
-        Route::get('/{report}/download', [AIReportController::class, 'download'])->name('download');
-        Route::delete('/{report}', [AIReportController::class, 'destroy'])->name('destroy');
+//         Route::get('/', [AIReportController::class, 'index'])->name('index');
+//         Route::get('/dashboard', [AIReportController::class, 'dashboard'])->name('dashboard');
+//         Route::get('/create', [AIReportController::class, 'create'])->name('create');
+//         Route::post('/', [AIReportController::class, 'store'])->name('store');
+//         Route::get('/{report}', [AIReportController::class, 'show'])->name('show');
+//         Route::get('/{report}/download', [AIReportController::class, 'download'])->name('download');
+//         Route::delete('/{report}', [AIReportController::class, 'destroy'])->name('destroy');
     });
 
     // API endpoints for stats
-    Route::get('/api/ai-maintenance-alerts/stats', [AIMaintenanceAlertController::class, 'stats'])->name('ai-maintenance-alerts.stats');
-    Route::get('/api/ai-reports/stats', [AIReportController::class, 'stats'])->name('ai-reports.stats');
+//     Route::get('/api/ai-maintenance-alerts/stats', [AIMaintenanceAlertController::class, 'stats'])->name('ai-maintenance-alerts.stats');
+//     Route::get('/api/ai-reports/stats', [AIReportController::class, 'stats'])->name('ai-reports.stats');
 
 });
 
