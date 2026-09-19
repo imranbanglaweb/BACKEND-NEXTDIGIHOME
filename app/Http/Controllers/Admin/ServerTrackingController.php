@@ -193,17 +193,39 @@ class ServerTrackingController extends Controller
         $request->validate([
             'provider' => 'required|string|in:meta_capi,ga4,tiktok,webhook',
             'event_name' => 'nullable|string|max:50',
+            'test_event_code' => 'nullable|string|max:100',
         ]);
 
         $provider = $request->input('provider');
         $eventName = $request->input('event_name', 'Lead');
+        $testEventCode = $request->input('test_event_code');
 
-        $result = $this->trackingService->testDispatch($provider, $eventName);
+        $result = $this->trackingService->testDispatch($provider, $eventName, $testEventCode);
 
         return response()->json([
             'success' => ($result['status'] ?? '') === 'success',
             'provider' => $provider,
+            'event_name' => $eventName,
             'result' => $result,
         ]);
+    }
+
+    /**
+     * Clear server tracking audit logs.
+     */
+    public function clearLogs(Request $request)
+    {
+        if (Schema::hasTable('server_tracking_logs')) {
+            if ($request->filled('provider')) {
+                ServerTrackingLog::where('provider', $request->input('provider'))->delete();
+                $msg = 'Audit logs cleared for ' . strtoupper($request->input('provider')) . '.';
+            } else {
+                ServerTrackingLog::truncate();
+                $msg = 'All server tracking audit logs cleared successfully.';
+            }
+            return redirect()->back()->with('success', $msg);
+        }
+
+        return redirect()->back()->with('error', 'Tracking logs table does not exist.');
     }
 }

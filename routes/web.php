@@ -1054,6 +1054,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'updateConfig'])->name('admin.server-tracking.config.update');
         Route::get('/logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('admin.server-tracking.logs');
         Route::post('/test', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'testDispatch'])->name('admin.server-tracking.test');
+        Route::post('/clear-logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'clearLogs'])->name('admin.server-tracking.clear-logs');
     });
 });
 

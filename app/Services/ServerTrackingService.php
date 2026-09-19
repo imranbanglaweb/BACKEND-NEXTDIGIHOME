@@ -375,7 +375,8 @@ class ServerTrackingService
         array $customData,
         string $eventSourceUrl,
         ?string $leadId = null,
-        ?string $orderId = null
+        ?string $orderId = null,
+        ?string $customTestCode = null
     ): array {
         $config = $this->getMetaCAPIConfig();
         if (!$config['enabled']) {
@@ -431,8 +432,9 @@ class ServerTrackingService
                 'data' => [$eventPayload],
             ];
 
-            if (!empty($config['test_event_code'])) {
-                $requestBody['test_event_code'] = $config['test_event_code'];
+            $activeTestCode = $customTestCode ?: ($config['test_event_code'] ?? null);
+            if (!empty($activeTestCode)) {
+                $requestBody['test_event_code'] = $activeTestCode;
             }
 
             $url = "https://graph.facebook.com/{$version}/{$pixelId}/events";
@@ -545,7 +547,8 @@ class ServerTrackingService
         array $properties,
         string $eventSourceUrl,
         ?string $leadId = null,
-        ?string $orderId = null
+        ?string $orderId = null,
+        ?string $customTestCode = null
     ): array {
         $config = $this->getTikTokConfig();
         if (!$config['enabled']) {
@@ -582,8 +585,9 @@ class ServerTrackingService
                 'properties' => $properties,
             ];
 
-            if (!empty($config['test_event_code'])) {
-                $payload['test_event_code'] = $config['test_event_code'];
+            $activeTestCode = $customTestCode ?: ($config['test_event_code'] ?? null);
+            if (!empty($activeTestCode)) {
+                $payload['test_event_code'] = $activeTestCode;
             }
 
             $url = 'https://business-api.tiktok.com/open_api/v1.3/event/track/';
@@ -624,6 +628,7 @@ class ServerTrackingService
     {
         $config = $this->getWebhookConfig();
         if (!$config['enabled']) {
+            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, 'skipped', null, $payload, ['message' => 'Webhook disabled or missing URL'], null, $leadId, $orderId);
             return ['status' => 'skipped', 'message' => 'Webhook disabled'];
         }
 
@@ -658,108 +663,6 @@ class ServerTrackingService
                 'status' => 'failed',
                 'error' => $e->getMessage(),
             ];
-        }
-    }
-
-    /**
-     * Execute live test dispatch for Admin UI verification.
-     */
-    public function testDispatch(string $provider, string $eventName = 'Lead'): array
-    {
-        $testEventId = 'test_' . time() . '_' . Str::random(6);
-        $testEmail = 'test.lead.' . time() . '@nextdigihome.com';
-        $testPhone = '+15551234567';
-
-        switch ($provider) {
-            case 'meta_capi':
-                return $this->sendMetaCapi(
-                    $eventName,
-                    $testEventId,
-                    [
-                        'email' => $testEmail,
-                        'phone' => $testPhone,
-                        'name' => 'NextDigiHome Test Lead',
-                        'client_ip_address' => '127.0.0.1',
-                        'client_user_agent' => 'Mozilla/5.0 (NextDigiHome Test Suite)',
-                    ],
-                    [
-                        'value' => 2500,
-                        'currency' => 'USD',
-                        'content_name' => 'Software Engineering Test Consultation',
-                        'test_mode' => true,
-                    ],
-                    url('/contact?test=1'),
-                    'NDH-TEST-' . rand(1000, 9999)
-                );
-
-            case 'ga4':
-                $config = $this->getGA4Config();
-                // Temporarily force debug URL for immediate schema feedback
-                $measurementId = $config['measurement_id'];
-                $apiSecret = $config['api_secret'];
-                if (empty($measurementId) || empty($apiSecret)) {
-                    return [
-                        'status' => 'failed',
-                        'message' => 'GA4 Measurement ID or API Secret is missing in settings',
-                    ];
-                }
-
-                $debugUrl = "https://www.google-analytics.com/debug/mp/collect?api_secret={$apiSecret}&measurement_id={$measurementId}";
-                $payload = [
-                    'client_id' => 'test_' . time() . '.' . rand(100000, 999999),
-                    'events' => [
-                        [
-                            'name' => 'generate_lead',
-                            'params' => [
-                                'currency' => 'USD',
-                                'value' => 2500,
-                                'transaction_id' => 'NDH-TEST-' . rand(1000, 9999),
-                                'service' => 'SaaS Architecture & Next.js',
-                                'source' => 'server_test_console',
-                            ],
-                        ]
-                    ],
-                ];
-
-                $response = Http::timeout(5)->asJson()->post($debugUrl, $payload);
-                $responseJson = $response->json() ?: ['body' => $response->body()];
-                $status = $response->successful() && empty($responseJson['validationMessages']) ? 'success' : 'failed';
-
-                $this->logEvent('ga4', 'generate_lead', null, $status, $response->status(), $payload, $responseJson, null, 'NDH-TEST');
-
-                return [
-                    'status' => $status,
-                    'http_code' => $response->status(),
-                    'response' => $responseJson,
-                ];
-
-            case 'tiktok':
-                return $this->sendTikTok(
-                    'SubmitForm',
-                    $testEventId,
-                    [
-                        'email' => $testEmail,
-                        'phone' => $testPhone,
-                        'client_ip_address' => '127.0.0.1',
-                        'client_user_agent' => 'Mozilla/5.0 (NextDigiHome Test Suite)',
-                    ],
-                    [
-                        'value' => 2500,
-                        'currency' => 'USD',
-                    ],
-                    url('/contact?test=1'),
-                    'NDH-TEST'
-                );
-
-            case 'webhook':
-                return $this->sendWebhook('test_event', [
-                    'event_id' => $testEventId,
-                    'message' => 'Server tracking test dispatch from NextDigiHome Admin Console',
-                    'timestamp' => now()->toISOString(),
-                ], 'NDH-TEST');
-
-            default:
-                return ['status' => 'failed', 'message' => "Unknown provider: {$provider}"];
         }
     }
 
@@ -931,7 +834,9 @@ class ServerTrackingService
                     $testUserData,
                     $testCustomData,
                     $sourceUrl,
-                    $testLeadId
+                    $testLeadId,
+                    null,
+                    $customTestCode
                 );
                 break;
 
@@ -959,7 +864,9 @@ class ServerTrackingService
                     $testUserData,
                     $testCustomData,
                     $sourceUrl,
-                    $testLeadId
+                    $testLeadId,
+                    null,
+                    $customTestCode
                 );
                 break;
 
