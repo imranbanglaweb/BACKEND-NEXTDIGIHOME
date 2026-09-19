@@ -3,99 +3,206 @@
 @section('title', 'Server-Side Tracking & CAPI Console - ' . config('app.name'))
 
 @section('main_content')
-<section class="content-body py-4" style="background: linear-gradient(135deg, #0b0d14 0%, #111827 50%, #0d1322 100%); min-height: 100vh; color: #f1f5f9;">
+@include('admin.partials.premium-ui')
+
+<style>
+    .tracking-pipeline-step {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px;
+        height: 100%;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .tracking-pipeline-step:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        transform: translateY(-2px);
+    }
+    .tracking-pipeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+    .provider-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        padding: 22px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.2s ease;
+    }
+    .provider-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        transform: translateY(-2px);
+    }
+    .provider-icon-badge {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .copy-pill-btn {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-family: monospace;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .copy-pill-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    .status-badge-active {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .status-badge-disabled {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .channel-meta { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .channel-ga4 { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .channel-tiktok { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+    .channel-webhook { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+</style>
+
+<div class="premium-page">
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.07) !important;">
-            <div class="d-flex align-items-center mb-2 mb-md-0">
-                <div style="background: linear-gradient(135deg, #00d4aa 0%, #0284c7 100%); color: #070b14; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 24px rgba(0, 212, 170, 0.35);">
-                    <i class="fas fa-satellite-dish"></i>
+
+        <!-- Hero Header -->
+        <div class="premium-header">
+            <div>
+                <div class="premium-eyebrow">
+                    <i class="fas fa-satellite-dish mr-1"></i> Cloud Conversion Architecture
                 </div>
-                <div class="ml-3">
-                    <h3 class="font-weight-bold text-white mb-0" style="letter-spacing: -0.5px;">
-                        Server-Side Tracking &amp; CAPI Console
-                    </h3>
-                    <p class="text-muted small mb-0 mt-1">
-                        Edge deduplication &bull; SHA-256 data normalization &bull; Direct cloud dispatch to Meta CAPI, Google Analytics 4, TikTok &amp; sGTM
-                    </p>
-                </div>
+                <h2>Server-Side Tracking &amp; CAPI Console</h2>
+                <p>Real-time edge deduplication, SHA-256 privacy normalization &amp; direct cloud conversion dispatch</p>
             </div>
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <button type="button" class="btn btn-sm mr-2" data-toggle="modal" data-target="#quickTestModal" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border: none; font-weight: 600; padding: 7px 16px; border-radius: 8px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);">
-                    <i class="fas fa-bolt mr-1"></i> Live Test Dispatch
+            <div class="premium-actions">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickTestModal">
+                    <i class="fas fa-bolt"></i> Live Test Dispatch
                 </button>
-                <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-sm btn-outline-info mr-2" style="border-radius: 8px; padding: 7px 14px; border-color: rgba(56, 189, 248, 0.4);">
-                    <i class="fas fa-list mr-1"></i> Audit Logs
+                <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-outline-light">
+                    <i class="fas fa-list"></i> Audit Logs
                 </a>
-                <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-sm btn-primary" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border: none; border-radius: 8px; padding: 7px 16px; font-weight: 600;">
-                    <i class="fas fa-sliders-h mr-1"></i> Pipeline Config
+                <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-outline-light">
+                    <i class="fas fa-sliders-h"></i> Configuration
                 </a>
             </div>
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; border-radius: 12px;">
-                <i class="fas fa-check-circle mr-2" style="font-size: 18px;"></i>
-                <div>{{ session('success') }}</div>
-                <button type="button" class="close text-white ml-auto" data-dismiss="alert" aria-label="Close" style="opacity: 0.8;">
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert" style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 10px;">
+                <i class="fas fa-check-circle mr-2" style="font-size: 16px;"></i>
+                <div class="font-weight-500">{{ session('success') }}</div>
+                <button type="button" class="close text-dark ml-auto" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
         @endif
 
-        <!-- Visual Tracking Pipeline Architecture Flow -->
-        <div class="card border-0 mb-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-            <div class="card-body p-3 p-md-4">
+        <!-- Navigation Tabs Bar -->
+        <div class="premium-nav">
+            <a href="{{ route('admin.server-tracking.dashboard') }}" class="active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+            </a>
+            <a href="{{ route('admin.server-tracking.config') }}">
+                <i class="fas fa-sliders-h"></i> Pipeline Credentials
+            </a>
+            <a href="{{ route('admin.server-tracking.logs') }}">
+                <i class="fas fa-list-alt"></i> Audit Logs &amp; Inspector
+                <span class="badge badge-secondary ml-1">{{ number_format($totalEvents) }}</span>
+            </a>
+        </div>
+
+        <!-- 4-Stage Architecture Diagram Card -->
+        <div class="card border-0 mb-4" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-uppercase small font-weight-bold" style="color: #38bdf8; letter-spacing: 1px;">
-                        <i class="fas fa-project-diagram mr-1"></i> Dual-Tagging Architecture Pipeline
+                    <span class="text-uppercase small font-weight-bold" style="color: #0284c7; letter-spacing: 0.5px;">
+                        <i class="fas fa-project-diagram mr-1"></i> Dual-Tagging Hybrid Tracking Pipeline
                     </span>
-                    <span class="badge badge-pill badge-dark font-mono text-muted" style="border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px;">
-                        Zero Ad-Blocker Loss &bull; Deduplication Enabled
+                    <span class="badge badge-pill badge-light text-muted border font-mono" style="font-size: 11px;">
+                        Zero Signal Loss &bull; SHA-256 Hashing &bull; Deduplicated
                     </span>
                 </div>
-
-                <div class="row text-center position-relative">
-                    <!-- Step 1 -->
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-                        <div class="p-3 rounded-lg h-100" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
-                            <div class="mb-2" style="color: #60a5fa; font-size: 20px;"><i class="fas fa-desktop"></i></div>
-                            <h6 class="font-weight-bold text-white mb-1" style="font-size: 13px;">1. Client Browser</h6>
-                            <p class="text-muted mb-0" style="font-size: 11px;">Pixel + Cookies (<code>_fbp</code>, <code>_fbc</code>, <code>_ga</code>) + UTM params</p>
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                        <div class="tracking-pipeline-step">
+                            <div class="tracking-pipeline-icon" style="background: #eff6ff; color: #2563eb;">
+                                <i class="fas fa-desktop"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-dark mb-1" style="font-size: 14px;">1. Client Browser</h6>
+                            <p class="text-muted small mb-0">Captures pixel hits, cookies (<code>_fbp</code>, <code>_fbc</code>, <code>_ga</code>) &amp; campaign UTMs</p>
                         </div>
                     </div>
-
-                    <!-- Step 2 -->
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-                        <div class="p-3 rounded-lg h-100" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
-                            <div class="mb-2" style="color: #34d399; font-size: 20px;"><i class="fas fa-server"></i></div>
-                            <h6 class="font-weight-bold text-white mb-1" style="font-size: 13px;">2. NextDigiHome Server</h6>
-                            <p class="text-muted mb-0" style="font-size: 11px;">Inquiry &amp; order ingestion, deterministic <code>event_id</code> assignment</p>
+                    <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                        <div class="tracking-pipeline-step">
+                            <div class="tracking-pipeline-icon" style="background: #ecfdf5; color: #059669;">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-dark mb-1" style="font-size: 14px;">2. NextDigiHome Edge</h6>
+                            <p class="text-muted small mb-0">Ingests conversion requests &amp; assigns deterministic <code>event_id</code> for deduplication</p>
                         </div>
                     </div>
-
-                    <!-- Step 3 -->
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-                        <div class="p-3 rounded-lg h-100" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
-                            <div class="mb-2" style="color: #fbbf24; font-size: 20px;"><i class="fas fa-fingerprint"></i></div>
-                            <h6 class="font-weight-bold text-white mb-1" style="font-size: 13px;">3. Privacy Normalization</h6>
-                            <p class="text-muted mb-0" style="font-size: 11px;">SHA-256 hashed emails/phones, IP &amp; User Agent sanitization</p>
+                    <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                        <div class="tracking-pipeline-step">
+                            <div class="tracking-pipeline-icon" style="background: #fffbeb; color: #d97706;">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-dark mb-1" style="font-size: 14px;">3. Privacy Normalization</h6>
+                            <p class="text-muted small mb-0">Normalizes and hashes customer emails &amp; phones via SHA-256 (GDPR/CCPA compliant)</p>
                         </div>
                     </div>
-
-                    <!-- Step 4 -->
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-                        <div class="p-3 rounded-lg h-100" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
-                            <div class="mb-2" style="color: #a78bfa; font-size: 20px;"><i class="fas fa-cloud-upload-alt"></i></div>
-                            <h6 class="font-weight-bold text-white mb-1" style="font-size: 13px;">4. Direct Cloud APIs</h6>
-                            <p class="text-muted mb-0" style="font-size: 11px;">Meta CAPI, GA4 Measurement Protocol, TikTok Events API &amp; Webhook</p>
+                    <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                        <div class="tracking-pipeline-step">
+                            <div class="tracking-pipeline-icon" style="background: #f5f3ff; color: #7c3aed;">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-dark mb-1" style="font-size: 14px;">4. Direct Cloud APIs</h6>
+                            <p class="text-muted small mb-0">Delivers encrypted payloads straight to Meta CAPI, GA4 Protocol, TikTok &amp; Webhooks</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- KPI Metrics Grid -->
+        <!-- KPI Metrics Row -->
         @php
             $successRate = $totalEvents > 0 ? round(($totalSuccess / $totalEvents) * 100, 1) : 100;
             $activePipelines = 0;
@@ -106,116 +213,119 @@
         @endphp
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100 p-3" style="background: rgba(15, 23, 42, 0.85); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.07); box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small uppercase font-weight-bold" style="letter-spacing: 0.5px;">Total Dispatches</span>
-                        <div style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-paper-plane"></i>
-                        </div>
+                <div class="premium-stat">
+                    <div class="premium-icon premium-blue">
+                        <i class="fas fa-paper-plane"></i>
                     </div>
-                    <h2 class="font-weight-bold text-white mb-1">{{ number_format($totalEvents) }}</h2>
-                    <span class="text-muted small"><i class="fas fa-history mr-1"></i> Recorded server transactions</span>
-                </div>
-            </div>
-
-            <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100 p-3" style="background: rgba(15, 23, 42, 0.85); border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.25); box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small uppercase font-weight-bold" style="color: #34d399; letter-spacing: 0.5px;">Delivery Success</span>
-                        <div style="background: rgba(16, 185, 129, 0.12); color: #34d399; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-double"></i>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-baseline mb-1">
-                        <h2 class="font-weight-bold mb-0 text-white mr-2">{{ number_format($totalSuccess) }}</h2>
-                        <span class="badge badge-pill badge-success" style="font-size: 11px;">{{ $successRate }}%</span>
-                    </div>
-                    <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $successRate }}%"></div>
+                    <div>
+                        <small>Total Server Dispatches</small>
+                        <strong>{{ number_format($totalEvents) }}</strong>
+                        <span class="text-muted" style="font-size: 11px;">Recorded edge transactions</span>
                     </div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100 p-3" style="background: rgba(15, 23, 42, 0.85); border-radius: 14px; border: 1px solid rgba(244, 63, 94, 0.25); box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small uppercase font-weight-bold" style="color: #fb7185; letter-spacing: 0.5px;">Failed / Dropped</span>
-                        <div style="background: rgba(244, 63, 94, 0.12); color: #fb7185; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-exclamation-triangle"></i>
+                <div class="premium-stat">
+                    <div class="premium-icon premium-green">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center">
+                            <small class="mb-0 mr-2">Delivery Success</small>
+                            <span class="badge badge-success" style="font-size: 10px; border-radius: 10px;">{{ $successRate }}%</span>
+                        </div>
+                        <strong>{{ number_format($totalSuccess) }}</strong>
+                        <div class="progress mt-1" style="height: 4px; width: 110px; background: #e2e8f0;">
+                            <div class="progress-bar bg-success" style="width: {{ $successRate }}%"></div>
                         </div>
                     </div>
-                    <h2 class="font-weight-bold mb-1" style="color: {{ $totalFailed > 0 ? '#f43f5e' : '#ffffff' }};">{{ number_format($totalFailed) }}</h2>
-                    <span class="text-muted small">
-                        @if($totalFailed > 0)
-                            <span class="text-danger"><i class="fas fa-times-circle mr-1"></i> Check logs for error diagnostics</span>
-                        @else
-                            <span class="text-success"><i class="fas fa-shield-alt mr-1"></i> Clean pipeline, zero drops</span>
-                        @endif
-                    </span>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100 p-3" style="background: rgba(15, 23, 42, 0.85); border-radius: 14px; border: 1px solid rgba(139, 92, 246, 0.25); box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small uppercase font-weight-bold" style="color: #a78bfa; letter-spacing: 0.5px;">Active Cloud Channels</span>
-                        <div style="background: rgba(139, 92, 246, 0.12); color: #a78bfa; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-broadcast-tower"></i>
-                        </div>
+                <div class="premium-stat">
+                    <div class="premium-icon {{ $totalFailed > 0 ? 'premium-red' : 'premium-amber' }}">
+                        <i class="fas {{ $totalFailed > 0 ? 'fa-exclamation-triangle' : 'fa-shield-alt' }}"></i>
                     </div>
-                    <div class="d-flex align-items-baseline mb-1">
-                        <h2 class="font-weight-bold text-white mb-0 mr-2">{{ $activePipelines }} / 4</h2>
-                        <span class="badge badge-pill badge-info" style="font-size: 11px;">Pipelines Active</span>
+                    <div>
+                        <small>Failed / Dropped</small>
+                        <strong class="{{ $totalFailed > 0 ? 'text-danger' : 'text-dark' }}">{{ number_format($totalFailed) }}</strong>
+                        <span class="text-muted" style="font-size: 11px;">
+                            {{ $totalFailed > 0 ? 'Review audit logs for details' : 'Clean pipeline, zero drops' }}
+                        </span>
                     </div>
-                    <span class="text-muted small"><i class="fas fa-plug mr-1"></i> Meta, GA4, TikTok, sGTM</span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="premium-stat">
+                    <div class="premium-icon premium-purple">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <div>
+                        <small>Active Cloud Channels</small>
+                        <strong>{{ $activePipelines }} <span style="font-size: 14px; color: #64748b; font-weight: normal;">/ 4 Active</span></strong>
+                        <span class="text-muted" style="font-size: 11px;">Meta, GA4, TikTok, sGTM</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Provider Status & Control Cards -->
-        <h5 class="font-weight-bold text-white mb-3 d-flex align-items-center">
-            <i class="fas fa-cubes mr-2 text-primary"></i> Tracking Pipelines &amp; Dispatch Status
-        </h5>
+        <!-- Provider Control & Status Cards -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="font-weight-bold text-dark mb-0">
+                <i class="fas fa-cubes text-primary mr-1"></i> Conversion Dispatch Channels
+            </h5>
+            <span class="text-muted small">Instant test dispatch and channel status</span>
+        </div>
+
         <div class="row mb-4">
             <!-- Meta CAPI Card -->
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid {{ !empty($metaConfig['enabled']) ? 'rgba(0,212,170,0.35)' : 'rgba(255,255,255,0.08)' }} !important; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div style="background: rgba(24, 119, 242, 0.15); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fab fa-facebook" style="font-size: 24px; color: #1877f2;"></i>
-                                </div>
-                                <span class="badge {{ !empty($metaConfig['enabled']) ? 'badge-success' : 'badge-secondary' }}" style="font-size: 11px; padding: 5px 10px; border-radius: 20px;">
-                                    {{ !empty($metaConfig['enabled']) ? '● Active' : '○ Disabled' }}
-                                </span>
+                <div class="provider-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="provider-icon-badge" style="background: #eff6ff;">
+                                <i class="fab fa-facebook text-primary"></i>
                             </div>
+                            @if(!empty($metaConfig['enabled']))
+                                <span class="status-badge-active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
+                            @else
+                                <span class="status-badge-disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Disabled</span>
+                            @endif
+                        </div>
+                        <h5 class="font-weight-bold text-dark mb-1">Meta Conversions API</h5>
+                        <p class="text-muted small mb-3">Meta Graph API v{{ $metaConfig['version'] ?? '18.0' }}</p>
 
-                            <h5 class="font-weight-bold text-white mb-1">Meta CAPI</h5>
-                            <p class="text-muted small mb-2">Conversions API v{{ $metaConfig['version'] ?? '18.0' }}</p>
-
-                            <div class="p-2 rounded mb-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);">
-                                <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase;">Pixel / Dataset ID</span>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="font-mono text-white small text-truncate" style="max-width: 150px;">{{ !empty($metaConfig['pixel_id']) ? $metaConfig['pixel_id'] : 'Not Configured' }}</span>
-                                    @if(!empty($metaConfig['pixel_id']))
-                                    <button type="button" class="btn btn-link btn-xs text-muted p-0" onclick="navigator.clipboard.writeText('{{ $metaConfig['pixel_id'] }}'); alert('Pixel ID copied!');">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    @endif
-                                </div>
+                        <div class="p-2 rounded mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase; font-weight: 700;">Pixel / Dataset ID</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="font-mono text-dark small text-truncate" style="max-width: 140px;">
+                                    {{ !empty($metaConfig['pixel_id']) ? $metaConfig['pixel_id'] : 'Not Configured' }}
+                                </span>
+                                @if(!empty($metaConfig['pixel_id']))
+                                <button type="button" class="copy-pill-btn" onclick="navigator.clipboard.writeText('{{ $metaConfig['pixel_id'] }}'); alert('Pixel ID copied!');">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                @endif
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
-                                <div>
-                                    <span class="text-muted" style="font-size: 11px;">Dispatched:</span>
-                                    <span class="font-weight-bold text-white ml-1">{{ number_format($metaCount) }}</span>
-                                </div>
-                                <button type="button" class="btn btn-sm trigger-test-btn" data-provider="meta_capi" data-provider-name="Meta CAPI" style="background: rgba(0, 212, 170, 0.15); border: 1px solid rgba(0, 212, 170, 0.4); color: #00d4aa; border-radius: 6px; font-weight: 600; font-size: 11px; padding: 4px 10px;">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: #f1f5f9 !important;">
+                            <div>
+                                <span class="text-muted small">Dispatched:</span>
+                                <strong class="text-dark ml-1">{{ number_format($metaCount) }}</strong>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-xs btn-outline-primary trigger-test-btn" data-provider="meta_capi" data-provider-name="Meta CAPI" style="border-radius: 6px; padding: 4px 10px; font-weight: 600;">
                                     <i class="fas fa-bolt mr-1"></i> Test
                                 </button>
+                                <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-xs btn-outline-secondary ml-1" style="border-radius: 6px; padding: 4px 8px;">
+                                    <i class="fas fa-cog"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -224,43 +334,49 @@
 
             <!-- GA4 Measurement Protocol Card -->
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid {{ !empty($ga4Config['enabled']) ? 'rgba(56,189,248,0.35)' : 'rgba(255,255,255,0.08)' }} !important; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div style="background: rgba(245, 158, 11, 0.15); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fab fa-google" style="font-size: 22px; color: #f59e0b;"></i>
-                                </div>
-                                <span class="badge {{ !empty($ga4Config['enabled']) ? 'badge-info' : 'badge-secondary' }}" style="font-size: 11px; padding: 5px 10px; border-radius: 20px;">
-                                    {{ !empty($ga4Config['enabled']) ? '● Active' : '○ Disabled' }}
-                                </span>
+                <div class="provider-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="provider-icon-badge" style="background: #fffbeb;">
+                                <i class="fab fa-google text-warning"></i>
                             </div>
+                            @if(!empty($ga4Config['enabled']))
+                                <span class="status-badge-active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
+                            @else
+                                <span class="status-badge-disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Disabled</span>
+                            @endif
+                        </div>
+                        <h5 class="font-weight-bold text-dark mb-1">Google Analytics 4</h5>
+                        <p class="text-muted small mb-3">Measurement Protocol API</p>
 
-                            <h5 class="font-weight-bold text-white mb-1">Google Analytics 4</h5>
-                            <p class="text-muted small mb-2">Measurement Protocol API</p>
-
-                            <div class="p-2 rounded mb-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);">
-                                <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase;">Measurement ID</span>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="font-mono text-white small text-truncate" style="max-width: 150px;">{{ !empty($ga4Config['measurement_id']) ? $ga4Config['measurement_id'] : 'Not Configured' }}</span>
-                                    @if(!empty($ga4Config['measurement_id']))
-                                    <button type="button" class="btn btn-link btn-xs text-muted p-0" onclick="navigator.clipboard.writeText('{{ $ga4Config['measurement_id'] }}'); alert('GA4 ID copied!');">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    @endif
-                                </div>
+                        <div class="p-2 rounded mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase; font-weight: 700;">Measurement ID</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="font-mono text-dark small text-truncate" style="max-width: 140px;">
+                                    {{ !empty($ga4Config['measurement_id']) ? $ga4Config['measurement_id'] : 'Not Configured' }}
+                                </span>
+                                @if(!empty($ga4Config['measurement_id']))
+                                <button type="button" class="copy-pill-btn" onclick="navigator.clipboard.writeText('{{ $ga4Config['measurement_id'] }}'); alert('GA4 ID copied!');">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                @endif
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
-                                <div>
-                                    <span class="text-muted" style="font-size: 11px;">Dispatched:</span>
-                                    <span class="font-weight-bold text-white ml-1">{{ number_format($ga4Count) }}</span>
-                                </div>
-                                <button type="button" class="btn btn-sm trigger-test-btn" data-provider="ga4" data-provider-name="GA4 Protocol" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; border-radius: 6px; font-weight: 600; font-size: 11px; padding: 4px 10px;">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: #f1f5f9 !important;">
+                            <div>
+                                <span class="text-muted small">Dispatched:</span>
+                                <strong class="text-dark ml-1">{{ number_format($ga4Count) }}</strong>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-xs btn-outline-warning text-dark trigger-test-btn" data-provider="ga4" data-provider-name="GA4 Protocol" style="border-radius: 6px; padding: 4px 10px; font-weight: 600;">
                                     <i class="fas fa-bolt mr-1"></i> Test
                                 </button>
+                                <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-xs btn-outline-secondary ml-1" style="border-radius: 6px; padding: 4px 8px;">
+                                    <i class="fas fa-cog"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -269,43 +385,49 @@
 
             <!-- TikTok Events API Card -->
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid {{ !empty($tiktokConfig['enabled']) ? 'rgba(244,63,94,0.35)' : 'rgba(255,255,255,0.08)' }} !important; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div style="background: rgba(254, 44, 85, 0.15); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fab fa-tiktok" style="font-size: 22px; color: #fe2c55;"></i>
-                                </div>
-                                <span class="badge {{ !empty($tiktokConfig['enabled']) ? 'badge-danger' : 'badge-secondary' }}" style="font-size: 11px; padding: 5px 10px; border-radius: 20px;">
-                                    {{ !empty($tiktokConfig['enabled']) ? '● Active' : '○ Disabled' }}
-                                </span>
+                <div class="provider-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="provider-icon-badge" style="background: #fff1f2;">
+                                <i class="fab fa-tiktok text-danger"></i>
                             </div>
+                            @if(!empty($tiktokConfig['enabled']))
+                                <span class="status-badge-active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
+                            @else
+                                <span class="status-badge-disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Disabled</span>
+                            @endif
+                        </div>
+                        <h5 class="font-weight-bold text-dark mb-1">TikTok Events API</h5>
+                        <p class="text-muted small mb-3">Business API v1.3</p>
 
-                            <h5 class="font-weight-bold text-white mb-1">TikTok Events API</h5>
-                            <p class="text-muted small mb-2">Business Open API v1.3</p>
-
-                            <div class="p-2 rounded mb-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);">
-                                <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase;">Pixel Code</span>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="font-mono text-white small text-truncate" style="max-width: 150px;">{{ !empty($tiktokConfig['pixel_code']) ? $tiktokConfig['pixel_code'] : 'Not Configured' }}</span>
-                                    @if(!empty($tiktokConfig['pixel_code']))
-                                    <button type="button" class="btn btn-link btn-xs text-muted p-0" onclick="navigator.clipboard.writeText('{{ $tiktokConfig['pixel_code'] }}'); alert('TikTok Code copied!');">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    @endif
-                                </div>
+                        <div class="p-2 rounded mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase; font-weight: 700;">Pixel Code</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="font-mono text-dark small text-truncate" style="max-width: 140px;">
+                                    {{ !empty($tiktokConfig['pixel_code']) ? $tiktokConfig['pixel_code'] : 'Not Configured' }}
+                                </span>
+                                @if(!empty($tiktokConfig['pixel_code']))
+                                <button type="button" class="copy-pill-btn" onclick="navigator.clipboard.writeText('{{ $tiktokConfig['pixel_code'] }}'); alert('TikTok Code copied!');">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                @endif
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
-                                <div>
-                                    <span class="text-muted" style="font-size: 11px;">Dispatched:</span>
-                                    <span class="font-weight-bold text-white ml-1">{{ number_format($tiktokCount) }}</span>
-                                </div>
-                                <button type="button" class="btn btn-sm trigger-test-btn" data-provider="tiktok" data-provider-name="TikTok Events API" style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: #fb7185; border-radius: 6px; font-weight: 600; font-size: 11px; padding: 4px 10px;">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: #f1f5f9 !important;">
+                            <div>
+                                <span class="text-muted small">Dispatched:</span>
+                                <strong class="text-dark ml-1">{{ number_format($tiktokCount) }}</strong>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-xs btn-outline-danger trigger-test-btn" data-provider="tiktok" data-provider-name="TikTok Events API" style="border-radius: 6px; padding: 4px 10px; font-weight: 600;">
                                     <i class="fas fa-bolt mr-1"></i> Test
                                 </button>
+                                <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-xs btn-outline-secondary ml-1" style="border-radius: 6px; padding: 4px 8px;">
+                                    <i class="fas fa-cog"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -314,43 +436,49 @@
 
             <!-- Webhook / sGTM Card -->
             <div class="col-xl-3 col-md-6 mb-3">
-                <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid {{ !empty($webhookConfig['enabled']) ? 'rgba(139,92,246,0.35)' : 'rgba(255,255,255,0.08)' }} !important; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div style="background: rgba(139, 92, 246, 0.15); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-network-wired" style="font-size: 20px; color: #a78bfa;"></i>
-                                </div>
-                                <span class="badge {{ !empty($webhookConfig['enabled']) ? 'badge-primary' : 'badge-secondary' }}" style="font-size: 11px; padding: 5px 10px; border-radius: 20px;">
-                                    {{ !empty($webhookConfig['enabled']) ? '● Active' : '○ Disabled' }}
-                                </span>
+                <div class="provider-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="provider-icon-badge" style="background: #f5f3ff;">
+                                <i class="fas fa-network-wired text-purple" style="color: #7c3aed;"></i>
                             </div>
+                            @if(!empty($webhookConfig['enabled']))
+                                <span class="status-badge-active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
+                            @else
+                                <span class="status-badge-disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Disabled</span>
+                            @endif
+                        </div>
+                        <h5 class="font-weight-bold text-dark mb-1">Server Webhook / sGTM</h5>
+                        <p class="text-muted small mb-3">Stape, Make, Zapier &amp; Cloud</p>
 
-                            <h5 class="font-weight-bold text-white mb-1">Server Webhook / sGTM</h5>
-                            <p class="text-muted small mb-2">Stape, Make, Zapier &amp; Cloud</p>
-
-                            <div class="p-2 rounded mb-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);">
-                                <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase;">Endpoint URL</span>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="font-mono text-white small text-truncate" style="max-width: 150px;">{{ !empty($webhookConfig['url']) ? $webhookConfig['url'] : 'No URL Configured' }}</span>
-                                    @if(!empty($webhookConfig['url']))
-                                    <button type="button" class="btn btn-link btn-xs text-muted p-0" onclick="navigator.clipboard.writeText('{{ $webhookConfig['url'] }}'); alert('Webhook URL copied!');">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    @endif
-                                </div>
+                        <div class="p-2 rounded mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <span class="text-muted d-block" style="font-size: 10px; text-transform: uppercase; font-weight: 700;">Endpoint URL</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="font-mono text-dark small text-truncate" style="max-width: 140px;">
+                                    {{ !empty($webhookConfig['url']) ? $webhookConfig['url'] : 'No URL Configured' }}
+                                </span>
+                                @if(!empty($webhookConfig['url']))
+                                <button type="button" class="copy-pill-btn" onclick="navigator.clipboard.writeText('{{ $webhookConfig['url'] }}'); alert('Webhook URL copied!');">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                @endif
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
-                                <div>
-                                    <span class="text-muted" style="font-size: 11px;">Dispatched:</span>
-                                    <span class="font-weight-bold text-white ml-1">{{ number_format($webhookCount) }}</span>
-                                </div>
-                                <button type="button" class="btn btn-sm trigger-test-btn" data-provider="webhook" data-provider-name="Custom Webhook" style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; border-radius: 6px; font-weight: 600; font-size: 11px; padding: 4px 10px;">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: #f1f5f9 !important;">
+                            <div>
+                                <span class="text-muted small">Dispatched:</span>
+                                <strong class="text-dark ml-1">{{ number_format($webhookCount) }}</strong>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-xs btn-outline-info trigger-test-btn" data-provider="webhook" data-provider-name="Custom Webhook" style="border-radius: 6px; padding: 4px 10px; font-weight: 600;">
                                     <i class="fas fa-bolt mr-1"></i> Test
                                 </button>
+                                <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-xs btn-outline-secondary ml-1" style="border-radius: 6px; padding: 4px 8px;">
+                                    <i class="fas fa-cog"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -358,117 +486,119 @@
             </div>
         </div>
 
-        <!-- Live Dispatch Output Console Box -->
-        <div id="live-console-card" class="card border-0 mb-4 d-none" style="background: #080d1a; border: 1px solid rgba(0, 212, 170, 0.4) !important; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 212, 170, 0.1);">
-            <div class="card-header d-flex justify-content-between align-items-center py-3" style="background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <!-- Live Telemetry Console (Reveals when test is run) -->
+        <div id="live-console-card" class="card border-0 mb-4 d-none" style="background: #0f172a; border-radius: 12px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);">
+            <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: rgba(0,0,0,0.25); border-bottom: 1px solid rgba(255,255,255,0.08);">
                 <div class="d-flex align-items-center">
-                    <span class="spinner-grow spinner-grow-sm text-success mr-2" id="console-pulse" role="status"></span>
-                    <span class="font-weight-bold text-white font-mono" id="console-title"><i class="fas fa-terminal mr-2 text-info"></i>Dispatch Telemetry Console</span>
-                    <span class="badge badge-pill badge-dark ml-3 font-mono" id="console-latency" style="border: 1px solid rgba(255,255,255,0.15); font-size: 11px;">-- ms</span>
+                    <span class="spinner-grow spinner-grow-sm text-success mr-2" role="status"></span>
+                    <span class="font-weight-bold text-white font-mono small" id="console-title">
+                        <i class="fas fa-terminal mr-2 text-info"></i>Telemetry Console Output
+                    </span>
+                    <span class="badge badge-pill badge-dark ml-3 font-mono" id="console-latency" style="border: 1px solid rgba(255,255,255,0.2); font-size: 11px;">-- ms</span>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-xs btn-outline-secondary mr-2" onclick="copyConsoleOutput()" style="font-size: 11px;">
-                        <i class="fas fa-copy mr-1"></i> Copy Response
+                    <button type="button" class="btn btn-xs btn-outline-light mr-2" onclick="copyConsoleOutput()" style="font-size: 11px;">
+                        <i class="fas fa-copy mr-1"></i> Copy Response JSON
                     </button>
-                    <button type="button" class="btn btn-xs btn-link text-muted" onclick="document.getElementById('live-console-card').classList.add('d-none');">
+                    <button type="button" class="btn btn-xs btn-link text-white p-0" onclick="document.getElementById('live-console-card').classList.add('d-none');">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
             <div class="card-body p-3">
-                <pre id="console-output-pre" class="mb-0 text-success font-mono" style="font-size: 12px; white-space: pre-wrap; word-break: break-all; max-height: 280px; overflow-y: auto;"></pre>
+                <pre id="console-output-pre" class="mb-0 text-success font-mono small" style="font-size: 12px; white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow-y: auto;"></pre>
             </div>
         </div>
 
-        <!-- Recent Tracking Activity Stream Table -->
-        <div class="card border-0 shadow-sm" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-            <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: transparent; border-bottom: 1px solid rgba(255,255,255,0.07);">
+        <!-- Recent Tracking Activity Table Card -->
+        <div class="card border-0 shadow-sm" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: #ffffff; border-bottom: 1px solid #edf0f4; border-radius: 12px 12px 0 0;">
                 <div>
-                    <h5 class="card-title text-white font-weight-bold mb-0">
-                        <i class="fas fa-stream mr-2 text-info"></i> Recent Server Dispatches
+                    <h5 class="card-title text-dark font-weight-bold mb-0" style="font-size: 16px;">
+                        <i class="fas fa-stream mr-2 text-primary"></i> Recent Server Dispatches
                     </h5>
-                    <small class="text-muted">Real-time edge event delivery audit trail</small>
+                    <small class="text-muted">Live audit stream of outgoing conversion transmissions</small>
                 </div>
-                <div class="d-flex align-items-center">
-                    <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-sm btn-outline-info" style="border-radius: 8px; font-size: 12px; padding: 5px 14px;">
-                        View All Logs ({{ $totalEvents }}) <i class="fas fa-arrow-right ml-1"></i>
+                <div>
+                    <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 6px;">
+                        View All Logs ({{ number_format($totalEvents) }}) <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0" style="color: #cbd5e1;">
-                    <thead style="background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <table class="table table-hover mb-0 premium-table">
+                    <thead>
                         <tr>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">Timestamp</th>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">Channel</th>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">Event Name</th>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">Lead / Order Ref</th>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">Delivery Status</th>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">HTTP Code</th>
-                            <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px;">Diagnostics</th>
+                            <th>Timestamp</th>
+                            <th>Channel</th>
+                            <th>Event Name</th>
+                            <th>Lead / Order Ref</th>
+                            <th>Status</th>
+                            <th>HTTP Code</th>
+                            <th>Diagnostics</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($recentLogs as $log)
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td class="small text-muted font-mono" style="padding: 14px 16px;">
+                        <tr>
+                            <td class="small text-muted font-mono">
                                 {{ $log->created_at ? $log->created_at->format('M d, H:i:s') : 'N/A' }}
                             </td>
-                            <td style="padding: 14px 16px;">
+                            <td>
                                 @if($log->provider === 'meta_capi')
-                                    <span class="badge" style="background: rgba(24, 119, 242, 0.2); color: #60a5fa; border: 1px solid rgba(24, 119, 242, 0.4); font-size: 10px; padding: 4px 8px; border-radius: 6px;">
+                                    <span class="badge channel-meta" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
                                         <i class="fab fa-facebook mr-1"></i> META CAPI
                                     </span>
                                 @elseif($log->provider === 'ga4')
-                                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 10px; padding: 4px 8px; border-radius: 6px;">
+                                    <span class="badge channel-ga4" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
                                         <i class="fab fa-google mr-1"></i> GA4 PROTOCOL
                                     </span>
                                 @elseif($log->provider === 'tiktok')
-                                    <span class="badge" style="background: rgba(254, 44, 85, 0.2); color: #fda4af; border: 1px solid rgba(254, 44, 85, 0.4); font-size: 10px; padding: 4px 8px; border-radius: 6px;">
+                                    <span class="badge channel-tiktok" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
                                         <i class="fab fa-tiktok mr-1"></i> TIKTOK
                                     </span>
                                 @else
-                                    <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.4); font-size: 10px; padding: 4px 8px; border-radius: 6px;">
+                                    <span class="badge channel-webhook" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
                                         <i class="fas fa-network-wired mr-1"></i> WEBHOOK
                                     </span>
                                 @endif
                             </td>
-                            <td style="padding: 14px 16px;">
-                                <strong class="text-white">{{ $log->event_name }}</strong>
+                            <td>
+                                <strong class="text-dark">{{ $log->event_name }}</strong>
                             </td>
-                            <td class="small font-mono text-info" style="padding: 14px 16px;">
+                            <td class="small font-mono text-primary font-weight-bold">
                                 {{ $log->lead_id ?: ($log->order_id ?: '—') }}
                             </td>
-                            <td style="padding: 14px 16px;">
+                            <td>
                                 @if($log->status === 'success')
-                                    <span class="badge badge-pill badge-success" style="font-size: 10px; padding: 4px 10px;">
+                                    <span class="badge badge-success" style="font-size: 11px; padding: 4px 8px; border-radius: 12px;">
                                         <i class="fas fa-check-circle mr-1"></i> DELIVERED
                                     </span>
                                 @elseif($log->status === 'failed')
-                                    <span class="badge badge-pill badge-danger" style="font-size: 10px; padding: 4px 10px;">
+                                    <span class="badge badge-danger" style="font-size: 11px; padding: 4px 8px; border-radius: 12px;">
                                         <i class="fas fa-times-circle mr-1"></i> FAILED
                                     </span>
                                 @else
-                                    <span class="badge badge-pill badge-secondary" style="font-size: 10px; padding: 4px 10px;">
+                                    <span class="badge badge-secondary" style="font-size: 11px; padding: 4px 8px; border-radius: 12px;">
                                         <i class="fas fa-minus-circle mr-1"></i> SKIPPED
                                     </span>
                                 @endif
                             </td>
-                            <td class="font-mono small" style="padding: 14px 16px;">
-                                <span class="{{ ($log->http_code >= 200 && $log->http_code < 300) ? 'text-success' : ($log->http_code ? 'text-danger' : 'text-muted') }}">
+                            <td class="font-mono small">
+                                <span class="{{ ($log->http_code >= 200 && $log->http_code < 300) ? 'text-success font-weight-bold' : ($log->http_code ? 'text-danger font-weight-bold' : 'text-muted') }}">
                                     {{ $log->http_code ?: '—' }}
                                 </span>
                             </td>
-                            <td class="small text-muted truncate" style="max-width: 250px; padding: 14px 16px;" title="{{ $log->error_message }}">
-                                {{ $log->error_message ?: '200 OK — Delivered via edge pipeline' }}
+                            <td class="small text-muted text-truncate" style="max-width: 240px;" title="{{ $log->error_message }}">
+                                {{ $log->error_message ?: '200 OK — Successfully delivered' }}
                             </td>
                         </tr>
                         @empty
                         <tr>
                             <td colspan="7" class="text-center py-5 text-muted">
                                 <div class="mb-2" style="font-size: 32px;"><i class="fas fa-inbox text-muted"></i></div>
-                                <h6 class="text-white">No server tracking events recorded yet</h6>
-                                <p class="small text-muted mb-3">Trigger your first conversion event using the <strong>Live Test Dispatch</strong> button above.</p>
+                                <h6 class="text-dark font-weight-bold">No server tracking events recorded yet</h6>
+                                <p class="small text-muted mb-3">Launch a test conversion event using the button below to verify cloud connectivity.</p>
                                 <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#quickTestModal">
                                     <i class="fas fa-bolt mr-1"></i> Launch First Test Event
                                 </button>
@@ -479,32 +609,33 @@
                 </table>
             </div>
         </div>
+
     </div>
-</section>
+</div>
 
 <!-- Interactive Live Test Dispatch Modal -->
 <div class="modal fade" id="quickTestModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" style="background: #0d121f; border: 1px solid rgba(0, 212, 170, 0.35); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
-            <div class="modal-header py-3 px-4" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="modal-content" style="border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);">
+            <div class="modal-header py-3 px-4" style="border-bottom: 1px solid #edf0f4; background: #f8fafc; border-radius: 14px 14px 0 0;">
                 <div class="d-flex align-items-center">
-                    <div style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color: #070b14; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px;" class="mr-3">
+                    <div style="background: #eff6ff; color: #2563eb; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px;" class="mr-3">
                         <i class="fas fa-bolt"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title text-white font-weight-bold mb-0">Live Test Event Dispatcher</h5>
-                        <small class="text-muted">Transmit synthetic conversion to edge ad endpoints</small>
+                        <h5 class="modal-title font-weight-bold text-dark mb-0" style="font-size: 16px;">Live Test Event Dispatcher</h5>
+                        <small class="text-muted">Transmit synthetic conversion payload to ad cloud endpoints</small>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.8;">
+                <button type="button" class="close text-muted" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4">
                 <form id="liveTestForm">
                     <div class="form-group mb-3">
-                        <label class="text-white small font-weight-bold">Select Target Ad Platform</label>
-                        <select class="form-control" id="modal-provider" style="background: #060911; border-color: rgba(255,255,255,0.15); color: #fff; height: 42px;">
+                        <label class="text-dark small font-weight-bold">Target Channel</label>
+                        <select class="form-control" id="modal-provider" style="border-color: #cbd5e1; height: 42px;">
                             <option value="meta_capi">Meta Conversions API (CAPI)</option>
                             <option value="ga4">Google Analytics 4 Measurement Protocol</option>
                             <option value="tiktok">TikTok Events API</option>
@@ -513,33 +644,33 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label class="text-white small font-weight-bold">Standard Conversion Event Name</label>
-                        <select class="form-control" id="modal-event-name" style="background: #060911; border-color: rgba(255,255,255,0.15); color: #fff; height: 42px;">
+                        <label class="text-dark small font-weight-bold">Standard Conversion Event</label>
+                        <select class="form-control" id="modal-event-name" style="border-color: #cbd5e1; height: 42px;">
                             <option value="Lead" selected>Lead (Generate Lead)</option>
                             <option value="Purchase">Purchase (Order Transaction)</option>
-                            <option value="ViewContent">ViewContent (Project Portfolio View)</option>
-                            <option value="AddToCart">AddToCart (Package Selection)</option>
+                            <option value="ViewContent">ViewContent (Portfolio View)</option>
+                            <option value="AddToCart">AddToCart (Service Package)</option>
                             <option value="InitiateCheckout">InitiateCheckout (Checkout Started)</option>
                             <option value="Contact">Contact (WhatsApp / Form Click)</option>
                         </select>
                     </div>
 
                     <div class="form-group mb-3">
-                        <label class="text-white small font-weight-bold">
+                        <label class="text-dark small font-weight-bold">
                             Ad Manager Test Event Code <span class="text-muted font-weight-normal">(Optional Override)</span>
                         </label>
-                        <input type="text" class="form-control font-mono" id="modal-test-code" placeholder="e.g. TEST12345 (Leave empty to use configured code)" style="background: #060911; border-color: rgba(255,255,255,0.15); color: #fff; height: 42px; font-size: 13px;">
-                        <small class="text-muted">Directly matches the real-time test event screen in Meta or TikTok Events Manager.</small>
+                        <input type="text" class="form-control font-mono" id="modal-test-code" placeholder="e.g. TEST12345 (Leave empty to use saved setting)" style="border-color: #cbd5e1; height: 42px;">
+                        <small class="text-muted">Matches the real-time test event screen in Meta or TikTok Events Manager.</small>
                     </div>
 
-                    <div class="p-3 rounded mb-0" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #94a3b8;">
+                    <div class="p-3 rounded mb-0" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; color: #475569;">
                         <i class="fas fa-shield-alt text-success mr-1"></i> Dispatches include realistic customer metadata (normalized phone, SHA-256 hashed email, client IP, User-Agent &amp; unique deterministic <code>event_id</code>).
                     </div>
                 </form>
             </div>
-            <div class="modal-footer py-3 px-4" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            <div class="modal-footer py-3 px-4" style="border-top: 1px solid #edf0f4; background: #f8fafc; border-radius: 0 0 14px 14px;">
                 <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-sm btn-success px-3 font-weight-bold" id="executeTestBtn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                <button type="button" class="btn btn-sm btn-primary px-3 font-weight-bold" id="executeTestBtn">
                     <i class="fas fa-paper-plane mr-1"></i> Transmit Test Event
                 </button>
             </div>
@@ -548,7 +679,6 @@
 </div>
 
 <script>
-// Click on provider card Test button preselects provider in modal
 document.querySelectorAll('.trigger-test-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const provider = this.getAttribute('data-provider');
@@ -562,14 +692,13 @@ document.querySelectorAll('.trigger-test-btn').forEach(btn => {
     });
 });
 
-// Execute live test dispatch
 document.getElementById('executeTestBtn').addEventListener('click', function() {
     const provider = document.getElementById('modal-provider').value;
     const eventName = document.getElementById('modal-event-name').value;
     const testCode = document.getElementById('modal-test-code').value;
 
     const origHtml = this.innerHTML;
-    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Dispatching...';
+    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Transmitting...';
     this.disabled = true;
 
     fetch('{{ route("admin.server-tracking.test") }}', {
@@ -586,19 +715,17 @@ document.getElementById('executeTestBtn').addEventListener('click', function() {
     })
     .then(res => res.json())
     .then(data => {
-        // Hide modal
         if (typeof $ !== 'undefined' && $('#quickTestModal').modal) {
             $('#quickTestModal').modal('hide');
         }
 
-        // Show console card
         const card = document.getElementById('live-console-card');
         const pre = document.getElementById('console-output-pre');
         const latencyBadge = document.getElementById('console-latency');
         const title = document.getElementById('console-title');
 
         card.classList.remove('d-none');
-        title.innerHTML = `<i class="fas fa-terminal mr-2 text-info"></i>Dispatch Telemetry: [${provider.toUpperCase()}] &rarr; ${eventName}`;
+        title.innerHTML = `<i class="fas fa-terminal mr-2 text-info"></i>Telemetry Console: [${provider.toUpperCase()}] &rarr; ${eventName}`;
         
         const latency = (data.result && data.result.latency_ms) ? data.result.latency_ms + ' ms' : 'Completed';
         latencyBadge.textContent = latency;

@@ -3,69 +3,124 @@
 @section('title', 'Server Tracking & CAPI Configuration - ' . config('app.name'))
 
 @section('main_content')
-<section class="content-body py-4" style="background: linear-gradient(135deg, #0b0d14 0%, #111827 50%, #0d1322 100%); min-height: 100vh; color: #f1f5f9;">
+@include('admin.partials.premium-ui')
+
+<style>
+    .config-panel {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .config-panel .card-header {
+        background: #f8fafc !important;
+        border-bottom: 1px solid #edf0f4 !important;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 18px 22px;
+    }
+    .config-panel .card-body {
+        padding: 22px;
+    }
+    .config-panel-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .copy-pill-btn {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .copy-pill-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+</style>
+
+<div class="premium-page">
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-color: rgba(255,255,255,0.07) !important;">
-            <div class="d-flex align-items-center mb-2 mb-md-0">
-                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 24px rgba(59, 130, 246, 0.35);">
-                    <i class="fas fa-sliders-h"></i>
+
+        <!-- Hero Header -->
+        <div class="premium-header">
+            <div>
+                <div class="premium-eyebrow">
+                    <i class="fas fa-sliders-h mr-1"></i> Tracking Credentials &amp; Cloud Relays
                 </div>
-                <div class="ml-3">
-                    <h3 class="font-weight-bold text-white mb-0" style="letter-spacing: -0.5px;">
-                        Server Tracking &amp; CAPI Configuration
-                    </h3>
-                    <p class="text-muted small mb-0 mt-1">
-                        Manage API tokens, measurement secrets, and direct cloud conversion channels
-                    </p>
-                </div>
+                <h2>Server Tracking &amp; CAPI Configuration</h2>
+                <p>Manage API keys, access tokens, and server-side tracking pipelines</p>
             </div>
-            <div class="d-flex align-items-center">
-                <a href="{{ route('admin.server-tracking.dashboard') }}" class="btn btn-sm btn-outline-light mr-2" style="border-radius: 8px; padding: 7px 14px; border-color: rgba(255,255,255,0.2);">
-                    <i class="fas fa-arrow-left mr-1"></i> Dashboard
+            <div class="premium-actions">
+                <a href="{{ route('admin.server-tracking.dashboard') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Dashboard
                 </a>
-                <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-sm btn-outline-info" style="border-radius: 8px; padding: 7px 14px; border-color: rgba(56, 189, 248, 0.4);">
-                    <i class="fas fa-list mr-1"></i> Audit Logs
+                <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-outline-light">
+                    <i class="fas fa-list"></i> Audit Logs
                 </a>
             </div>
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; border-radius: 12px;">
-                <i class="fas fa-check-circle mr-2" style="font-size: 18px;"></i>
-                <div>{{ session('success') }}</div>
-                <button type="button" class="close text-white ml-auto" data-dismiss="alert" aria-label="Close" style="opacity: 0.8;">
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert" style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 10px;">
+                <i class="fas fa-check-circle mr-2" style="font-size: 16px;"></i>
+                <div class="font-weight-500">{{ session('success') }}</div>
+                <button type="button" class="close text-dark ml-auto" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
         @endif
 
         @if(isset($errors) && $errors->any())
-            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.35); color: #fb7185; border-radius: 12px;">
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; border-radius: 10px;">
                 <h6 class="font-weight-bold mb-2"><i class="fas fa-exclamation-triangle mr-2"></i> Please correct the following errors:</h6>
                 <ul class="mb-0 small pl-3">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-                <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close">
+                <button type="button" class="close text-dark ml-auto" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
         @endif
 
-        <!-- Security & Architecture Info Box -->
-        <div class="alert alert-dark p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px;">
+        <!-- Navigation Tabs Bar -->
+        <div class="premium-nav">
+            <a href="{{ route('admin.server-tracking.dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+            </a>
+            <a href="{{ route('admin.server-tracking.config') }}" class="active">
+                <i class="fas fa-sliders-h"></i> Pipeline Credentials
+            </a>
+            <a href="{{ route('admin.server-tracking.logs') }}">
+                <i class="fas fa-list-alt"></i> Audit Logs &amp; Inspector
+            </a>
+        </div>
+
+        <!-- Privacy & Security Notice Banner -->
+        <div class="alert p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap" style="background: #ecfdf5; border: 1px solid #a7f3d0; border-left: 4px solid #059669; border-radius: 8px;">
             <div class="d-flex align-items-center mb-2 mb-md-0">
-                <i class="fas fa-shield-alt text-info mr-3" style="font-size: 24px;"></i>
+                <i class="fas fa-shield-alt text-success mr-3" style="font-size: 22px;"></i>
                 <div>
-                    <span class="font-weight-bold text-white d-block" style="font-size: 13px;">Zero Signal Loss &bull; Privacy-Safe Edge Architecture</span>
-                    <span class="text-muted small">Customer PII (emails &amp; phone numbers) is automatically converted to lowercase, trimmed, and hashed with SHA-256 before transmission.</span>
+                    <strong class="text-dark d-block" style="font-size: 13px;">Zero Signal Loss &bull; Privacy-Safe Edge Transmission</strong>
+                    <span class="text-muted small">Customer emails and phone numbers are normalized and hashed using SHA-256 before transmission to comply with privacy regulations (GDPR/CCPA).</span>
                 </div>
             </div>
             <div>
-                <span class="badge badge-pill badge-success px-3 py-1 font-mono" style="font-size: 11px;">
-                    <i class="fas fa-lock mr-1"></i> SHA-256 Enabled
+                <span class="badge badge-success px-3 py-1 font-mono" style="font-size: 11px; border-radius: 10px;">
+                    <i class="fas fa-lock mr-1"></i> SHA-256 Hashing Active
                 </span>
             </div>
         </div>
@@ -76,27 +131,27 @@
             <div class="row">
                 <!-- Meta Conversions API (CAPI) Panel -->
                 <div class="col-lg-6 mb-4">
-                    <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid rgba(24, 119, 242, 0.3) !important; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                        <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: rgba(24, 119, 242, 0.08); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <div class="config-panel">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div style="background: rgba(24, 119, 242, 0.2); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;" class="mr-3">
-                                    <i class="fab fa-facebook text-primary" style="font-size: 20px;"></i>
+                                <div class="config-panel-icon mr-3" style="background: #eff6ff; color: #2563eb;">
+                                    <i class="fab fa-facebook"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title text-white font-weight-bold mb-0">Meta Conversions API (CAPI)</h5>
+                                    <h5 class="card-title text-dark font-weight-bold mb-0" style="font-size: 15px;">Meta Conversions API (CAPI)</h5>
                                     <small class="text-muted">Direct Server-to-Meta Graph API</small>
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="meta_capi_enabled" name="meta_capi_enabled" value="1" {{ old('meta_capi_enabled', $settings->meta_capi_enabled ?? $metaConfig['enabled']) ? 'checked' : '' }}>
-                                <label class="custom-control-label text-white small font-weight-bold" for="meta_capi_enabled">Active</label>
+                                <label class="custom-control-label text-dark small font-weight-bold" for="meta_capi_enabled">Enabled</label>
                             </div>
                         </div>
-                        <div class="card-body p-4">
+                        <div class="card-body">
                             <div class="form-group mb-3">
-                                <label class="text-white small font-weight-bold">Meta Pixel / Dataset ID</label>
+                                <label class="text-dark small font-weight-bold">Meta Pixel / Dataset ID</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control font-mono" name="meta_pixel_id" id="meta_pixel_id" value="{{ old('meta_pixel_id', $settings->meta_pixel_id ?? $metaConfig['pixel_id']) }}" placeholder="e.g. 981230941262806" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                    <input type="text" class="form-control font-mono" name="meta_pixel_id" id="meta_pixel_id" value="{{ old('meta_pixel_id', $settings->meta_pixel_id ?? $metaConfig['pixel_id']) }}" placeholder="e.g. 981230941262806" style="border-color: #cbd5e1;">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary" type="button" onclick="copyInput('meta_pixel_id')"><i class="fas fa-copy"></i></button>
                                     </div>
@@ -106,18 +161,18 @@
 
                             <div class="form-group mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="text-white small font-weight-bold mb-0">Conversions API Access Token</label>
-                                    <button type="button" class="btn btn-link btn-xs text-info p-0" onclick="toggleSecretMask('meta_token_field', this)">
+                                    <label class="text-dark small font-weight-bold mb-0">Conversions API Access Token</label>
+                                    <button type="button" class="btn btn-link btn-xs text-primary p-0" onclick="toggleSecretMask('meta_token_field', this)">
                                         <i class="fas fa-eye mr-1"></i> Show Token
                                     </button>
                                 </div>
-                                <textarea class="form-control font-mono secret-mask" id="meta_token_field" name="meta_capi_access_token" rows="3" placeholder="EAAB... (Long-lived System User or CAPI Access Token)" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff; font-size: 11px;">{{ old('meta_capi_access_token', $settings->meta_capi_access_token ?? $metaConfig['access_token']) }}</textarea>
+                                <textarea class="form-control font-mono" id="meta_token_field" name="meta_capi_access_token" rows="3" placeholder="EAAB... (Long-lived System User or CAPI Access Token)" style="border-color: #cbd5e1; font-size: 11px;">{{ old('meta_capi_access_token', $settings->meta_capi_access_token ?? $metaConfig['access_token']) }}</textarea>
                                 <small class="form-text text-muted">Generate in Meta Events Manager &gt; Settings &gt; Conversions API &gt; Generate access token.</small>
                             </div>
 
                             <div class="form-group mb-0">
-                                <label class="text-white small font-weight-bold">Test Event Code (Optional)</label>
-                                <input type="text" class="form-control font-mono" name="meta_capi_test_event_code" value="{{ old('meta_capi_test_event_code', $settings->meta_capi_test_event_code ?? $metaConfig['test_event_code']) }}" placeholder="e.g. TEST12345" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                <label class="text-dark small font-weight-bold">Test Event Code (Optional)</label>
+                                <input type="text" class="form-control font-mono" name="meta_capi_test_event_code" value="{{ old('meta_capi_test_event_code', $settings->meta_capi_test_event_code ?? $metaConfig['test_event_code']) }}" placeholder="e.g. TEST12345" style="border-color: #cbd5e1;">
                                 <small class="form-text text-muted">From the "Test events" tab in Events Manager to route live events directly into your test feed.</small>
                             </div>
                         </div>
@@ -126,27 +181,27 @@
 
                 <!-- Google Analytics 4 (GA4) Panel -->
                 <div class="col-lg-6 mb-4">
-                    <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid rgba(245, 158, 11, 0.3) !important; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                        <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: rgba(245, 158, 11, 0.08); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <div class="config-panel">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div style="background: rgba(245, 158, 11, 0.2); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;" class="mr-3">
-                                    <i class="fab fa-google text-warning" style="font-size: 20px;"></i>
+                                <div class="config-panel-icon mr-3" style="background: #fffbeb; color: #d97706;">
+                                    <i class="fab fa-google"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title text-white font-weight-bold mb-0">GA4 Measurement Protocol</h5>
+                                    <h5 class="card-title text-dark font-weight-bold mb-0" style="font-size: 15px;">GA4 Measurement Protocol</h5>
                                     <small class="text-muted">Server-to-Google Analytics Engine</small>
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="ga4_server_enabled" name="ga4_server_enabled" value="1" {{ old('ga4_server_enabled', $settings->ga4_server_enabled ?? $ga4Config['enabled']) ? 'checked' : '' }}>
-                                <label class="custom-control-label text-white small font-weight-bold" for="ga4_server_enabled">Active</label>
+                                <label class="custom-control-label text-dark small font-weight-bold" for="ga4_server_enabled">Enabled</label>
                             </div>
                         </div>
-                        <div class="card-body p-4">
+                        <div class="card-body">
                             <div class="form-group mb-3">
-                                <label class="text-white small font-weight-bold">GA4 Measurement ID</label>
+                                <label class="text-dark small font-weight-bold">GA4 Measurement ID</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control font-mono" name="ga4_measurement_id" id="ga4_measurement_id" value="{{ old('ga4_measurement_id', $settings->ga4_measurement_id ?? $settings->google_analytics_id ?? $ga4Config['measurement_id']) }}" placeholder="e.g. G-XXXXXXXXXX" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                    <input type="text" class="form-control font-mono" name="ga4_measurement_id" id="ga4_measurement_id" value="{{ old('ga4_measurement_id', $settings->ga4_measurement_id ?? $settings->google_analytics_id ?? $ga4Config['measurement_id']) }}" placeholder="e.g. G-XXXXXXXXXX" style="border-color: #cbd5e1;">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary" type="button" onclick="copyInput('ga4_measurement_id')"><i class="fas fa-copy"></i></button>
                                     </div>
@@ -156,17 +211,17 @@
 
                             <div class="form-group mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="text-white small font-weight-bold mb-0">Measurement Protocol API Secret</label>
-                                    <button type="button" class="btn btn-link btn-xs text-info p-0" onclick="toggleSecretInput('ga4_api_secret', this)">
+                                    <label class="text-dark small font-weight-bold mb-0">Measurement Protocol API Secret</label>
+                                    <button type="button" class="btn btn-link btn-xs text-primary p-0" onclick="toggleSecretInput('ga4_api_secret', this)">
                                         <i class="fas fa-eye mr-1"></i> Show Secret
                                     </button>
                                 </div>
-                                <input type="password" class="form-control font-mono" id="ga4_api_secret" name="ga4_api_secret" value="{{ old('ga4_api_secret', $settings->ga4_api_secret ?? $ga4Config['api_secret']) }}" placeholder="Enter GA4 API Secret" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                <input type="password" class="form-control font-mono" id="ga4_api_secret" name="ga4_api_secret" value="{{ old('ga4_api_secret', $settings->ga4_api_secret ?? $ga4Config['api_secret']) }}" placeholder="Enter GA4 API Secret" style="border-color: #cbd5e1;">
                                 <small class="form-text text-muted">Generate in GA4 Admin &gt; Data Streams &gt; Measurement Protocol API secrets &gt; Create.</small>
                             </div>
 
-                            <div class="p-3 rounded mb-0" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: #94a3b8;">
-                                <i class="fas fa-info-circle text-warning mr-1"></i> Dispatches emit server-side <code>generate_lead</code>, <code>purchase</code>, and <code>view_item</code> hits with automatic client ID deduplication.
+                            <div class="p-3 rounded mb-0" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; color: #475569;">
+                                <i class="fas fa-info-circle text-primary mr-1"></i> Dispatches emit server-side <code>generate_lead</code>, <code>purchase</code>, and <code>view_item</code> hits with automatic client ID deduplication.
                             </div>
                         </div>
                     </div>
@@ -174,27 +229,27 @@
 
                 <!-- TikTok Events API Panel -->
                 <div class="col-lg-6 mb-4">
-                    <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid rgba(254, 44, 85, 0.3) !important; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                        <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: rgba(254, 44, 85, 0.08); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <div class="config-panel">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div style="background: rgba(254, 44, 85, 0.2); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;" class="mr-3">
-                                    <i class="fab fa-tiktok text-danger" style="font-size: 20px;"></i>
+                                <div class="config-panel-icon mr-3" style="background: #fff1f2; color: #be123c;">
+                                    <i class="fab fa-tiktok"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title text-white font-weight-bold mb-0">TikTok Events API</h5>
+                                    <h5 class="card-title text-dark font-weight-bold mb-0" style="font-size: 15px;">TikTok Events API</h5>
                                     <small class="text-muted">Business API v1.3 Server Endpoint</small>
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="tiktok_server_enabled" name="tiktok_server_enabled" value="1" {{ old('tiktok_server_enabled', $settings->tiktok_server_enabled ?? $tiktokConfig['enabled']) ? 'checked' : '' }}>
-                                <label class="custom-control-label text-white small font-weight-bold" for="tiktok_server_enabled">Active</label>
+                                <label class="custom-control-label text-dark small font-weight-bold" for="tiktok_server_enabled">Enabled</label>
                             </div>
                         </div>
-                        <div class="card-body p-4">
+                        <div class="card-body">
                             <div class="form-group mb-3">
-                                <label class="text-white small font-weight-bold">TikTok Pixel Code / ID</label>
+                                <label class="text-dark small font-weight-bold">TikTok Pixel Code / ID</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control font-mono" name="tiktok_pixel_code" id="tiktok_pixel_code" value="{{ old('tiktok_pixel_code', $settings->tiktok_pixel_code ?? $tiktokConfig['pixel_code']) }}" placeholder="e.g. CXXXXXXXXXX" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                    <input type="text" class="form-control font-mono" name="tiktok_pixel_code" id="tiktok_pixel_code" value="{{ old('tiktok_pixel_code', $settings->tiktok_pixel_code ?? $tiktokConfig['pixel_code']) }}" placeholder="e.g. CXXXXXXXXXX" style="border-color: #cbd5e1;">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary" type="button" onclick="copyInput('tiktok_pixel_code')"><i class="fas fa-copy"></i></button>
                                     </div>
@@ -204,17 +259,17 @@
 
                             <div class="form-group mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="text-white small font-weight-bold mb-0">TikTok Long-Term Access Token</label>
-                                    <button type="button" class="btn btn-link btn-xs text-info p-0" onclick="toggleSecretMask('tiktok_token_field', this)">
+                                    <label class="text-dark small font-weight-bold mb-0">TikTok Long-Term Access Token</label>
+                                    <button type="button" class="btn btn-link btn-xs text-primary p-0" onclick="toggleSecretMask('tiktok_token_field', this)">
                                         <i class="fas fa-eye mr-1"></i> Show Token
                                     </button>
                                 </div>
-                                <textarea class="form-control font-mono secret-mask" id="tiktok_token_field" name="tiktok_access_token" rows="2" placeholder="Enter TikTok Events API Access Token" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff; font-size: 11px;">{{ old('tiktok_access_token', $settings->tiktok_access_token ?? $tiktokConfig['access_token']) }}</textarea>
+                                <textarea class="form-control font-mono" id="tiktok_token_field" name="tiktok_access_token" rows="2" placeholder="Enter TikTok Events API Access Token" style="border-color: #cbd5e1; font-size: 11px;">{{ old('tiktok_access_token', $settings->tiktok_access_token ?? $tiktokConfig['access_token']) }}</textarea>
                             </div>
 
                             <div class="form-group mb-0">
-                                <label class="text-white small font-weight-bold">Test Event Code (Optional)</label>
-                                <input type="text" class="form-control font-mono" name="tiktok_test_event_code" value="{{ old('tiktok_test_event_code', $settings->tiktok_test_event_code ?? $tiktokConfig['test_event_code']) }}" placeholder="e.g. TEST12345" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                <label class="text-dark small font-weight-bold">Test Event Code (Optional)</label>
+                                <input type="text" class="form-control font-mono" name="tiktok_test_event_code" value="{{ old('tiktok_test_event_code', $settings->tiktok_test_event_code ?? $tiktokConfig['test_event_code']) }}" placeholder="e.g. TEST12345" style="border-color: #cbd5e1;">
                                 <small class="form-text text-muted">Obtained from the Test Events tab in TikTok Events Manager.</small>
                             </div>
                         </div>
@@ -223,27 +278,27 @@
 
                 <!-- Custom Webhook / sGTM Container Panel -->
                 <div class="col-lg-6 mb-4">
-                    <div class="card border-0 h-100" style="background: #0f1523; border: 1px solid rgba(139, 92, 246, 0.3) !important; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                        <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: rgba(139, 92, 246, 0.08); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <div class="config-panel">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <div style="background: rgba(139, 92, 246, 0.2); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;" class="mr-3">
-                                    <i class="fas fa-network-wired text-info" style="font-size: 18px;"></i>
+                                <div class="config-panel-icon mr-3" style="background: #f5f3ff; color: #7c3aed;">
+                                    <i class="fas fa-network-wired"></i>
                                 </div>
                                 <div>
-                                    <h5 class="card-title text-white font-weight-bold mb-0">Server Webhook / sGTM Container</h5>
+                                    <h5 class="card-title text-dark font-weight-bold mb-0" style="font-size: 15px;">Server Webhook / sGTM Container</h5>
                                     <small class="text-muted">Cloud Tag Manager &amp; Custom Relays</small>
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="server_tracking_webhook_enabled" name="server_tracking_webhook_enabled" value="1" {{ old('server_tracking_webhook_enabled', $settings->server_tracking_webhook_enabled ?? $webhookConfig['enabled']) ? 'checked' : '' }}>
-                                <label class="custom-control-label text-white small font-weight-bold" for="server_tracking_webhook_enabled">Active</label>
+                                <label class="custom-control-label text-dark small font-weight-bold" for="server_tracking_webhook_enabled">Enabled</label>
                             </div>
                         </div>
-                        <div class="card-body p-4">
+                        <div class="card-body">
                             <div class="form-group mb-3">
-                                <label class="text-white small font-weight-bold">Server Webhook Endpoint URL</label>
+                                <label class="text-dark small font-weight-bold">Server Webhook Endpoint URL</label>
                                 <div class="input-group">
-                                    <input type="url" class="form-control font-mono" name="server_tracking_webhook_url" id="server_tracking_webhook_url" value="{{ old('server_tracking_webhook_url', $settings->server_tracking_webhook_url ?? $webhookConfig['url']) }}" placeholder="https://sgtm.yourdomain.com/data" style="background: #080d1a; border-color: rgba(255,255,255,0.15); color: #fff;">
+                                    <input type="url" class="form-control font-mono" name="server_tracking_webhook_url" id="server_tracking_webhook_url" value="{{ old('server_tracking_webhook_url', $settings->server_tracking_webhook_url ?? $webhookConfig['url']) }}" placeholder="https://sgtm.yourdomain.com/data" style="border-color: #cbd5e1;">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary" type="button" onclick="copyInput('server_tracking_webhook_url')"><i class="fas fa-copy"></i></button>
                                     </div>
@@ -251,8 +306,8 @@
                                 <small class="form-text text-muted">Supports Server-Side Google Tag Manager (sGTM), Stape, Make, or Zapier webhooks.</small>
                             </div>
 
-                            <div class="p-3 rounded mb-0" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: #94a3b8;">
-                                <i class="fas fa-code text-info mr-1"></i> Webhooks deliver full conversion payloads as JSON POST requests, including event IDs, lead IDs, UTM attribution models, and timestamp headers.
+                            <div class="p-3 rounded mb-0" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; color: #475569;">
+                                <i class="fas fa-code text-primary mr-1"></i> Webhooks deliver full conversion payloads as JSON POST requests, including event IDs, lead IDs, UTM attribution models, and timestamp headers.
                             </div>
                         </div>
                     </div>
@@ -260,7 +315,7 @@
             </div>
 
             <!-- Sticky Save Bar -->
-            <div class="card border-0 p-3 mb-4 d-flex flex-row justify-content-between align-items-center flex-wrap" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+            <div class="card border-0 p-3 mb-4 d-flex flex-row justify-content-between align-items-center flex-wrap" style="background: #ffffff; border: 1px solid #e2e8f0 !important; border-radius: 12px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);">
                 <div class="d-flex align-items-center mb-2 mb-md-0">
                     <i class="fas fa-lock text-success mr-2" style="font-size: 18px;"></i>
                     <span class="text-muted small">
@@ -271,14 +326,15 @@
                     <a href="{{ route('admin.server-tracking.dashboard') }}" class="btn btn-sm btn-outline-secondary mr-2" style="border-radius: 8px;">
                         Cancel
                     </a>
-                    <button type="submit" class="btn btn-sm px-4 font-weight-bold" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; border: none; border-radius: 8px; padding: 8px 24px; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);">
+                    <button type="submit" class="btn btn-sm btn-primary px-4 font-weight-bold" style="border-radius: 8px;">
                         <i class="fas fa-save mr-1"></i> Save Tracking Credentials
                     </button>
                 </div>
             </div>
         </form>
+
     </div>
-</section>
+</div>
 
 <script>
 function copyInput(elementId) {
@@ -314,7 +370,6 @@ function toggleSecretMask(textareaId, btn) {
     }
 }
 
-// Initial hide for token textareas
 document.addEventListener('DOMContentLoaded', () => {
     ['meta_token_field', 'tiktok_token_field'].forEach(id => {
         const el = document.getElementById(id);
