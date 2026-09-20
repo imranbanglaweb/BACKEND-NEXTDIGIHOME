@@ -228,7 +228,7 @@ class MenuSeeder extends Seeder
                 'menu_name' => 'Server Tracking & CAPI',
                 'menu_slug' => 'server-tracking',
                 'menu_icon' => 'fa-satellite-dish',
-                'menu_url' => null,
+                'menu_url' => 'admin.server-tracking.dashboard',
                 'menu_permission' => 'analytics-view',
                 'menu_order' => 7,
                 'menu_parent' => 0,

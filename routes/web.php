@@ -1050,12 +1050,32 @@ Route::middleware(['auth'])->group(function () {
     // Server-Side Tracking & CAPI (GA4, Meta CAPI, TikTok & Webhooks)
     Route::prefix('admin/server-tracking')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('admin.server-tracking.dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('admin.server-tracking.dashboard.page');
         Route::get('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('admin.server-tracking.config');
         Route::post('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'updateConfig'])->name('admin.server-tracking.config.update');
         Route::get('/logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('admin.server-tracking.logs');
         Route::post('/test', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'testDispatch'])->name('admin.server-tracking.test');
         Route::post('/clear-logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'clearLogs'])->name('admin.server-tracking.clear-logs');
     });
+
+    // Alias routes for server tracking (with and without admin prefix)
+    Route::prefix('server-tracking')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('server-tracking.dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('server-tracking.dashboard.page');
+        Route::get('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('server-tracking.config');
+        Route::post('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'updateConfig'])->name('server-tracking.config.update');
+        Route::get('/logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('server-tracking.logs');
+    });
+
+    // Friendly route name aliases so all slug and route references resolve cleanly
+    Route::get('admin/server-tracking-alias', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('admin.server-tracking');
+    Route::get('admin/server-tracking-alias-main', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('server-tracking');
+    Route::get('admin/tracking-dashboard-alias', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('tracking-dashboard');
+    Route::get('admin/tracking-dashboard-dot', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('tracking.dashboard');
+    Route::get('admin/tracking-config-alias', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('tracking-config');
+    Route::get('admin/tracking-config-dot', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('tracking.config');
+    Route::get('admin/tracking-logs-alias', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('tracking-logs');
+    Route::get('admin/tracking-logs-dot', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('tracking.logs');
 });
 
 // ============================================================================

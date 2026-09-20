@@ -470,20 +470,40 @@
         $isActiveParent = $children->contains(function ($child) use ($currentRouteName) {
             if (!$child->menu_url) return false;
             $cleanChildRoute = explode('?', $child->menu_url)[0];
-            return $currentRouteName && (request()->routeIs($child->menu_url) || request()->routeIs($cleanChildRoute));
-        }) || ($menu->menu_url && request()->routeIs($menu->menu_url));
+            $cleanNoPrefix = preg_replace('/^(admin\.|dashboard\.)+/', '', $cleanChildRoute);
+            return $currentRouteName && (
+                request()->routeIs($child->menu_url) || 
+                request()->routeIs($cleanChildRoute) ||
+                request()->routeIs($cleanNoPrefix) ||
+                request()->routeIs('admin.' . $cleanNoPrefix) ||
+                request()->is(trim($cleanChildRoute, '/') . '*') ||
+                request()->is('admin/' . trim($cleanChildRoute, '/') . '*')
+            );
+        }) || ($menu->menu_url && (
+            request()->routeIs($menu->menu_url) || 
+            request()->routeIs(explode('?', $menu->menu_url)[0])
+        )) || ($menu->menu_slug === 'server-tracking' && (request()->is('*server-tracking*') || request()->is('*tracking*')));
         
         $getUrl = function($url) {
             if (!$url) return '#';
-            if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://') || str_starts_with($url, '/')) {
+            if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
                 return $url;
+            }
+            if (str_starts_with($url, '/')) {
+                return url($url);
             }
             // Parse query string if present
             $parts = explode('?', $url, 2);
             $routeName = $parts[0];
             $queryStr = isset($parts[1]) ? '?' . $parts[1] : '';
 
-            $cleanUrl = str_replace(['admin.', 'dashboard.'], '', $routeName);
+            // If it contains a slash, treat as path (e.g. admin/server-tracking)
+            if (str_contains($routeName, '/')) {
+                return url($routeName . $queryStr);
+            }
+
+            // Remove prefixes safely
+            $cleanUrl = preg_replace('/^(admin\.|dashboard\.)+/', '', $routeName);
             
             // Check if the URL contains route parameters
             if (preg_match('/\{[a-zA-Z_]+\}/', $routeName)) {
@@ -497,11 +517,30 @@
                     return route($cleanUrl) . $queryStr;
                 } elseif (Route::has('admin.' . $routeName)) {
                     return route('admin.' . $routeName) . $queryStr;
+                } elseif (Route::has('admin.' . $cleanUrl)) {
+                    return route('admin.' . $cleanUrl) . $queryStr;
                 }
+            } catch (\Exception $e) {
+                // fall through
+            }
+
+            // Direct mapping for known tracking slugs/aliases
+            $knownAliases = [
+                'server-tracking' => 'admin.server-tracking.dashboard',
+                'tracking-dashboard' => 'admin.server-tracking.dashboard',
+                'tracking-config' => 'admin.server-tracking.config',
+                'tracking-logs' => 'admin.server-tracking.logs',
+            ];
+            if (isset($knownAliases[$routeName]) && Route::has($knownAliases[$routeName])) {
+                return route($knownAliases[$routeName]) . $queryStr;
+            }
+
+            // Fallback: try generating as application URL
+            try {
+                return url($routeName . $queryStr);
             } catch (\Exception $e) {
                 return '#';
             }
-            return '#';
         };
     @endphp
 
@@ -540,7 +579,17 @@
                     @php 
                     $childUrl = $getUrl($child->menu_url);
                     $cleanChildRoute = explode('?', $child->menu_url ?? '')[0];
-                    $isChildActive = $child->menu_url && (request()->routeIs($child->menu_url) || request()->routeIs($cleanChildRoute));
+                    $cleanNoPrefix = preg_replace('/^(admin\.|dashboard\.)+/', '', $cleanChildRoute);
+                    $isChildActive = $child->menu_url && (
+                        request()->routeIs($child->menu_url) || 
+                        request()->routeIs($cleanChildRoute) ||
+                        request()->routeIs($cleanNoPrefix) ||
+                        request()->routeIs('admin.' . $cleanNoPrefix) ||
+                        request()->fullUrlIs($childUrl) ||
+                        (str_contains($child->menu_slug ?? '', 'dashboard') && request()->is('*server-tracking*') && !request()->is('*config*') && !request()->is('*logs*')) ||
+                        (str_contains($child->menu_slug ?? '', 'config') && request()->is('*server-tracking/config*')) ||
+                        (str_contains($child->menu_slug ?? '', 'logs') && request()->is('*server-tracking/logs*'))
+                    );
                     @endphp
                     <li class="{{ $isChildActive ? 'nav-active' : '' }}">
                         <a href="{{ $childUrl }}" class="menu-link {{ $childUrl === '#' ? 'menu-link-disabled' : '' }}" @if($childUrl === '#') aria-disabled="true" onclick="return false;" @endif>
