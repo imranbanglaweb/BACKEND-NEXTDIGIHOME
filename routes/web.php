@@ -1076,6 +1076,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('admin/tracking-config-dot', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('tracking.config');
     Route::get('admin/tracking-logs-alias', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('tracking-logs');
     Route::get('admin/tracking-logs-dot', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('tracking.logs');
+
+    // Direct support for literal dot URLs (e.g. /admin.server-tracking.dashboard)
+    Route::get('admin.server-tracking.dashboard', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard']);
+    Route::get('admin.server-tracking.config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config']);
+    Route::get('admin.server-tracking.logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs']);
+    Route::get('admin.server-tracking', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard']);
+    Route::get('server-tracking.dashboard', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard']);
+    Route::get('server-tracking.config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config']);
+    Route::get('server-tracking.logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs']);
 });
 
 // ============================================================================

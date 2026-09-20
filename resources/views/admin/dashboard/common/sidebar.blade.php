@@ -497,6 +497,17 @@
             $routeName = $parts[0];
             $queryStr = isset($parts[1]) ? '?' . $parts[1] : '';
 
+            // Explicit hardcoded URLs for server tracking so they NEVER fail under any environment
+            if (in_array($routeName, ['admin.server-tracking.dashboard', 'server-tracking.dashboard', 'admin.server-tracking', 'server-tracking', 'tracking-dashboard', 'tracking.dashboard', 'admin/server-tracking', 'admin/server-tracking/dashboard', 'admin.server-tracking.dashboard.page', 'server-tracking.dashboard.page'])) {
+                return url('admin/server-tracking' . $queryStr);
+            }
+            if (in_array($routeName, ['admin.server-tracking.config', 'server-tracking.config', 'tracking-config', 'tracking.config', 'admin/server-tracking/config'])) {
+                return url('admin/server-tracking/config' . $queryStr);
+            }
+            if (in_array($routeName, ['admin.server-tracking.logs', 'server-tracking.logs', 'tracking-logs', 'tracking.logs', 'admin/server-tracking/logs'])) {
+                return url('admin/server-tracking/logs' . $queryStr);
+            }
+
             // If it contains a slash, treat as path (e.g. admin/server-tracking)
             if (str_contains($routeName, '/')) {
                 return url($routeName . $queryStr);
@@ -524,15 +535,10 @@
                 // fall through
             }
 
-            // Direct mapping for known tracking slugs/aliases
-            $knownAliases = [
-                'server-tracking' => 'admin.server-tracking.dashboard',
-                'tracking-dashboard' => 'admin.server-tracking.dashboard',
-                'tracking-config' => 'admin.server-tracking.config',
-                'tracking-logs' => 'admin.server-tracking.logs',
-            ];
-            if (isset($knownAliases[$routeName]) && Route::has($knownAliases[$routeName])) {
-                return route($knownAliases[$routeName]) . $queryStr;
+            // If route name has dots, convert dots to slash path instead of generating a dot URL
+            if (str_contains($routeName, '.')) {
+                $pathFromDots = str_replace('.', '/', $cleanUrl ?: $routeName);
+                return url($pathFromDots . $queryStr);
             }
 
             // Fallback: try generating as application URL
