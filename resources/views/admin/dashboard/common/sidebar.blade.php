@@ -152,9 +152,9 @@
         display: flex;
         align-items: center;
         padding: 10px 14px;
-        color: rgba(226, 232, 240, 0.78);
-        font-size: 13.5px;
-        font-weight: 500;
+        color: rgba(241, 245, 249, 0.88);
+        font-size: 14.5px;
+        font-weight: 600;
         border-radius: 8px;
         text-decoration: none;
         transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
@@ -163,17 +163,17 @@
     }
 
     .sidebar-left .nav-main > li > a.menu-link:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.08);
         color: #ffffff;
         transform: translateX(2px);
     }
 
     .sidebar-left .nav-main > li.nav-active > a.menu-link {
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.22) 0%, rgba(59, 130, 246, 0.12) 100%);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.28) 0%, rgba(59, 130, 246, 0.16) 100%);
         color: #60a5fa;
-        font-weight: 600;
-        border-color: rgba(59, 130, 246, 0.35);
-        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.14);
+        font-weight: 700;
+        border-color: rgba(59, 130, 246, 0.45);
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.18);
     }
 
     .sidebar-left .nav-main > li.nav-active > a.menu-link i {
@@ -187,7 +187,7 @@
         text-align: center;
         font-size: 15px;
         margin-right: 11px;
-        opacity: 0.85;
+        opacity: 0.9;
         transition: transform 0.2s ease, color 0.2s ease;
         flex-shrink: 0;
     }
@@ -203,14 +203,14 @@
         font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free', 'FontAwesome';
         font-weight: 900;
         margin-left: auto;
-        font-size: 12px;
-        opacity: 0.5;
+        font-size: 13px;
+        opacity: 0.7;
         transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
     .sidebar-left .nav-main > li.nav-parent.nav-expanded > a.menu-link::after {
         transform: rotate(90deg);
-        opacity: 0.9;
+        opacity: 1;
         color: #60a5fa;
     }
 
@@ -220,7 +220,7 @@
         padding: 0;
         margin: 4px 0 6px 20px;
         padding-left: 10px;
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 1px solid rgba(255, 255, 255, 0.15);
         display: none;
     }
 
@@ -235,9 +235,10 @@
     .sidebar-left .nav.nav-children > li > a.menu-link {
         display: flex;
         align-items: center;
-        padding: 7px 12px;
-        font-size: 13px;
-        color: rgba(203, 213, 225, 0.7);
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(226, 232, 240, 0.85);
         border-radius: 6px;
         text-decoration: none;
         transition: all 0.15s ease;
@@ -245,21 +246,21 @@
 
     .sidebar-left .nav.nav-children > li > a.menu-link:hover {
         color: #ffffff;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.08);
     }
 
     .sidebar-left .nav.nav-children > li.nav-active > a.menu-link {
         color: #38bdf8;
-        font-weight: 600;
-        background: rgba(56, 189, 248, 0.1);
+        font-weight: 700;
+        background: rgba(56, 189, 248, 0.14);
     }
 
     /* Bottom Profile Card */
     .sidebar-user-card {
         margin: auto 10px 14px;
         padding: 10px 12px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -268,13 +269,13 @@
     }
 
     .sidebar-user-avatar {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border-radius: 8px;
         background: linear-gradient(135deg, #00d4aa 0%, #3b82f6 100%);
         color: #0b0f19;
         font-weight: 800;
-        font-size: 12px;
+        font-size: 13px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -285,12 +286,12 @@
     .sidebar-user-meta {
         flex: 1;
         min-width: 0;
-        line-height: 1.2;
+        line-height: 1.25;
     }
 
     .sidebar-user-name {
         display: block;
-        font-size: 12.5px;
+        font-size: 14px;
         font-weight: 700;
         color: #ffffff;
         white-space: nowrap;
@@ -300,8 +301,8 @@
 
     .sidebar-user-badge {
         display: inline-block;
-        font-size: 10px;
-        font-weight: 600;
+        font-size: 11.5px;
+        font-weight: 700;
         color: #38bdf8;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -309,9 +310,9 @@
     }
 
     .sidebar-user-link {
-        color: rgba(255, 255, 255, 0.45);
-        font-size: 14px;
-        padding: 4px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 15px;
+        padding: 5px;
         border-radius: 4px;
         transition: all 0.2s;
         text-decoration: none;
@@ -562,7 +563,7 @@
                 @endif
                 <span>{{ trans(ensure_menu_translation($menu->menu_name)) }}</span>
                 @if(($menu->menu_slug === 'inquiries' || $menu->menu_name === 'Project Inquiries') && $newInquiryCount > 0)
-                    <span class="badge badge-pill badge-warning" style="margin-left: auto; font-size: 10px; padding: 2px 7px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 700; border-radius: 9999px;">{{ $newInquiryCount }}</span>
+                    <span class="badge badge-pill badge-warning" style="margin-left: auto; font-size: 11.5px; padding: 3px 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; border-radius: 9999px;">{{ $newInquiryCount }}</span>
                 @endif
             </a>
         </li>
@@ -577,7 +578,7 @@
                 @endif
                 <span>{{ trans(ensure_menu_translation($menu->menu_name)) }}</span>
                 @if(($menu->menu_slug === 'inquiries' || $menu->menu_name === 'Project Inquiries') && $newInquiryCount > 0)
-                    <span class="badge badge-pill badge-warning" style="margin-left: auto; margin-right: 6px; font-size: 10px; padding: 2px 7px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 700; border-radius: 9999px;">{{ $newInquiryCount }}</span>
+                    <span class="badge badge-pill badge-warning" style="margin-left: auto; margin-right: 6px; font-size: 11.5px; padding: 3px 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; border-radius: 9999px;">{{ $newInquiryCount }}</span>
                 @endif
             </a>
             <ul class="nav nav-children {{ $isActiveParent ? 'show' : '' }}">
@@ -617,12 +618,12 @@
 @endforelse
 
             </ul>
-            <div class="sidebar-status-pill" style="padding: 10px 14px; margin: 16px 12px 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.5);">
-                <span style="display: flex; align-items: center; gap: 7px;">
-                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; display: inline-block;"></span>
+            <div class="sidebar-status-pill" style="padding: 10px 14px; margin: 16px 12px 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: rgba(255,255,255,0.7);">
+                <span style="display: flex; align-items: center; gap: 7px; font-weight: 600;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; display: inline-block;"></span>
                     <span>All Menus Synced</span>
                 </span>
-                <span style="font-family: monospace; font-size: 10px; color: #38bdf8;">v2.6</span>
+                <span style="font-family: monospace; font-size: 11.5px; color: #38bdf8; font-weight: 700;">v2.6</span>
             </div>
         </nav>
     </div>

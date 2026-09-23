@@ -8,53 +8,54 @@
 <style>
     /* ==========================================================================
        NEXTDIGIHOME SERVER-SIDE TRACKING & CAPI - ULTRA PREMIUM UI / UX
+       Vivid Color Contrast, Crisp Modern Typography & Enhanced Font Scale
        ========================================================================== */
 
     :root {
         --st-primary: #4f46e5;
-        --st-primary-rgb: 79, 70, 229;
         --st-primary-hover: #4338ca;
-        --st-accent-cyan: #06b6d4;
-        --st-accent-emerald: #10b981;
-        --st-accent-amber: #f59e0b;
-        --st-accent-rose: #f43f5e;
-        --st-accent-purple: #8b5cf6;
-        --st-dark-surface: #0b1120;
-        --st-card-border: rgba(226, 232, 240, 0.9);
-        --st-card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.03);
-        --st-card-hover-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+        --st-text-dark: #090e17;
+        --st-text-body: #1e293b;
+        --st-text-muted: #334155;
+        --st-text-subtle: #475569;
+        --st-card-border: #cbd5e1;
+        --st-card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.07), 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+        --st-card-hover-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.12), 0 6px 14px -2px rgba(15, 23, 42, 0.06);
     }
 
     .premium-page {
-        background: #f8fafc;
+        background: #f1f5f9;
         min-height: calc(100vh - 66px);
-        padding: 24px 28px;
+        padding: 26px 32px;
+        font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 15px;
+        color: var(--st-text-body);
+        line-height: 1.6;
     }
 
     /* --------------------------------------------------------------------------
-       1. HERO HEADER WITH COSMIC SLATE GRADIENT & LIVE RADAR
+       1. HERO HEADER: COSMIC DARK OBSIDIAN GRADIENT WITH HIGH-CONTRAST TEXT
        -------------------------------------------------------------------------- */
     .st-hero-header {
         position: relative;
         overflow: hidden;
         background: linear-gradient(135deg, #090e17 0%, #0f172a 45%, #1e1b4b 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 28px 32px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 20px;
+        padding: 34px 40px;
         color: #ffffff;
-        margin-bottom: 24px;
-        box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.25);
+        margin-bottom: 28px;
+        box-shadow: 0 16px 45px -4px rgba(15, 23, 42, 0.38);
     }
 
-    /* Ambient background glowing orbs */
     .st-hero-header::before {
         content: '';
         position: absolute;
         top: -60px;
         right: 40px;
-        width: 320px;
-        height: 320px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 70%);
+        width: 360px;
+        height: 360px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.32) 0%, rgba(6, 182, 212, 0.14) 50%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
@@ -63,10 +64,10 @@
         content: '';
         position: absolute;
         bottom: -40px;
-        left: 20%;
-        width: 240px;
-        height: 240px;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+        left: 25%;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
@@ -74,24 +75,24 @@
     .st-radar-badge {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        background: rgba(16, 185, 129, 0.12);
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        gap: 10px;
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid rgba(52, 211, 153, 0.5);
         color: #34d399;
         border-radius: 9999px;
-        padding: 4px 12px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.8px;
+        padding: 7px 16px;
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.9px;
         text-transform: uppercase;
-        margin-bottom: 10px;
-        backdrop-filter: blur(8px);
+        margin-bottom: 14px;
+        backdrop-filter: blur(10px);
     }
 
     .st-radar-dot {
         position: relative;
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background-color: #10b981;
     }
@@ -99,26 +100,27 @@
     .st-radar-dot::after {
         content: '';
         position: absolute;
-        top: -3px;
-        left: -3px;
-        width: 14px;
-        height: 14px;
+        top: -4px;
+        left: -4px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
-        background-color: rgba(16, 185, 129, 0.6);
+        background-color: rgba(16, 185, 129, 0.7);
         animation: stRadarPulse 2s infinite ease-out;
     }
 
     @keyframes stRadarPulse {
         0% { transform: scale(0.6); opacity: 1; }
-        100% { transform: scale(2.2); opacity: 0; }
+        100% { transform: scale(2.3); opacity: 0; }
     }
 
     .st-hero-title {
-        font-size: 26px;
+        font-size: 36px;
         font-weight: 800;
-        letter-spacing: -0.6px;
-        margin: 0 0 8px;
+        letter-spacing: -0.8px;
+        margin: 0 0 12px;
         color: #ffffff;
+        line-height: 1.25;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -132,38 +134,39 @@
     }
 
     .st-hero-subtitle {
-        color: rgba(226, 232, 240, 0.85);
-        font-size: 14px;
-        max-width: 720px;
-        line-height: 1.55;
-        margin: 0 0 16px;
+        color: #f1f5f9;
+        font-size: 16.5px;
+        max-width: 800px;
+        line-height: 1.65;
+        margin: 0 0 20px;
+        font-weight: 500;
     }
 
     .st-hero-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 12px;
     }
 
     .st-hero-tag {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #e2e8f0;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 6px;
-        backdrop-filter: blur(4px);
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        color: #ffffff;
+        font-size: 13.5px;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 9px;
+        backdrop-filter: blur(8px);
     }
 
     .st-hero-actions {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
         z-index: 2;
         position: relative;
     }
@@ -171,63 +174,63 @@
     .st-btn-glow {
         background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        box-shadow: 0 4px 18px rgba(79, 70, 229, 0.45) !important;
-        border-radius: 10px !important;
-        padding: 9px 20px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.55) !important;
+        border-radius: 11px !important;
+        padding: 11px 24px !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
         display: inline-flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 9px !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
         cursor: pointer;
     }
 
     .st-btn-glow:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6) !important;
-        filter: brightness(1.08);
+        box-shadow: 0 8px 28px rgba(79, 70, 229, 0.75) !important;
+        filter: brightness(1.1);
         color: #ffffff !important;
     }
 
     .st-btn-glass {
-        background: rgba(255, 255, 255, 0.08) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
         backdrop-filter: blur(10px) !important;
-        border-radius: 10px !important;
-        padding: 9px 18px !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
+        border-radius: 11px !important;
+        padding: 11px 22px !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
         display: inline-flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 9px !important;
         transition: all 0.2s ease !important;
         text-decoration: none !important;
     }
 
     .st-btn-glass:hover {
-        background: rgba(255, 255, 255, 0.18) !important;
-        border-color: rgba(255, 255, 255, 0.35) !important;
+        background: rgba(255, 255, 255, 0.24) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
         color: #ffffff !important;
-        transform: translateY(-2px) !important;
+        transform: translateY(-2px);
     }
 
     /* --------------------------------------------------------------------------
-       2. REFINED SUB-NAVIGATION TABS BAR
+       2. NAVIGATION BAR
        -------------------------------------------------------------------------- */
     .st-nav-bar {
         background: #ffffff;
         border: 1px solid var(--st-card-border);
-        border-radius: 12px;
-        padding: 8px 10px;
-        margin-bottom: 24px;
+        border-radius: 16px;
+        padding: 10px 14px;
+        margin-bottom: 28px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 12px;
         box-shadow: var(--st-card-shadow);
     }
 
@@ -235,54 +238,55 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 8px;
     }
 
     .st-nav-link {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
+        gap: 9px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--st-text-body);
         text-decoration: none !important;
         transition: all 0.2s ease;
     }
 
     .st-nav-link:hover {
         background: #f1f5f9;
-        color: #0f172a;
+        color: var(--st-text-dark);
     }
 
     .st-nav-link.active {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         color: #ffffff;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
     }
 
     .st-nav-badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 2px 8px;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 4px 10px;
         border-radius: 9999px;
-        background: rgba(148, 163, 184, 0.2);
-        color: inherit;
+        background: #e2e8f0;
+        color: #1e293b;
     }
 
     .st-nav-link.active .st-nav-badge {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.25);
         color: #ffffff;
     }
 
     .st-nav-quick-info {
         display: flex;
         align-items: center;
-        gap: 14px;
-        font-size: 12px;
-        color: #64748b;
-        padding-right: 8px;
+        gap: 16px;
+        font-size: 14px;
+        color: var(--st-text-muted);
+        padding-right: 12px;
+        font-weight: 700;
     }
 
     /* --------------------------------------------------------------------------
@@ -291,58 +295,51 @@
     .st-pipeline-card {
         background: #ffffff;
         border: 1px solid var(--st-card-border);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
+        border-radius: 18px;
+        padding: 28px 30px;
+        margin-bottom: 28px;
         box-shadow: var(--st-card-shadow);
-        position: relative;
     }
 
     .st-pipeline-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
     }
 
     .st-pipeline-title {
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 16px;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: #0369a1;
+        letter-spacing: 0.9px;
+        color: #0284c7;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .st-pipeline-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        position: relative;
+        gap: 20px;
     }
 
     @media (max-width: 992px) {
-        .st-pipeline-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .st-pipeline-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 576px) {
-        .st-pipeline-grid {
-            grid-template-columns: 1fr;
-        }
+        .st-pipeline-grid { grid-template-columns: 1fr; }
     }
 
     .st-step-box {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 18px;
-        position: relative;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        padding: 22px;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         flex-direction: column;
@@ -350,72 +347,76 @@
     }
 
     .st-step-box:hover {
-        border-color: #94a3b8;
+        border-color: #64748b;
         transform: translateY(-3px);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
     }
 
-    .st-step-box.step-1 { border-top: 3px solid #3b82f6; }
-    .st-step-box.step-2 { border-top: 3px solid #10b981; }
-    .st-step-box.step-3 { border-top: 3px solid #f59e0b; }
-    .st-step-box.step-4 { border-top: 3px solid #8b5cf6; }
+    .st-step-box.step-1 { border-top: 4px solid #2563eb; }
+    .st-step-box.step-2 { border-top: 4px solid #059669; }
+    .st-step-box.step-3 { border-top: 4px solid #d97706; }
+    .st-step-box.step-4 { border-top: 4px solid #7c3aed; }
 
     .st-step-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
     }
 
     .st-step-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
-    }
-
-    .st-step-pill {
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
+        font-size: 22px;
     }
 
     .st-step-num {
-        font-size: 11px;
-        font-weight: 700;
-        color: #94a3b8;
-        font-family: monospace;
+        font-size: 13px;
+        font-weight: 800;
+        color: #475569;
+        font-family: SFMono-Regular, Consolas, monospace;
+        letter-spacing: 0.6px;
     }
 
     .st-step-heading {
-        font-size: 14px;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 4px;
+        font-size: 17.5px;
+        font-weight: 800;
+        color: var(--st-text-dark);
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
     }
 
     .st-step-desc {
-        font-size: 12px;
-        color: #64748b;
-        line-height: 1.5;
-        margin-bottom: 12px;
+        font-size: 14.5px;
+        color: var(--st-text-muted);
+        line-height: 1.6;
+        margin-bottom: 16px;
+        font-weight: 500;
+    }
+
+    .st-step-desc code {
+        background: #f1f5f9;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 3px 7px;
+        border-radius: 5px;
+        border: 1px solid #cbd5e1;
     }
 
     .st-step-footer {
-        padding-top: 10px;
-        border-top: 1px dashed #e2e8f0;
+        padding-top: 14px;
+        border-top: 1px solid #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 11px;
-        color: #475569;
-        font-weight: 600;
+        font-size: 14px;
+        color: var(--st-text-body);
+        font-weight: 700;
     }
 
     /* --------------------------------------------------------------------------
@@ -424,8 +425,8 @@
     .st-stats-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 20px;
+        margin-bottom: 28px;
     }
 
     @media (max-width: 1200px) {
@@ -439,8 +440,8 @@
     .st-stat-card {
         background: #ffffff;
         border: 1px solid var(--st-card-border);
-        border-radius: 16px;
-        padding: 20px 22px;
+        border-radius: 18px;
+        padding: 26px;
         box-shadow: var(--st-card-shadow);
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
@@ -453,7 +454,7 @@
     .st-stat-card:hover {
         transform: translateY(-3px);
         box-shadow: var(--st-card-hover-shadow);
-        border-color: #cbd5e1;
+        border-color: #94a3b8;
     }
 
     .st-stat-card::after {
@@ -462,92 +463,94 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 3px;
+        height: 5px;
     }
 
-    .st-stat-card.stat-blue::after { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
-    .st-stat-card.stat-green::after { background: linear-gradient(90deg, #10b981, #34d399); }
-    .st-stat-card.stat-rose::after { background: linear-gradient(90deg, #f43f5e, #fb7185); }
-    .st-stat-card.stat-purple::after { background: linear-gradient(90deg, #8b5cf6, #a855f7); }
+    .st-stat-card.stat-blue::after { background: linear-gradient(90deg, #2563eb, #06b6d4); }
+    .st-stat-card.stat-green::after { background: linear-gradient(90deg, #059669, #10b981); }
+    .st-stat-card.stat-rose::after { background: linear-gradient(90deg, #e11d48, #f43f5e); }
+    .st-stat-card.stat-purple::after { background: linear-gradient(90deg, #7c3aed, #a855f7); }
 
     .st-stat-top {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 14px;
+        margin-bottom: 18px;
     }
 
     .st-stat-icon-wrapper {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 24px;
     }
 
     .st-stat-trend {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 3px 8px;
+        font-size: 13.5px;
+        font-weight: 800;
+        padding: 5px 12px;
         border-radius: 9999px;
         display: inline-flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .st-stat-label {
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-        margin-bottom: 4px;
-    }
-
-    .st-stat-value {
-        font-size: 28px;
-        font-weight: 800;
-        color: #0f172a;
-        line-height: 1.15;
-        letter-spacing: -0.5px;
-        margin-bottom: 6px;
-    }
-
-    .st-stat-subtext {
-        font-size: 12px;
-        color: #94a3b8;
-        display: flex;
         align-items: center;
         gap: 6px;
     }
 
-    /* --------------------------------------------------------------------------
-       5. CLOUD CONVERSION DISPATCH CHANNELS (4 PROVIDER CARDS)
-       -------------------------------------------------------------------------- */
-    .st-section-title {
-        font-size: 16px;
+    .st-stat-label {
+        font-size: 14.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        color: var(--st-text-muted);
+        margin-bottom: 8px;
+    }
+
+    .st-stat-value {
+        font-size: 40px;
         font-weight: 800;
-        color: #0f172a;
-        letter-spacing: -0.3px;
-        margin: 0 0 4px;
+        color: var(--st-text-dark);
+        line-height: 1.1;
+        letter-spacing: -0.7px;
+        margin-bottom: 10px;
+    }
+
+    .st-stat-subtext {
+        font-size: 14px;
+        color: var(--st-text-muted);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 7px;
+        font-weight: 600;
+    }
+
+    /* --------------------------------------------------------------------------
+       5. CLOUD CONVERSION DISPATCH CHANNELS
+       -------------------------------------------------------------------------- */
+    .st-section-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--st-text-dark);
+        letter-spacing: -0.4px;
+        margin: 0 0 6px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
     .st-section-sub {
-        font-size: 13px;
-        color: #64748b;
-        margin: 0 0 16px;
+        font-size: 15.5px;
+        color: var(--st-text-muted);
+        margin: 0 0 20px;
+        font-weight: 500;
     }
 
     .st-providers-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 20px;
+        margin-bottom: 28px;
     }
 
     @media (max-width: 1200px) {
@@ -561,8 +564,8 @@
     .st-channel-card {
         background: #ffffff;
         border: 1px solid var(--st-card-border);
-        border-radius: 16px;
-        padding: 22px;
+        border-radius: 18px;
+        padding: 24px;
         box-shadow: var(--st-card-shadow);
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
@@ -575,7 +578,7 @@
     .st-channel-card:hover {
         transform: translateY(-3px);
         box-shadow: var(--st-card-hover-shadow);
-        border-color: #cbd5e1;
+        border-color: #94a3b8;
     }
 
     .st-channel-card::before {
@@ -584,117 +587,118 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
+        height: 5px;
     }
 
     .st-channel-meta::before { background: linear-gradient(90deg, #1877f2, #3b82f6); }
-    .st-channel-ga4::before { background: linear-gradient(90deg, #f59e0b, #ea580c); }
-    .st-channel-tiktok::before { background: linear-gradient(90deg, #0f172a, #fe2c55, #25f4ee); }
-    .st-channel-webhook::before { background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+    .st-channel-ga4::before { background: linear-gradient(90deg, #d97706, #ea580c); }
+    .st-channel-tiktok::before { background: linear-gradient(90deg, #0f172a, #e11d48, #06b6d4); }
+    .st-channel-webhook::before { background: linear-gradient(90deg, #7c3aed, #4f46e5); }
 
     .st-channel-top {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
 
     .st-channel-icon-wrap {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
+        font-size: 26px;
     }
 
     .st-status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
+        gap: 7px;
+        padding: 6px 14px;
         border-radius: 9999px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.3px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
     }
 
     .st-status-badge.active {
-        background: #ecfdf5;
-        color: #059669;
-        border: 1px solid #a7f3d0;
+        background: #d1fae5;
+        color: #065f46;
+        border: 1.5px solid #6ee7b7;
     }
 
     .st-status-badge.disabled {
         background: #f1f5f9;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
+        color: #475569;
+        border: 1.5px solid #cbd5e1;
     }
 
     .st-channel-name {
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 800;
-        color: #0f172a;
-        margin: 0 0 2px;
+        color: var(--st-text-dark);
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
     }
 
     .st-channel-api-ver {
-        font-size: 12px;
-        color: #64748b;
-        margin-bottom: 14px;
-        font-weight: 500;
+        font-size: 14px;
+        color: var(--st-text-subtle);
+        margin-bottom: 18px;
+        font-weight: 600;
     }
 
     .st-id-preview-box {
         background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 10px 12px;
-        margin-bottom: 16px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
         transition: all 0.2s ease;
     }
 
     .st-id-preview-box:hover {
-        border-color: #cbd5e1;
+        border-color: #94a3b8;
         background: #f1f5f9;
     }
 
     .st-id-preview-label {
-        font-size: 10px;
+        font-size: 13px;
         text-transform: uppercase;
-        font-weight: 700;
-        color: #64748b;
-        margin-bottom: 4px;
-        letter-spacing: 0.5px;
+        font-weight: 800;
+        color: var(--st-text-muted);
+        margin-bottom: 6px;
+        letter-spacing: 0.6px;
         display: flex;
         justify-content: space-between;
     }
 
     .st-id-preview-val {
-        font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-        font-size: 12px;
-        color: #0f172a;
-        font-weight: 600;
+        font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 15px;
+        color: var(--st-text-dark);
+        font-weight: 800;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        max-width: 170px;
+        max-width: 240px;
     }
 
     .st-copy-btn {
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        color: #475569;
-        border-radius: 6px;
-        padding: 3px 8px;
-        font-size: 11px;
-        font-weight: 600;
+        border: 1.5px solid #cbd5e1;
+        color: #1e293b;
+        border-radius: 8px;
+        padding: 5px 11px;
+        font-size: 13px;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
     }
 
     .st-copy-btn:hover {
@@ -704,88 +708,89 @@
     }
 
     .st-channel-footer {
-        padding-top: 14px;
-        border-top: 1px solid #f1f5f9;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
     .st-dispatch-count {
-        font-size: 12px;
-        color: #64748b;
+        font-size: 14px;
+        color: var(--st-text-muted);
+        font-weight: 600;
     }
 
     .st-dispatch-count strong {
-        color: #0f172a;
-        font-size: 14px;
+        color: var(--st-text-dark);
+        font-size: 18px;
         font-weight: 800;
     }
 
     .st-channel-actions {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
     }
 
     .st-test-trigger-btn {
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        color: #1e293b;
-        border-radius: 8px;
-        padding: 6px 12px;
-        font-size: 12px;
-        font-weight: 700;
+        border: 1.5px solid #cbd5e1;
+        color: var(--st-text-dark);
+        border-radius: 9px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 800;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 7px;
         transition: all 0.2s ease;
     }
 
     .st-test-trigger-btn:hover {
         border-color: #4f46e5;
         color: #4f46e5;
-        background: rgba(79, 70, 229, 0.06);
+        background: rgba(79, 70, 229, 0.08);
     }
 
     .st-config-icon-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        border: 1px solid #cbd5e1;
+        width: 40px;
+        height: 40px;
+        border-radius: 9px;
+        border: 1.5px solid #cbd5e1;
         background: #ffffff;
-        color: #64748b;
+        color: #475569;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
+        font-size: 15px;
         transition: all 0.2s ease;
         text-decoration: none !important;
     }
 
     .st-config-icon-btn:hover {
-        color: #0f172a;
+        color: var(--st-text-dark);
         background: #f1f5f9;
-        border-color: #94a3b8;
+        border-color: #64748b;
     }
 
     /* --------------------------------------------------------------------------
-       6. TELEMETRY DIAGNOSTIC TERMINAL (MAC OS CONSOLE LOOK)
+       6. TELEMETRY DIAGNOSTIC TERMINAL
        -------------------------------------------------------------------------- */
     .st-terminal-card {
         background: #090e17;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        box-shadow: 0 16px 40px -4px rgba(15, 23, 42, 0.35);
-        margin-bottom: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px -4px rgba(15, 23, 42, 0.45);
+        margin-bottom: 28px;
         overflow: hidden;
     }
 
     .st-terminal-header {
         background: #0f172a;
-        padding: 12px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 16px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -798,8 +803,8 @@
     }
 
     .st-mac-dot {
-        width: 11px;
-        height: 11px;
+        width: 13px;
+        height: 13px;
         border-radius: 50%;
         display: inline-block;
     }
@@ -809,36 +814,36 @@
     .st-mac-dot.max { background: #27c93f; }
 
     .st-terminal-title {
-        font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-        font-size: 12px;
-        font-weight: 600;
-        color: #e2e8f0;
+        font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: #f1f5f9;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 9px;
     }
 
     .st-terminal-actions {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
     }
 
     .st-terminal-body {
-        padding: 18px 22px;
+        padding: 22px 26px;
         background: #090e17;
     }
 
     .st-terminal-pre {
-        font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-        font-size: 12.5px;
-        line-height: 1.6;
+        font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        line-height: 1.7;
         color: #38bdf8;
         background: transparent;
         border: none;
         padding: 0;
         margin: 0;
-        max-height: 320px;
+        max-height: 380px;
         overflow-y: auto;
         white-space: pre-wrap;
         word-break: break-word;
@@ -850,31 +855,32 @@
     .st-table-card {
         background: #ffffff;
         border: 1px solid var(--st-card-border);
-        border-radius: 16px;
+        border-radius: 18px;
         box-shadow: var(--st-card-shadow);
         overflow: hidden;
         margin-bottom: 30px;
     }
 
     .st-table-toolbar {
-        padding: 20px 24px;
-        border-bottom: 1px solid #f1f5f9;
+        padding: 24px 28px;
+        border-bottom: 1.5px solid #cbd5e1;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 14px;
+        gap: 16px;
         background: #ffffff;
     }
 
     .st-search-input {
         background: #f8fafc;
-        border: 1px solid #cbd5e1;
+        border: 1.5px solid #cbd5e1;
         border-radius: 10px;
-        padding: 8px 14px 8px 36px;
-        font-size: 13px;
-        color: #0f172a;
-        width: 260px;
+        padding: 10px 16px 10px 42px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--st-text-dark);
+        width: 290px;
         transition: all 0.2s ease;
     }
 
@@ -882,32 +888,32 @@
         background: #ffffff;
         border-color: #4f46e5;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-        width: 300px;
+        box-shadow: 0 0 0 3.5px rgba(79, 70, 229, 0.15);
+        width: 330px;
     }
 
     .st-filter-pills {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         flex-wrap: wrap;
     }
 
     .st-filter-pill {
-        padding: 5px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1px solid #e2e8f0;
+        padding: 7px 16px;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 700;
+        border: 1.5px solid #cbd5e1;
         background: #f8fafc;
-        color: #475569;
+        color: var(--st-text-body);
         cursor: pointer;
         transition: all 0.15s ease;
     }
 
     .st-filter-pill:hover {
-        background: #f1f5f9;
-        color: #0f172a;
+        background: #e2e8f0;
+        color: var(--st-text-dark);
     }
 
     .st-filter-pill.active {
@@ -923,22 +929,23 @@
 
     .st-table thead th {
         background: #f8fafc;
-        padding: 13px 20px;
-        font-size: 11px;
-        font-weight: 700;
+        padding: 16px 24px;
+        font-size: 13.5px;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
-        color: #64748b;
-        border-bottom: 1px solid #e2e8f0;
+        letter-spacing: 0.7px;
+        color: #1e293b;
+        border-bottom: 1.5px solid #cbd5e1;
         white-space: nowrap;
     }
 
     .st-table tbody td {
-        padding: 14px 20px;
-        font-size: 13px;
-        color: #1e293b;
-        border-bottom: 1px solid #f1f5f9;
+        padding: 17px 24px;
+        font-size: 15px;
+        color: var(--st-text-dark);
+        border-bottom: 1px solid #e2e8f0;
         vertical-align: middle;
+        font-weight: 500;
     }
 
     .st-table tbody tr {
@@ -952,82 +959,84 @@
     .st-channel-pill {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.3px;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 9px;
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
     }
 
-    .st-channel-pill.meta { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-    .st-channel-pill.ga4 { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-    .st-channel-pill.tiktok { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
-    .st-channel-pill.webhook { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .st-channel-pill.meta { background: #dbeafe; color: #1e40af; border: 1.5px solid #93c5fd; }
+    .st-channel-pill.ga4 { background: #fef3c7; color: #92400e; border: 1.5px solid #fde68a; }
+    .st-channel-pill.tiktok { background: #ffe4e6; color: #9f1239; border: 1.5px solid #fecdd3; }
+    .st-channel-pill.webhook { background: #ede9fe; color: #5b21b6; border: 1.5px solid #c4b5fd; }
 
     .st-event-tag {
         display: inline-block;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 800;
         background: #f1f5f9;
-        color: #0f172a;
+        color: var(--st-text-dark);
+        border: 1px solid #cbd5e1;
     }
 
-    .st-event-tag.Lead { background: #e0e7ff; color: #4338ca; }
-    .st-event-tag.Purchase { background: #dcfce7; color: #15803d; }
-    .st-event-tag.ViewContent { background: #e0f2fe; color: #0369a1; }
-    .st-event-tag.AddToCart { background: #fef3c7; color: #92400e; }
-    .st-event-tag.Contact { background: #f3e8ff; color: #7e22ce; }
+    .st-event-tag.Lead { background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+    .st-event-tag.Purchase { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+    .st-event-tag.ViewContent { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+    .st-event-tag.AddToCart { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .st-event-tag.Contact { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
 
     .st-delivery-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
+        gap: 7px;
+        padding: 6px 14px;
         border-radius: 9999px;
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
     }
 
     .st-delivery-badge.success {
-        background: #ecfdf5;
-        color: #047857;
-        border: 1px solid #a7f3d0;
+        background: #d1fae5;
+        color: #065f46;
+        border: 1.5px solid #6ee7b7;
     }
 
     .st-delivery-badge.failed {
-        background: #fff1f2;
-        color: #be123c;
-        border: 1px solid #fecdd3;
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1.5px solid #fca5a5;
     }
 
     .st-delivery-badge.skipped {
         background: #f1f5f9;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
+        color: #475569;
+        border: 1.5px solid #cbd5e1;
     }
 
     .st-code-pill {
-        font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 6px;
+        font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 7px;
     }
 
-    .st-code-pill.success { background: #ecfdf5; color: #059669; }
-    .st-code-pill.error { background: #fff1f2; color: #dc2626; }
-    .st-code-pill.muted { background: #f1f5f9; color: #64748b; }
+    .st-code-pill.success { background: #d1fae5; color: #065f46; border: 1.5px solid #a7f3d0; }
+    .st-code-pill.error { background: #fee2e2; color: #991b1b; border: 1.5px solid #fca5a5; }
+    .st-code-pill.muted { background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1; }
 
     /* --------------------------------------------------------------------------
-       8. FLOATING TOAST NOTIFICATIONS
+       8. FLOATING TOAST SYSTEM
        -------------------------------------------------------------------------- */
     .st-toast-container {
         position: fixed;
-        bottom: 24px;
-        right: 24px;
+        bottom: 26px;
+        right: 26px;
         z-index: 9999;
         display: flex;
         flex-direction: column;
@@ -1039,15 +1048,15 @@
         pointer-events: auto;
         background: #0f172a;
         color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 12px;
-        padding: 12px 18px;
-        font-size: 13px;
-        font-weight: 600;
+        padding: 14px 22px;
+        font-size: 14.5px;
+        font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        gap: 12px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
         animation: stToastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
@@ -1081,7 +1090,7 @@
                         <div class="st-hero-tag"><i class="fas fa-shield-alt text-success"></i> SHA-256 PII Encrypted</div>
                         <div class="st-hero-tag"><i class="fas fa-fingerprint text-info"></i> Deterministic event_id</div>
                         <div class="st-hero-tag"><i class="fas fa-bolt text-warning"></i> Sub-150ms Cloud Edge</div>
-                        <div class="st-hero-tag"><i class="fas fa-check-circle text-emerald"></i> GDPR / CCPA Ready</div>
+                        <div class="st-hero-tag"><i class="fas fa-check-circle text-emerald" style="color: #34d399;"></i> GDPR / CCPA Ready</div>
                     </div>
                 </div>
 
@@ -1103,10 +1112,10 @@
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert" style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 12px; padding: 14px 18px;">
-                <i class="fas fa-check-circle mr-3" style="font-size: 18px; color: #059669;"></i>
-                <div class="font-weight-600" style="font-size: 13.5px;">{{ session('success') }}</div>
-                <button type="button" class="close ml-auto text-dark" data-dismiss="alert" aria-label="Close" style="opacity: 0.6;">
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert" style="background: #d1fae5; border: 1.5px solid #6ee7b7; color: #065f46; border-radius: 14px; padding: 16px 20px;">
+                <i class="fas fa-check-circle mr-3" style="font-size: 20px; color: #059669;"></i>
+                <div class="font-weight-700" style="font-size: 14px;">{{ session('success') }}</div>
+                <button type="button" class="close ml-auto text-dark" data-dismiss="alert" aria-label="Close" style="opacity: 0.7;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -1133,9 +1142,9 @@
             </div>
 
             <div class="st-nav-quick-info d-none d-md-flex">
-                <span><i class="fas fa-circle text-success mr-1" style="font-size: 8px;"></i> Dual-Tagging Hybrid Active</span>
+                <span><i class="fas fa-circle text-success mr-1" style="font-size: 10px;"></i> Dual-Tagging Hybrid Active</span>
                 <span class="text-muted">&bull;</span>
-                <span class="font-mono text-dark font-weight-bold">v2.6 Enterprise</span>
+                <span class="font-mono text-dark font-weight-bold" style="font-size: 14px;">v2.6 Enterprise</span>
             </div>
         </div>
 
@@ -1145,11 +1154,11 @@
         <div class="st-pipeline-card">
             <div class="st-pipeline-header">
                 <div class="st-pipeline-title">
-                    <i class="fas fa-project-diagram" style="font-size: 16px;"></i>
+                    <i class="fas fa-project-diagram" style="font-size: 20px;"></i>
                     <span>Zero Signal Loss Conversion Pipeline</span>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge badge-light border text-muted px-2 py-1 font-mono" style="font-size: 11px;">
+                    <span class="badge badge-light border text-dark px-3 py-2 font-mono font-weight-bold" style="font-size: 13px; background: #f8fafc; border-color: #cbd5e1 !important;">
                         Browser &harr; Server Dual-Tagging &bull; Instant Deduplication
                     </span>
                 </div>
@@ -1160,7 +1169,7 @@
                 <div class="st-step-box step-1">
                     <div>
                         <div class="st-step-top">
-                            <div class="st-step-icon" style="background: #eff6ff; color: #2563eb;">
+                            <div class="st-step-icon" style="background: #dbeafe; color: #1d4ed8;">
                                 <i class="fas fa-desktop"></i>
                             </div>
                             <span class="st-step-num">STAGE 01</span>
@@ -1180,7 +1189,7 @@
                 <div class="st-step-box step-2">
                     <div>
                         <div class="st-step-top">
-                            <div class="st-step-icon" style="background: #ecfdf5; color: #059669;">
+                            <div class="st-step-icon" style="background: #d1fae5; color: #065f46;">
                                 <i class="fas fa-network-wired"></i>
                             </div>
                             <span class="st-step-num">STAGE 02</span>
@@ -1200,7 +1209,7 @@
                 <div class="st-step-box step-3">
                     <div>
                         <div class="st-step-top">
-                            <div class="st-step-icon" style="background: #fffbeb; color: #d97706;">
+                            <div class="st-step-icon" style="background: #fef3c7; color: #92400e;">
                                 <i class="fas fa-fingerprint"></i>
                             </div>
                             <span class="st-step-num">STAGE 03</span>
@@ -1220,7 +1229,7 @@
                 <div class="st-step-box step-4">
                     <div>
                         <div class="st-step-top">
-                            <div class="st-step-icon" style="background: #f5f3ff; color: #7c3aed;">
+                            <div class="st-step-icon" style="background: #ede9fe; color: #6d28d9;">
                                 <i class="fas fa-cloud-upload-alt"></i>
                             </div>
                             <span class="st-step-num">STAGE 04</span>
@@ -1232,7 +1241,7 @@
                     </div>
                     <div class="st-step-footer">
                         <span>Multi-Cloud CAPI</span>
-                        <i class="fas fa-check-double text-purple" style="color: #8b5cf6;"></i>
+                        <i class="fas fa-check-double" style="color: #7c3aed;"></i>
                     </div>
                 </div>
             </div>
@@ -1255,10 +1264,10 @@
             <div class="st-stat-card stat-blue">
                 <div>
                     <div class="st-stat-top">
-                        <div class="st-stat-icon-wrapper" style="background: #eff6ff; color: #2563eb;">
+                        <div class="st-stat-icon-wrapper" style="background: #dbeafe; color: #1d4ed8;">
                             <i class="fas fa-paper-plane"></i>
                         </div>
-                        <span class="st-stat-trend" style="background: #eff6ff; color: #1d4ed8;">
+                        <span class="st-stat-trend" style="background: #dbeafe; color: #1e40af;">
                             <i class="fas fa-arrow-up mr-1"></i> Live
                         </span>
                     </div>
@@ -1275,19 +1284,19 @@
             <div class="st-stat-card stat-green">
                 <div>
                     <div class="st-stat-top">
-                        <div class="st-stat-icon-wrapper" style="background: #ecfdf5; color: #059669;">
+                        <div class="st-stat-icon-wrapper" style="background: #d1fae5; color: #065f46;">
                             <i class="fas fa-check-double"></i>
                         </div>
-                        <span class="st-stat-trend" style="background: #ecfdf5; color: #047857;">
+                        <span class="st-stat-trend" style="background: #d1fae5; color: #065f46;">
                             {{ $successRate }}%
                         </span>
                     </div>
                     <div class="st-stat-label">Delivery Success Rate</div>
-                    <div class="st-stat-value text-success">{{ number_format($totalSuccess) }}</div>
+                    <div class="st-stat-value" style="color: #059669;">{{ number_format($totalSuccess) }}</div>
                 </div>
                 <div>
-                    <div class="progress mb-2" style="height: 5px; background: #e2e8f0; border-radius: 9999px;">
-                        <div class="progress-bar" style="width: {{ $successRate }}%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 9999px;"></div>
+                    <div class="progress mb-2" style="height: 7px; background: #e2e8f0; border-radius: 9999px;">
+                        <div class="progress-bar" style="width: {{ $successRate }}%; background: linear-gradient(90deg, #059669, #10b981); border-radius: 9999px;"></div>
                     </div>
                     <div class="st-stat-subtext">
                         <span>2xx API confirmations received</span>
@@ -1299,10 +1308,10 @@
             <div class="st-stat-card {{ $totalFailed > 0 ? 'stat-rose' : 'stat-green' }}">
                 <div>
                     <div class="st-stat-top">
-                        <div class="st-stat-icon-wrapper" style="background: {{ $totalFailed > 0 ? '#fff1f2' : '#f0fdf4' }}; color: {{ $totalFailed > 0 ? '#dc2626' : '#16a34a' }};">
+                        <div class="st-stat-icon-wrapper" style="background: {{ $totalFailed > 0 ? '#fee2e2' : '#d1fae5' }}; color: {{ $totalFailed > 0 ? '#991b1b' : '#065f46' }};">
                             <i class="fas {{ $totalFailed > 0 ? 'fa-exclamation-triangle' : 'fa-shield-alt' }}"></i>
                         </div>
-                        <span class="st-stat-trend" style="background: {{ $totalFailed > 0 ? '#fff1f2' : '#f0fdf4' }}; color: {{ $totalFailed > 0 ? '#be123c' : '#15803d' }};">
+                        <span class="st-stat-trend" style="background: {{ $totalFailed > 0 ? '#fee2e2' : '#d1fae5' }}; color: {{ $totalFailed > 0 ? '#991b1b' : '#065f46' }};">
                             {{ $totalFailed > 0 ? 'Attention' : 'Clean' }}
                         </span>
                     </div>
@@ -1318,23 +1327,23 @@
             <div class="st-stat-card stat-purple">
                 <div>
                     <div class="st-stat-top">
-                        <div class="st-stat-icon-wrapper" style="background: #f5f3ff; color: #7c3aed;">
+                        <div class="st-stat-icon-wrapper" style="background: #ede9fe; color: #6d28d9;">
                             <i class="fas fa-broadcast-tower"></i>
                         </div>
-                        <span class="st-stat-trend" style="background: #f5f3ff; color: #6d28d9;">
+                        <span class="st-stat-trend" style="background: #ede9fe; color: #5b21b6;">
                             {{ $activePipelines }}/4 Channels
                         </span>
                     </div>
                     <div class="st-stat-label">Active Cloud Relays</div>
                     <div class="st-stat-value" style="color: #6d28d9;">
-                        {{ $activePipelines }} <span style="font-size: 16px; color: #94a3b8; font-weight: 500;">/ 4 Active</span>
+                        {{ $activePipelines }} <span style="font-size: 19px; color: #475569; font-weight: 700;">/ 4 Active</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 pt-1">
-                    <span class="badge badge-pill {{ !empty($metaConfig['enabled']) ? 'badge-primary' : 'badge-light text-muted border' }}" style="font-size: 10px;">Meta</span>
-                    <span class="badge badge-pill {{ !empty($ga4Config['enabled']) ? 'badge-warning text-dark' : 'badge-light text-muted border' }}" style="font-size: 10px;">GA4</span>
-                    <span class="badge badge-pill {{ !empty($tiktokConfig['enabled']) ? 'badge-danger' : 'badge-light text-muted border' }}" style="font-size: 10px;">TikTok</span>
-                    <span class="badge badge-pill {{ !empty($webhookConfig['enabled']) ? 'badge-info' : 'badge-light text-muted border' }}" style="font-size: 10px;">sGTM</span>
+                    <span class="badge badge-pill {{ !empty($metaConfig['enabled']) ? 'badge-primary' : 'badge-light text-muted border' }}" style="font-size: 12.5px; padding: 4px 10px; font-weight: 700;">Meta</span>
+                    <span class="badge badge-pill {{ !empty($ga4Config['enabled']) ? 'badge-warning text-dark' : 'badge-light text-muted border' }}" style="font-size: 12.5px; padding: 4px 10px; font-weight: 700;">GA4</span>
+                    <span class="badge badge-pill {{ !empty($tiktokConfig['enabled']) ? 'badge-danger' : 'badge-light text-muted border' }}" style="font-size: 12.5px; padding: 4px 10px; font-weight: 700;">TikTok</span>
+                    <span class="badge badge-pill {{ !empty($webhookConfig['enabled']) ? 'badge-info' : 'badge-light text-muted border' }}" style="font-size: 12.5px; padding: 4px 10px; font-weight: 700;">sGTM</span>
                 </div>
             </div>
         </div>
@@ -1350,7 +1359,7 @@
                 </h3>
                 <p class="st-section-sub">Direct API connectors transmitting normalized conversion events</p>
             </div>
-            <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-sm btn-outline-secondary font-weight-600" style="border-radius: 8px;">
+            <a href="{{ route('admin.server-tracking.config') }}" class="btn btn-sm btn-outline-secondary font-weight-bold" style="border-radius: 9px; font-size: 14.5px; padding: 8px 16px;">
                 <i class="fas fa-sliders-h mr-1"></i> Manage Credentials
             </a>
         </div>
@@ -1360,13 +1369,13 @@
             <div class="st-channel-card st-channel-meta">
                 <div>
                     <div class="st-channel-top">
-                        <div class="st-channel-icon-wrap" style="background: #eff6ff; color: #1877f2;">
+                        <div class="st-channel-icon-wrap" style="background: #dbeafe; color: #1877f2;">
                             <i class="fab fa-facebook"></i>
                         </div>
                         @if(!empty($metaConfig['enabled']))
-                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 6px;"></i> Active</span>
+                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
                         @else
-                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 6px;"></i> Inactive</span>
+                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Inactive</span>
                         @endif
                     </div>
                     <h4 class="st-channel-name">Meta Conversions API</h4>
@@ -1416,13 +1425,13 @@
             <div class="st-channel-card st-channel-ga4">
                 <div>
                     <div class="st-channel-top">
-                        <div class="st-channel-icon-wrap" style="background: #fffbeb; color: #f59e0b;">
+                        <div class="st-channel-icon-wrap" style="background: #fef3c7; color: #d97706;">
                             <i class="fab fa-google"></i>
                         </div>
                         @if(!empty($ga4Config['enabled']))
-                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 6px;"></i> Active</span>
+                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
                         @else
-                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 6px;"></i> Inactive</span>
+                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Inactive</span>
                         @endif
                     </div>
                     <h4 class="st-channel-name">Google Analytics 4</h4>
@@ -1472,13 +1481,13 @@
             <div class="st-channel-card st-channel-tiktok">
                 <div>
                     <div class="st-channel-top">
-                        <div class="st-channel-icon-wrap" style="background: #fff1f2; color: #fe2c55;">
+                        <div class="st-channel-icon-wrap" style="background: #ffe4e6; color: #e11d48;">
                             <i class="fab fa-tiktok"></i>
                         </div>
                         @if(!empty($tiktokConfig['enabled']))
-                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 6px;"></i> Active</span>
+                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
                         @else
-                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 6px;"></i> Inactive</span>
+                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Inactive</span>
                         @endif
                     </div>
                     <h4 class="st-channel-name">TikTok Events API</h4>
@@ -1528,13 +1537,13 @@
             <div class="st-channel-card st-channel-webhook">
                 <div>
                     <div class="st-channel-top">
-                        <div class="st-channel-icon-wrap" style="background: #f5f3ff; color: #8b5cf6;">
+                        <div class="st-channel-icon-wrap" style="background: #ede9fe; color: #7c3aed;">
                             <i class="fas fa-cloud-download-alt"></i>
                         </div>
                         @if(!empty($webhookConfig['enabled']))
-                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 6px;"></i> Active</span>
+                            <span class="st-status-badge active"><i class="fas fa-circle" style="font-size: 7px;"></i> Active</span>
                         @else
-                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 6px;"></i> Inactive</span>
+                            <span class="st-status-badge disabled"><i class="fas fa-circle" style="font-size: 7px;"></i> Inactive</span>
                         @endif
                     </div>
                     <h4 class="st-channel-name">Server Webhook / sGTM</h4>
@@ -1582,7 +1591,7 @@
         </div>
 
         <!-- ====================================================================
-             6. LIVE TELEMETRY CONSOLE TERMINAL (REVEALS UPON TEST EXECUTION)
+             6. LIVE TELEMETRY CONSOLE TERMINAL
              ==================================================================== -->
         <div id="live-console-card" class="st-terminal-card d-none">
             <div class="st-terminal-header">
@@ -1595,10 +1604,10 @@
                     </span>
                 </div>
                 <div class="st-terminal-actions">
-                    <span class="badge badge-pill badge-dark font-mono text-success border border-secondary" id="console-latency" style="font-size: 11px; padding: 4px 10px;">
+                    <span class="badge badge-pill badge-dark font-mono text-success border border-secondary" id="console-latency" style="font-size: 12px; padding: 5px 12px;">
                         -- ms
                     </span>
-                    <button type="button" class="btn btn-xs btn-outline-light" onclick="copyConsoleOutput()" style="font-size: 11px; border-radius: 6px;">
+                    <button type="button" class="btn btn-xs btn-outline-light font-weight-bold" onclick="copyConsoleOutput()" style="font-size: 12px; border-radius: 7px; padding: 4px 10px;">
                         <i class="fas fa-copy mr-1"></i> Copy Payload JSON
                     </button>
                     <button type="button" class="btn btn-xs btn-link text-white p-0 ml-2" onclick="document.getElementById('live-console-card').classList.add('d-none');">
@@ -1622,13 +1631,13 @@
                         <span>Recent Cloud Dispatches Stream</span>
                         <span class="st-radar-dot ml-2" style="display: inline-block;"></span>
                     </h3>
-                    <p class="small text-muted mb-0">Live audit stream of outgoing conversion transmissions</p>
+                    <p class="text-muted mb-0" style="font-size: 15px; font-weight: 500;">Live audit stream of outgoing conversion transmissions</p>
                 </div>
 
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     <div class="position-relative">
-                        <i class="fas fa-search position-absolute text-muted" style="left: 12px; top: 11px; font-size: 12px;"></i>
-                        <input type="text" id="streamSearchInput" class="st-search-input" placeholder="Search event or ID...">
+                        <i class="fas fa-search position-absolute text-muted" style="left: 14px; top: 14px; font-size: 14px;"></i>
+                        <input type="text" id="streamSearchInput" class="st-search-input" placeholder="Search event, lead ID...">
                     </div>
 
                     <div class="st-filter-pills">
@@ -1639,7 +1648,7 @@
                         <button type="button" class="st-filter-pill" data-filter="webhook">Webhook</button>
                     </div>
 
-                    <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-sm btn-primary font-weight-700" style="border-radius: 8px; padding: 7px 14px; font-size: 12.5px;">
+                    <a href="{{ route('admin.server-tracking.logs') }}" class="btn btn-sm btn-primary font-weight-bold" style="border-radius: 10px; padding: 10px 18px; font-size: 14.5px;">
                         View All ({{ number_format($totalEvents) }}) <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
@@ -1662,11 +1671,11 @@
                     <tbody>
                         @forelse($recentLogs as $log)
                         <tr class="log-stream-row" data-provider="{{ $log->provider }}" data-search="{{ strtolower($log->event_name . ' ' . $log->lead_id . ' ' . $log->order_id . ' ' . $log->event_id) }}">
-                            <td class="small text-muted font-mono" style="white-space: nowrap;">
-                                <span title="{{ $log->created_at ? $log->created_at->toDayDateTimeString() : 'N/A' }}">
+                            <td class="font-mono text-dark" style="white-space: nowrap; font-size: 14.5px;">
+                                <div class="font-weight-bold" title="{{ $log->created_at ? $log->created_at->toDayDateTimeString() : 'N/A' }}">
                                     {{ $log->created_at ? $log->created_at->diffForHumans() : 'N/A' }}
-                                </span>
-                                <small class="d-block text-muted" style="font-size: 10px;">
+                                </div>
+                                <small class="text-muted" style="font-size: 12.5px; font-weight: 500;">
                                     {{ $log->created_at ? $log->created_at->format('M d, H:i:s') : '' }}
                                 </small>
                             </td>
@@ -1686,11 +1695,11 @@
                                     {{ $log->event_name }}
                                 </span>
                             </td>
-                            <td class="font-mono small">
+                            <td class="font-mono" style="font-size: 14.5px;">
                                 @if($log->lead_id || $log->order_id)
                                     <span class="text-primary font-weight-bold" style="cursor: pointer;" onclick="copyToClipboard('{{ $log->lead_id ?: $log->order_id }}', 'Ref ID copied')">
                                         {{ $log->lead_id ?: $log->order_id }}
-                                        <i class="fas fa-copy ml-1 text-muted" style="font-size: 10px;"></i>
+                                        <i class="fas fa-copy ml-1 text-muted" style="font-size: 12.5px;"></i>
                                     </span>
                                 @else
                                     <span class="text-muted">—</span>
@@ -1716,14 +1725,14 @@
                                     {{ $log->http_code ?: '—' }}
                                 </span>
                             </td>
-                            <td class="small text-muted" style="max-width: 260px;">
+                            <td style="max-width: 280px; font-size: 14px; color: var(--st-text-body);">
                                 <div class="text-truncate" title="{{ $log->error_message ?: '200 OK — Successfully delivered' }}">
                                     {{ $log->error_message ?: '200 OK — Successfully delivered' }}
                                 </div>
                             </td>
                             <td class="text-right">
-                                <button type="button" class="btn btn-xs btn-outline-secondary font-weight-600 inspect-payload-btn"
-                                        style="border-radius: 6px; font-size: 11.5px; padding: 3px 8px;"
+                                <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold inspect-payload-btn"
+                                        style="border-radius: 9px; font-size: 13.5px; padding: 6px 14px;"
                                         data-log-id="{{ $log->id }}"
                                         data-provider="{{ strtoupper($log->provider) }}"
                                         data-event="{{ $log->event_name }}"
@@ -1743,11 +1752,11 @@
                         <tr>
                             <td colspan="8" class="text-center py-5">
                                 <div class="p-4" style="max-width: 480px; margin: 0 auto;">
-                                    <div class="mb-3" style="width: 56px; height: 56px; border-radius: 14px; background: #f1f5f9; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: #94a3b8;">
+                                    <div class="mb-3" style="width: 64px; height: 64px; border-radius: 16px; background: #e2e8f0; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; color: #64748b;">
                                         <i class="fas fa-inbox"></i>
                                     </div>
-                                    <h5 class="font-weight-800 text-dark mb-1">No Server Tracking Logs Yet</h5>
-                                    <p class="small text-muted mb-3">Launch a live test dispatch to test your Meta CAPI, GA4, TikTok, or Webhook cloud connection.</p>
+                                    <h5 class="font-weight-800 text-dark mb-2" style="font-size: 20px;">No Server Tracking Logs Yet</h5>
+                                    <p class="text-muted mb-3" style="font-size: 15px;">Launch a live test dispatch to test your Meta CAPI, GA4, TikTok, or Webhook cloud connection.</p>
                                     <button type="button" class="st-btn-glow" data-toggle="modal" data-target="#quickTestModal">
                                         <i class="fas fa-bolt"></i> Launch First Test Event
                                     </button>
@@ -1768,26 +1777,26 @@
      ============================================================================ -->
 <div class="modal fade" id="quickTestModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" style="border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25); overflow: hidden;">
-            <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="modal-content" style="border: 1px solid #cbd5e1; border-radius: 18px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.3); overflow: hidden;">
+            <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.15);">
                 <div class="d-flex align-items-center">
-                    <div style="background: linear-gradient(135deg, #3b82f6, #06b6d4); color: #ffffff; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px;" class="mr-3 shadow-sm">
+                    <div style="background: linear-gradient(135deg, #3b82f6, #06b6d4); color: #ffffff; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;" class="mr-3 shadow-sm">
                         <i class="fas fa-bolt"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title font-weight-bold mb-0 text-white" style="font-size: 16px;">Live Cloud Test Dispatcher</h5>
-                        <small class="text-white-50">Transmit synthetic conversion payload to ad cloud endpoints</small>
+                        <h5 class="modal-title font-weight-bold mb-0 text-white" style="font-size: 19px;">Live Cloud Test Dispatcher</h5>
+                        <small class="text-white-50" style="font-size: 14px;">Transmit synthetic conversion payload to ad cloud endpoints</small>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.8;">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4" style="background: #ffffff;">
                 <form id="liveTestForm">
                     <div class="form-group mb-3">
-                        <label class="text-dark small font-weight-bold mb-1">Target Cloud Channel</label>
-                        <select class="form-control" id="modal-provider" style="border-color: #cbd5e1; height: 42px; border-radius: 8px; font-weight: 600;">
+                        <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">Target Cloud Channel</label>
+                        <select class="form-control font-weight-bold" id="modal-provider" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
                             <option value="meta_capi">Meta Conversions API (CAPI Graph v20)</option>
                             <option value="ga4">Google Analytics 4 Measurement Protocol</option>
                             <option value="tiktok">TikTok Events API (Business v1.3)</option>
@@ -1796,8 +1805,8 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label class="text-dark small font-weight-bold mb-1">Standard Conversion Event</label>
-                        <select class="form-control" id="modal-event-name" style="border-color: #cbd5e1; height: 42px; border-radius: 8px; font-weight: 600;">
+                        <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">Standard Conversion Event</label>
+                        <select class="form-control font-weight-bold" id="modal-event-name" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
                             <option value="Lead" selected>🎯 Lead (Generate Lead / Inquiry Form)</option>
                             <option value="Purchase">💰 Purchase (E-Commerce Order Confirmed)</option>
                             <option value="ViewContent">👁 ViewContent (Portfolio / Detail Page)</option>
@@ -1808,20 +1817,20 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label class="text-dark small font-weight-bold mb-1">
+                        <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">
                             Ad Manager Test Event Code <span class="text-muted font-weight-normal">(Optional Override)</span>
                         </label>
-                        <input type="text" class="form-control font-mono" id="modal-test-code" placeholder="e.g. TEST12345 (Leave empty to use saved setting)" style="border-color: #cbd5e1; height: 42px; border-radius: 8px; font-size: 13px;">
-                        <small class="text-muted">Matches the real-time test event screen in Meta or TikTok Events Manager.</small>
+                        <input type="text" class="form-control font-mono font-weight-bold" id="modal-test-code" placeholder="e.g. TEST12345 (Leave empty to use saved setting)" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
+                        <small class="text-muted font-weight-500 mt-1 d-block" style="font-size: 13.5px;">Matches the real-time test event screen in Meta or TikTok Events Manager.</small>
                     </div>
 
-                    <div class="p-3 rounded mb-0" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; color: #475569; border-radius: 10px;">
+                    <div class="p-3 rounded mb-0" style="background: #f8fafc; border: 1.5px solid #cbd5e1; font-size: 14px; color: #1e293b; border-radius: 12px; line-height: 1.6;">
                         <i class="fas fa-shield-alt text-success mr-1"></i> Dispatches include realistic customer metadata (normalized phone, SHA-256 hashed email, client IP, User-Agent &amp; unique deterministic <code>event_id</code>).
                     </div>
                 </form>
             </div>
-            <div class="modal-footer py-3 px-4" style="border-top: 1px solid #edf0f4; background: #f8fafc;">
-                <button type="button" class="btn btn-sm btn-secondary font-weight-600 px-3" data-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+            <div class="modal-footer py-3 px-4" style="border-top: 1px solid #e2e8f0; background: #f8fafc;">
+                <button type="button" class="btn btn-secondary font-weight-bold px-3" data-dismiss="modal" style="border-radius: 9px; font-size: 14.5px;">Cancel</button>
                 <button type="button" class="st-btn-glow px-4" id="executeTestBtn">
                     <i class="fas fa-paper-plane mr-1"></i> Transmit Test Event
                 </button>
@@ -1835,20 +1844,20 @@
      ============================================================================ -->
 <div class="modal fade" id="payloadInspectModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content" style="border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25); overflow: hidden;">
-            <div class="modal-header py-3 px-4" style="background: #0f172a; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div class="modal-content" style="border: 1px solid #cbd5e1; border-radius: 18px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.3); overflow: hidden;">
+            <div class="modal-header py-3 px-4" style="background: #0f172a; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div class="d-flex align-items-center">
-                    <div style="background: rgba(255, 255, 255, 0.1); color: #38bdf8; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px;" class="mr-3">
+                    <div style="background: rgba(255, 255, 255, 0.12); color: #38bdf8; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;" class="mr-3">
                         <i class="fas fa-search-plus"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title font-weight-bold text-white mb-0" id="inspectModalTitle" style="font-size: 16px;">
+                        <h5 class="modal-title font-weight-bold text-white mb-0" id="inspectModalTitle" style="font-size: 19px;">
                             Event Diagnostics Inspector
                         </h5>
-                        <small class="text-white-50" id="inspectModalSubtitle">Full cloud payload inspection</small>
+                        <small class="text-white-50" id="inspectModalSubtitle" style="font-size: 14px;">Full cloud payload inspection</small>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.8;">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -1857,14 +1866,14 @@
                 <div class="d-flex flex-wrap gap-2 mb-3" id="inspectModalChips"></div>
 
                 <!-- Tabs: Request vs Response -->
-                <ul class="nav nav-pills mb-3" id="inspectTab" role="tablist" style="gap: 8px;">
+                <ul class="nav nav-pills mb-3" id="inspectTab" role="tablist" style="gap: 10px;">
                     <li class="nav-item">
-                        <a class="nav-link active font-weight-bold" id="tab-request-link" data-toggle="pill" href="#tab-request" role="tab" style="border-radius: 8px; font-size: 12.5px; padding: 6px 14px;">
+                        <a class="nav-link active font-weight-bold" id="tab-request-link" data-toggle="pill" href="#tab-request" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px;">
                             <i class="fas fa-arrow-up mr-1 text-primary"></i> Outgoing Request Payload
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" id="tab-response-link" data-toggle="pill" href="#tab-response" role="tab" style="border-radius: 8px; font-size: 12.5px; padding: 6px 14px;">
+                        <a class="nav-link font-weight-bold" id="tab-response-link" data-toggle="pill" href="#tab-response" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px;">
                             <i class="fas fa-arrow-down mr-1 text-success"></i> Cloud API Response
                         </a>
                     </li>
@@ -1873,24 +1882,24 @@
                 <div class="tab-content" id="inspectTabContent">
                     <div class="tab-pane fade show active" id="tab-request" role="tabpanel">
                         <div class="position-relative">
-                            <button type="button" class="btn btn-xs btn-outline-secondary position-absolute" style="top: 10px; right: 10px; z-index: 5;" onclick="copyInspectRequest()">
+                            <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold position-absolute" style="top: 12px; right: 12px; z-index: 5; font-size: 13px;" onclick="copyInspectRequest()">
                                 <i class="fas fa-copy mr-1"></i> Copy
                             </button>
-                            <pre id="inspectRequestPre" class="p-3 mb-0 font-mono text-dark" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 12px; max-height: 380px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+                            <pre id="inspectRequestPre" class="p-3 mb-0 font-mono text-dark" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 14px; max-height: 380px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6;"></pre>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tab-response" role="tabpanel">
                         <div class="position-relative">
-                            <button type="button" class="btn btn-xs btn-outline-secondary position-absolute" style="top: 10px; right: 10px; z-index: 5;" onclick="copyInspectResponse()">
+                            <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold position-absolute" style="top: 12px; right: 12px; z-index: 5; font-size: 13px;" onclick="copyInspectResponse()">
                                 <i class="fas fa-copy mr-1"></i> Copy
                             </button>
-                            <pre id="inspectResponsePre" class="p-3 mb-0 font-mono text-dark" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 12px; max-height: 380px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+                            <pre id="inspectResponsePre" class="p-3 mb-0 font-mono text-dark" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 14px; max-height: 380px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6;"></pre>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer py-3 px-4" style="background: #f8fafc; border-top: 1px solid #edf0f4;">
-                <button type="button" class="btn btn-sm btn-secondary font-weight-600 px-3" data-dismiss="modal" style="border-radius: 8px;">Close</button>
+            <div class="modal-footer py-3 px-4" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                <button type="button" class="btn btn-secondary font-weight-bold px-3" data-dismiss="modal" style="border-radius: 9px; font-size: 14.5px;">Close</button>
             </div>
         </div>
     </div>
@@ -2077,11 +2086,11 @@ document.querySelectorAll('.inspect-payload-btn').forEach(btn => {
 
         const chipsContainer = document.getElementById('inspectModalChips');
         chipsContainer.innerHTML = `
-            <span class="badge badge-primary px-2 py-1 font-mono">${provider}</span>
-            <span class="badge badge-info px-2 py-1 font-mono">${eventName}</span>
-            <span class="badge ${status === 'success' ? 'badge-success' : (status === 'failed' ? 'badge-danger' : 'badge-secondary')} px-2 py-1">${status.toUpperCase()}</span>
-            <span class="badge badge-light border px-2 py-1 font-mono">HTTP ${http || '—'}</span>
-            <span class="badge badge-light border px-2 py-1 font-mono">IP: ${ip}</span>
+            <span class="badge badge-primary px-3 py-1 font-mono" style="font-size: 13px; font-weight: 700;">${provider}</span>
+            <span class="badge badge-info px-3 py-1 font-mono" style="font-size: 13px; font-weight: 700;">${eventName}</span>
+            <span class="badge ${status === 'success' ? 'badge-success' : (status === 'failed' ? 'badge-danger' : 'badge-secondary')} px-3 py-1" style="font-size: 13px; font-weight: 700;">${status.toUpperCase()}</span>
+            <span class="badge badge-light border px-3 py-1 font-mono font-weight-bold" style="font-size: 13px;">HTTP ${http || '—'}</span>
+            <span class="badge badge-light border px-3 py-1 font-mono font-weight-bold" style="font-size: 13px;">IP: ${ip}</span>
         `;
 
         document.getElementById('inspectRequestPre').textContent = currentInspectRequest || 'No request payload recorded.';

@@ -92,9 +92,19 @@
             font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--content-bg);
             color: var(--text-color);
+            font-size: 15px;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* High-contrast and crisp typography overrides */
+        p, li, span, td, th, input, select, textarea, button {
+            letter-spacing: -0.01em;
+        }
+
+        code, pre, .font-mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
         }
         
         /* Wrapper Layout */
@@ -268,13 +278,14 @@
             background: transparent;
             outline: none;
             width: 220px;
-            font-size: 13.5px;
+            font-size: 14.5px;
             color: #0f172a;
             font-family: inherit;
+            font-weight: 500;
         }
 
         .header-search input::placeholder {
-            color: #94a3b8;
+            color: #64748b;
         }
 
         @media (max-width: 575.98px) {
@@ -296,7 +307,7 @@
             border-radius: 9px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            color: #475569;
+            color: #334155;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -304,7 +315,7 @@
             transition: all 0.2s ease;
             position: relative;
             text-decoration: none !important;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .header-icon-btn:hover {
@@ -319,9 +330,9 @@
             right: -5px;
             background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
             color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 7px;
             border-radius: 10px;
             box-shadow: 0 0 8px rgba(244, 63, 94, 0.5);
             border: 1.5px solid #ffffff;
@@ -331,9 +342,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 4px 12px 4px 6px;
+            padding: 5px 14px 5px 7px;
             border-radius: 9999px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
             background: #f8fafc;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -342,7 +353,7 @@
 
         .user-dropdown:hover {
             background: #f1f5f9;
-            border-color: #cbd5e1;
+            border-color: #94a3b8;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
@@ -356,7 +367,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             box-shadow: 0 2px 6px rgba(0, 212, 170, 0.25);
             flex-shrink: 0;
         }
@@ -364,21 +375,21 @@
         .user-info {
             display: flex;
             flex-direction: column;
-            line-height: 1.2;
+            line-height: 1.25;
             text-align: left;
         }
 
         .user-name {
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             color: #0f172a;
             white-space: nowrap;
         }
 
         .user-role {
-            font-size: 10.5px;
-            color: #64748b;
-            font-weight: 500;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
             white-space: nowrap;
         }
         
