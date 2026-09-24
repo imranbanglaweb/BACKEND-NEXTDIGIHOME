@@ -223,8 +223,6 @@
                             </td>
                             <td class="text-right">
                                 <button type="button" class="btn btn-outline-primary view-payload-btn" 
-                                    data-toggle="modal"
-                                    data-target="#payloadModal"
                                     data-log-id="{{ $log->id }}"
                                     data-provider="{{ strtoupper($log->provider ?? 'API') }}"
                                     data-event="{{ $log->event_name ?? 'Event' }}"
@@ -234,7 +232,8 @@
                                     data-request="{{ json_encode($log->request_payload ?? []) }}"
                                     data-response="{{ json_encode($log->response_payload ?? []) }}"
                                     data-error="{{ $log->error_message ?? '' }}"
-                                    style="border-radius: 8px; font-size: 13.5px; padding: 6px 14px; font-weight: 700;">
+                                    onclick="openLogPayloadModal(this, event); return false;"
+                                    style="border-radius: 8px; font-size: 13.5px; padding: 6px 14px; font-weight: 700; cursor: pointer;">
                                     <i class="fas fa-code mr-1"></i> Inspect
                                 </button>
                                 <script type="application/json" id="log-page-req-{{ $log->id }}">{!! json_encode($log->request_payload ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -280,7 +279,7 @@
                         <div class="text-muted" id="payloadModalSubtitle" style="font-size: 14px; font-weight: 500;">Raw JSON data transmitted to ad platform</div>
                     </div>
                 </div>
-                <button type="button" class="close text-muted" data-dismiss="modal" aria-label="Close" style="font-size: 22px;">
+                <button type="button" class="close text-muted" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" onclick="closeLogPayloadModal(); return false;" style="font-size: 22px; cursor: pointer;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -308,7 +307,7 @@
                 <pre id="modal-response-content" class="p-3 mb-0 font-mono" style="background: #0f172a; color: #4ade80; border: 1px solid #1e293b; border-radius: 12px; font-size: 14px; line-height: 1.6; max-height: 260px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
             </div>
             <div class="modal-footer py-3 px-4" style="border-top: 1px solid #e2e8f0; background: #f8fafc;">
-                <button type="button" class="btn btn-secondary font-weight-bold px-4" data-dismiss="modal" style="border-radius: 9px; font-size: 14.5px;">Close</button>
+                <button type="button" class="btn btn-secondary font-weight-bold px-4" data-dismiss="modal" data-bs-dismiss="modal" onclick="closeLogPayloadModal(); return false;" style="border-radius: 9px; font-size: 14.5px; cursor: pointer;">Close</button>
             </div>
         </div>
     </div>
@@ -356,8 +355,26 @@
 </div>
 
 <script>
-function openLogPayloadModal(btn) {
+function ensureLogModalOnBody() {
+    const modal = document.getElementById('payloadModal');
+    if (modal && modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureLogModalOnBody);
+} else {
+    ensureLogModalOnBody();
+}
+
+function openLogPayloadModal(btn, e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
     if (!btn) return;
+    ensureLogModalOnBody();
 
     const id = btn.getAttribute('data-log-id') || '';
     const provider = btn.getAttribute('data-provider') || 'API';
@@ -371,23 +388,23 @@ function openLogPayloadModal(btn) {
 
     const reqScript = document.getElementById('log-page-req-' + id);
     if (reqScript && reqScript.textContent.trim()) {
-        try { reqData = JSON.parse(reqScript.textContent); } catch (e) {}
+        try { reqData = JSON.parse(reqScript.textContent); } catch (err) {}
     }
     if (!reqData) {
         const rawReq = btn.getAttribute('data-request');
         if (rawReq) {
-            try { reqData = JSON.parse(rawReq); } catch (e) { reqData = rawReq; }
+            try { reqData = JSON.parse(rawReq); } catch (err) { reqData = rawReq; }
         }
     }
 
     const resScript = document.getElementById('log-page-res-' + id);
     if (resScript && resScript.textContent.trim()) {
-        try { resData = JSON.parse(resScript.textContent); } catch (e) {}
+        try { resData = JSON.parse(resScript.textContent); } catch (err) {}
     }
     if (!resData) {
         const rawRes = btn.getAttribute('data-response');
         if (rawRes) {
-            try { resData = JSON.parse(rawRes); } catch (e) { resData = rawRes; }
+            try { resData = JSON.parse(rawRes); } catch (err) { resData = rawRes; }
         }
     }
 
@@ -401,17 +418,19 @@ function openLogPayloadModal(btn) {
     if (errorBox) {
         if (errStr && errStr.trim() !== '') {
             errorBox.classList.remove('d-none');
+            errorBox.style.display = 'block';
             errorBox.innerHTML = `<strong>Error Diagnostic:</strong> ${errStr}`;
         } else {
             errorBox.classList.add('d-none');
+            errorBox.style.display = 'none';
         }
     }
 
     const reqContentEl = document.getElementById('modal-request-content');
     if (reqContentEl) {
-        if (reqData && typeof reqData === 'object') {
+        if (reqData && typeof reqData === 'object' && Object.keys(reqData).length > 0) {
             reqContentEl.textContent = JSON.stringify(reqData, null, 2);
-        } else if (typeof reqData === 'string' && reqData.trim()) {
+        } else if (typeof reqData === 'string' && reqData.trim() && reqData !== '{}' && reqData !== '[]') {
             try {
                 reqContentEl.textContent = JSON.stringify(JSON.parse(reqData), null, 2);
             } catch {
@@ -440,22 +459,92 @@ function openLogPayloadModal(btn) {
     }
 
     const modalEl = document.getElementById('payloadModal');
-    if (typeof $ !== 'undefined' && $('#payloadModal').modal) {
-        $('#payloadModal').modal('show');
-    } else if (window.bootstrap && window.bootstrap.Modal) {
-        bootstrap.Modal.getOrCreateInstance(modalEl).show();
-    } else if (modalEl) {
-        modalEl.classList.add('in', 'show');
+    if (modalEl) {
+        modalEl.classList.add('show', 'in');
         modalEl.style.display = 'block';
+        modalEl.style.zIndex = '10550';
         document.body.classList.add('modal-open');
+
+        if (typeof $ !== 'undefined' && $('#payloadModal').modal) {
+            try {
+                $('#payloadModal').modal({
+                    backdrop: true,
+                    keyboard: true,
+                    show: true
+                });
+            } catch (err) {}
+        } else if (window.bootstrap && window.bootstrap.Modal) {
+            try {
+                bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: true, keyboard: true }).show();
+            } catch (err) {}
+        }
+
+        let backdrop = document.querySelector('.modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade in show';
+            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; opacity: 0.5; z-index: 10500;';
+            backdrop.setAttribute('id', 'logCustomBackdrop');
+            backdrop.onclick = closeLogPayloadModal;
+            document.body.appendChild(backdrop);
+        } else {
+            backdrop.style.zIndex = '10500';
+            backdrop.onclick = closeLogPayloadModal;
+        }
     }
+}
+
+function closeLogPayloadModal() {
+    const modalEl = document.getElementById('payloadModal');
+    if (typeof $ !== 'undefined' && $('#payloadModal').modal) {
+        try { $('#payloadModal').modal('hide'); } catch (e) {}
+    }
+    if (window.bootstrap && window.bootstrap.Modal) {
+        try {
+            const inst = bootstrap.Modal.getInstance(modalEl);
+            if (inst) inst.hide();
+        } catch (e) {}
+    }
+    if (modalEl) {
+        modalEl.classList.remove('show', 'in');
+        modalEl.style.display = 'none';
+    }
+    const customBackdrop = document.getElementById('logCustomBackdrop');
+    if (customBackdrop) customBackdrop.remove();
+
+    setTimeout(function() {
+        const anyModal = document.querySelector('.modal.show:not(#payloadModal), .modal.in:not(#payloadModal)');
+        if (!anyModal) {
+            document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+    }, 150);
 }
 
 document.addEventListener('click', function(e) {
     const btn = e.target.closest('.view-payload-btn');
     if (btn) {
         e.preventDefault();
-        openLogPayloadModal(btn);
+        openLogPayloadModal(btn, e);
+        return;
+    }
+
+    const modal = document.getElementById('payloadModal');
+    if (modal && (modal.classList.contains('show') || modal.classList.contains('in') || modal.style.display === 'block')) {
+        if (e.target === modal || e.target.closest('[data-dismiss="modal"]')) {
+            closeLogPayloadModal();
+        }
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+        const modal = document.getElementById('payloadModal');
+        if (modal && (modal.classList.contains('show') || modal.classList.contains('in') || modal.style.display === 'block')) {
+            closeLogPayloadModal();
+        }
     }
 });
 

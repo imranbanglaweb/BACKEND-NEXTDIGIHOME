@@ -1064,6 +1064,41 @@
         from { transform: translateY(20px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
     }
+
+    /* Payload Inspector Modal Stacking & Visibility Fixes */
+    #payloadInspectModal {
+        z-index: 10550 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+    #payloadInspectModal.show,
+    #payloadInspectModal.in {
+        display: block !important;
+        opacity: 1 !important;
+    }
+    #payloadInspectModal .modal-dialog {
+        z-index: 10560 !important;
+        position: relative !important;
+        margin: 40px auto !important;
+        max-width: 860px !important;
+        transform: none !important;
+    }
+    #payloadInspectModal .tab-pane.active {
+        display: block !important;
+        opacity: 1 !important;
+    }
+    #payloadInspectModal .tab-pane:not(.active) {
+        display: none !important;
+        opacity: 0 !important;
+    }
+    .modal-backdrop {
+        z-index: 10500 !important;
+    }
 </style>
 
 <div class="premium-page">
@@ -1732,9 +1767,7 @@
                             </td>
                             <td class="text-right" style="white-space: nowrap;">
                                 <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold inspect-payload-btn"
-                                        style="border-radius: 9px; font-size: 13.5px; padding: 6px 14px;"
-                                        data-toggle="modal"
-                                        data-target="#payloadInspectModal"
+                                        style="border-radius: 9px; font-size: 13.5px; padding: 6px 14px; cursor: pointer;"
                                         data-log-id="{{ $log->id }}"
                                         data-provider="{{ strtoupper($log->provider ?? 'API') }}"
                                         data-event="{{ $log->event_name ?? 'Event' }}"
@@ -1745,7 +1778,8 @@
                                         data-time="{{ $log->created_at ? $log->created_at->format('Y-m-d H:i:s') : 'N/A' }}"
                                         data-request="{{ json_encode($log->request_payload ?? []) }}"
                                         data-response="{{ json_encode($log->response_payload ?? []) }}"
-                                        data-error="{{ $log->error_message ?? '' }}">
+                                        data-error="{{ $log->error_message ?? '' }}"
+                                        onclick="openInspectModal(this); return false;">
                                     <i class="fas fa-search mr-1"></i> Inspect
                                 </button>
                                 <script type="application/json" id="payload-req-{{ $log->id }}">{!! json_encode($log->request_payload ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -1846,8 +1880,8 @@
 <!-- ============================================================================
      9. PAYLOAD INSPECTOR MODAL
      ============================================================================ -->
-<div class="modal fade" id="payloadInspectModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 10500;">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<div class="modal fade" id="payloadInspectModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 10550; display: none;">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="z-index: 10560; margin: 40px auto; max-width: 860px;">
         <div class="modal-content" style="border: 1px solid #cbd5e1; border-radius: 18px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.3); overflow: hidden;">
             <div class="modal-header py-3 px-4" style="background: #0f172a; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div class="d-flex align-items-center">
@@ -1861,13 +1895,13 @@
                         <small class="text-white-50" id="inspectModalSubtitle" style="font-size: 14px;">Full cloud payload inspection</small>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85; font-size: 24px; line-height: 1;">
+                <button type="button" class="close text-white" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" onclick="closeInspectModal(); return false;" style="opacity: 0.85; font-size: 24px; line-height: 1; cursor: pointer;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4" style="background: #ffffff;">
                 <!-- Error Diagnostic Alert (shown if error is returned by provider) -->
-                <div id="inspectModalErrorBox" class="alert alert-danger d-none mb-3 font-weight-500" style="background: #fff1f2; border: 1.5px solid #fecdd3; color: #be123c; border-radius: 10px; font-size: 13.5px; line-height: 1.5;"></div>
+                <div id="inspectModalErrorBox" class="alert alert-danger d-none mb-3 font-weight-500" style="background: #fff1f2; border: 1.5px solid #fecdd3; color: #be123c; border-radius: 10px; font-size: 13.5px; line-height: 1.5; display: none;"></div>
 
                 <!-- Summary Chips -->
                 <div class="d-flex flex-wrap gap-2 mb-3" id="inspectModalChips"></div>
@@ -1875,19 +1909,19 @@
                 <!-- Tabs: Request vs Response -->
                 <ul class="nav nav-pills mb-3" id="inspectTab" role="tablist" style="gap: 10px;">
                     <li class="active" id="tab-request-li">
-                        <a class="font-weight-bold" id="tab-request-link" data-toggle="pill" href="#tab-request" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px; cursor: pointer;">
+                        <a href="javascript:void(0)" class="font-weight-bold active" id="tab-request-link" onclick="switchInspectTab('request'); return false;" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px; cursor: pointer;">
                             <i class="fas fa-arrow-up mr-1 text-primary"></i> Outgoing Request Payload
                         </a>
                     </li>
                     <li id="tab-response-li">
-                        <a class="font-weight-bold" id="tab-response-link" data-toggle="pill" href="#tab-response" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px; cursor: pointer;">
+                        <a href="javascript:void(0)" class="font-weight-bold" id="tab-response-link" onclick="switchInspectTab('response'); return false;" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px; cursor: pointer;">
                             <i class="fas fa-arrow-down mr-1 text-success"></i> Cloud API Response
                         </a>
                     </li>
                 </ul>
 
                 <div class="tab-content" id="inspectTabContent">
-                    <div class="tab-pane fade in active show" id="tab-request" role="tabpanel">
+                    <div class="tab-pane fade in active show" id="tab-request" role="tabpanel" style="display: block;">
                         <div class="position-relative">
                             <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold position-absolute" style="top: 12px; right: 12px; z-index: 5; font-size: 13px;" onclick="copyInspectRequest()">
                                 <i class="fas fa-copy mr-1"></i> Copy
@@ -1895,7 +1929,7 @@
                             <pre id="inspectRequestPre" class="p-3 mb-0 font-mono text-dark" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 14px; max-height: 380px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6;"></pre>
                         </div>
                     </div>
-                    <div class="tab-pane fade in show" id="tab-response" role="tabpanel" style="display: none;">
+                    <div class="tab-pane fade" id="tab-response" role="tabpanel" style="display: none;">
                         <div class="position-relative">
                             <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold position-absolute" style="top: 12px; right: 12px; z-index: 5; font-size: 13px;" onclick="copyInspectResponse()">
                                 <i class="fas fa-copy mr-1"></i> Copy
@@ -1906,7 +1940,7 @@
                 </div>
             </div>
             <div class="modal-footer py-3 px-4" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
-                <button type="button" class="btn btn-secondary font-weight-bold px-3" data-dismiss="modal" style="border-radius: 9px; font-size: 14.5px;">Close</button>
+                <button type="button" class="btn btn-secondary font-weight-bold px-3" data-dismiss="modal" data-bs-dismiss="modal" onclick="closeInspectModal(); return false;" style="border-radius: 9px; font-size: 14.5px; cursor: pointer;">Close</button>
             </div>
         </div>
     </div>
@@ -2065,66 +2099,65 @@ filterPills.forEach(pill => {
     });
 });
 
+// Move inspect modal to document.body to avoid stacking context & overflow issues
+function ensureInspectModalOnBody() {
+    const modal = document.getElementById('payloadInspectModal');
+    if (modal && modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureInspectModalOnBody);
+} else {
+    ensureInspectModalOnBody();
+}
+
 // Inspect Payload Modal logic
 let currentInspectRequest = '';
 let currentInspectResponse = '';
 
 // Tab switching handlers for the Inspect Modal
 function switchInspectTab(tab) {
-    if (tab === 'request') {
-        const reqLi = document.getElementById('tab-request-li');
-        const resLi = document.getElementById('tab-response-li');
-        const reqPane = document.getElementById('tab-request');
-        const resPane = document.getElementById('tab-response');
+    const reqLi = document.getElementById('tab-request-li');
+    const resLi = document.getElementById('tab-response-li');
+    const reqLink = document.getElementById('tab-request-link');
+    const resLink = document.getElementById('tab-response-link');
+    const reqPane = document.getElementById('tab-request');
+    const resPane = document.getElementById('tab-response');
 
+    if (tab === 'request') {
         if (reqLi) reqLi.classList.add('active');
         if (resLi) resLi.classList.remove('active');
+        if (reqLink) reqLink.classList.add('active');
+        if (resLink) resLink.classList.remove('active');
         if (reqPane) {
-            reqPane.classList.add('active', 'in', 'show');
-            reqPane.style.display = 'block';
+            reqPane.className = 'tab-pane fade in active show';
+            reqPane.style.cssText = 'display: block !important; opacity: 1 !important;';
         }
         if (resPane) {
-            resPane.classList.remove('active', 'in', 'show');
-            resPane.style.display = 'none';
+            resPane.className = 'tab-pane fade';
+            resPane.style.cssText = 'display: none !important; opacity: 0 !important;';
         }
     } else if (tab === 'response') {
-        const reqLi = document.getElementById('tab-request-li');
-        const resLi = document.getElementById('tab-response-li');
-        const reqPane = document.getElementById('tab-request');
-        const resPane = document.getElementById('tab-response');
-
         if (resLi) resLi.classList.add('active');
         if (reqLi) reqLi.classList.remove('active');
+        if (resLink) resLink.classList.add('active');
+        if (reqLink) reqLink.classList.remove('active');
         if (resPane) {
-            resPane.classList.add('active', 'in', 'show');
-            resPane.style.display = 'block';
+            resPane.className = 'tab-pane fade in active show';
+            resPane.style.cssText = 'display: block !important; opacity: 1 !important;';
         }
         if (reqPane) {
-            reqPane.classList.remove('active', 'in', 'show');
-            reqPane.style.display = 'none';
+            reqPane.className = 'tab-pane fade';
+            reqPane.style.cssText = 'display: none !important; opacity: 0 !important;';
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const reqLink = document.getElementById('tab-request-link');
-    const resLink = document.getElementById('tab-response-link');
-    if (reqLink) {
-        reqLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            switchInspectTab('request');
-        });
-    }
-    if (resLink) {
-        resLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            switchInspectTab('response');
-        });
-    }
-});
-
 function openInspectModal(btn) {
     if (!btn) return;
+    ensureInspectModalOnBody();
 
     const logId = btn.getAttribute('data-log-id') || '';
     const provider = btn.getAttribute('data-provider') || 'API';
@@ -2163,9 +2196,9 @@ function openInspectModal(btn) {
     }
 
     // Format request
-    if (reqData && typeof reqData === 'object') {
+    if (reqData && typeof reqData === 'object' && Object.keys(reqData).length > 0) {
         currentInspectRequest = JSON.stringify(reqData, null, 2);
-    } else if (typeof reqData === 'string' && reqData.trim()) {
+    } else if (typeof reqData === 'string' && reqData.trim() && reqData !== '{}' && reqData !== '[]') {
         try {
             currentInspectRequest = JSON.stringify(JSON.parse(reqData), null, 2);
         } catch (e) {
@@ -2202,9 +2235,11 @@ function openInspectModal(btn) {
     if (errBox) {
         if (errorMsg && errorMsg.trim()) {
             errBox.classList.remove('d-none');
+            errBox.style.display = 'block';
             errBox.innerHTML = `<strong><i class="fas fa-exclamation-triangle mr-1"></i> Cloud Delivery Diagnostic:</strong> ${errorMsg}`;
         } else {
             errBox.classList.add('d-none');
+            errBox.style.display = 'none';
             errBox.innerHTML = '';
         }
     }
@@ -2240,25 +2275,98 @@ function openInspectModal(btn) {
         switchInspectTab('request');
     }
 
-    // Show modal via Bootstrap / jQuery / fallback
+    // Show modal via Bootstrap / jQuery / DOM
     const modalEl = document.getElementById('payloadInspectModal');
-    if (typeof $ !== 'undefined' && $('#payloadInspectModal').modal) {
-        $('#payloadInspectModal').modal('show');
-    } else if (window.bootstrap && window.bootstrap.Modal) {
-        bootstrap.Modal.getOrCreateInstance(modalEl).show();
-    } else if (modalEl) {
-        modalEl.classList.add('in', 'show');
+    if (modalEl) {
+        modalEl.classList.add('show', 'in');
         modalEl.style.display = 'block';
+        modalEl.style.zIndex = '10550';
         document.body.classList.add('modal-open');
+
+        if (typeof $ !== 'undefined' && $('#payloadInspectModal').modal) {
+            try {
+                $('#payloadInspectModal').modal({
+                    backdrop: true,
+                    keyboard: true,
+                    show: true
+                });
+            } catch (err) {}
+        } else if (window.bootstrap && window.bootstrap.Modal) {
+            try {
+                bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: true, keyboard: true }).show();
+            } catch (err) {}
+        }
+
+        // Ensure backdrop exists & has proper z-index
+        let backdrop = document.querySelector('.modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade in show';
+            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; opacity: 0.5; z-index: 10500;';
+            backdrop.setAttribute('id', 'inspectCustomBackdrop');
+            backdrop.onclick = closeInspectModal;
+            document.body.appendChild(backdrop);
+        } else {
+            backdrop.style.zIndex = '10500';
+            backdrop.onclick = closeInspectModal;
+        }
     }
 }
 
-// Bind click event with delegation (works for both current and filtered rows)
+function closeInspectModal() {
+    const modalEl = document.getElementById('payloadInspectModal');
+    if (typeof $ !== 'undefined' && $('#payloadInspectModal').modal) {
+        try { $('#payloadInspectModal').modal('hide'); } catch (e) {}
+    }
+    if (window.bootstrap && window.bootstrap.Modal) {
+        try {
+            const inst = bootstrap.Modal.getInstance(modalEl);
+            if (inst) inst.hide();
+        } catch (e) {}
+    }
+    if (modalEl) {
+        modalEl.classList.remove('show', 'in');
+        modalEl.style.display = 'none';
+    }
+    const customBackdrop = document.getElementById('inspectCustomBackdrop');
+    if (customBackdrop) customBackdrop.remove();
+
+    setTimeout(function() {
+        const anyModal = document.querySelector('.modal.show:not(#payloadInspectModal), .modal.in:not(#payloadInspectModal)');
+        if (!anyModal) {
+            document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+    }, 150);
+}
+
+// Bind click event with delegation as extra backup
 document.addEventListener('click', function(e) {
     const btn = e.target.closest('.inspect-payload-btn');
     if (btn) {
         e.preventDefault();
         openInspectModal(btn);
+        return;
+    }
+
+    // Backdrop click dismissal
+    const modal = document.getElementById('payloadInspectModal');
+    if (modal && (modal.classList.contains('show') || modal.classList.contains('in') || modal.style.display === 'block')) {
+        if (e.target === modal) {
+            closeInspectModal();
+        }
+    }
+});
+
+// Escape key listener to close modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+        const modal = document.getElementById('payloadInspectModal');
+        if (modal && (modal.classList.contains('show') || modal.classList.contains('in') || modal.style.display === 'block')) {
+            closeInspectModal();
+        }
     }
 });
 
