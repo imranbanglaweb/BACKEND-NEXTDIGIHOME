@@ -13,7 +13,7 @@ class MetaPixelService
      */
     public function getPixelId()
     {
-        return config('metapixel.pixel_id', env('META_PIXEL_ID', '981230941262806'));
+        return config('metapixel.pixel_id', env('META_DATASET_ID', env('META_PIXEL_ID', '1786172575724734')));
     }
 
     /**

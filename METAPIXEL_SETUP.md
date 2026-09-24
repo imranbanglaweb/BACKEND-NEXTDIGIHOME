@@ -60,8 +60,9 @@ The Meta Pixel Analytics menu has been added to the admin panel with the followi
 Add or modify the following variables in your `.env` file:
 
 ```env
-# Meta Pixel Configuration
-META_PIXEL_ID=981230941262806
+# Meta Pixel & CAPI Dataset Configuration
+META_DATASET_ID=1786172575724734
+META_PIXEL_ID=1786172575724734
 META_PIXEL_ENABLED=true
 META_PIXEL_TRACK_ADMIN=true
 META_PIXEL_TRACK_USER_DETAILS=true
@@ -72,7 +73,7 @@ META_PIXEL_TRACK_USER_DETAILS=true
 Edit `config/metapixel.php` to customize tracking behavior:
 
 ```php
-'pixel_id' => env('META_PIXEL_ID', '981230941262806'),  // Your Meta Pixel ID
+'pixel_id' => env('META_DATASET_ID', env('META_PIXEL_ID', '1786172575724734')),  // Your Meta Dataset ID
 'enabled' => env('META_PIXEL_ENABLED', true),           // Enable/disable tracking
 'track_admin' => env('META_PIXEL_TRACK_ADMIN', true),   // Track admin users
 track_user_details' => env('META_PIXEL_TRACK_USER_DETAILS', true),  // Track user details

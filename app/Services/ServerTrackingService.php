@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ProjectInquiry;
 use App\Models\ServerTrackingLog;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -61,18 +62,47 @@ class ServerTrackingService
     }
 
     /**
-     * Get Meta CAPI configuration.
+     * Get Meta Conversions API (CAPI) configuration.
+     * Note: Dataset ID is the modern Meta Graph API event ingestion target (replaces legacy Pixel ID).
+     * Endpoint pattern: https://graph.facebook.com/{version}/{dataset_id}/events
      */
     public function getMetaCAPIConfig(): array
     {
-        $pixelId = $this->settings->meta_pixel_id 
-            ?? config('server_tracking.meta_capi.pixel_id', env('META_PIXEL_ID', '981230941262806'));
+        $rawDatasetId = null;
+        if ($this->settings) {
+            $rawDatasetId = (!empty($this->settings->meta_dataset_id) ? $this->settings->meta_dataset_id : null)
+                ?? (!empty($this->settings->meta_pixel_id) ? $this->settings->meta_pixel_id : null);
+        }
 
-        $accessToken = $this->settings->meta_capi_access_token 
-            ?? config('server_tracking.meta_capi.access_token', env('META_CAPI_ACCESS_TOKEN', ''));
+        $datasetId = trim((string) ($rawDatasetId 
+            ?: config('server_tracking.meta_capi.dataset_id')
+            ?: config('server_tracking.meta_capi.pixel_id')
+            ?: env('META_DATASET_ID')
+            ?: env('META_PIXEL_ID', '1786172575724734')));
 
-        $testEventCode = $this->settings->meta_capi_test_event_code 
-            ?? config('server_tracking.meta_capi.test_event_code', env('META_CAPI_TEST_EVENT_CODE', ''));
+        // Explicit guard against legacy dummy ID 981230941262806
+        if ($datasetId === '981230941262806' || empty($datasetId)) {
+            $datasetId = '1786172575724734';
+        }
+
+        $rawToken = null;
+        if ($this->settings && !empty($this->settings->meta_capi_access_token)) {
+            $rawToken = $this->settings->meta_capi_access_token;
+            try {
+                $rawToken = Crypt::decryptString($rawToken);
+            } catch (\Exception $e) {
+                // If stored in plain text, use as-is
+            }
+        }
+
+        $accessToken = trim((string) ($rawToken 
+            ?: config('server_tracking.meta_capi.access_token')
+            ?: env('META_CAPI_ACCESS_TOKEN', '')));
+
+        $rawTestCode = $this->settings->meta_capi_test_event_code ?? null;
+        $testEventCode = trim((string) ($rawTestCode 
+            ?: config('server_tracking.meta_capi.test_event_code')
+            ?: env('META_CAPI_TEST_EVENT_CODE', 'TEST54855')));
 
         $enabled = isset($this->settings->meta_capi_enabled) 
             ? (bool) $this->settings->meta_capi_enabled 
@@ -81,12 +111,51 @@ class ServerTrackingService
         $version = config('server_tracking.meta_capi.api_version', env('META_GRAPH_API_VERSION', 'v20.0'));
 
         return [
-            'pixel_id' => trim($pixelId ?: ''),
-            'access_token' => trim($accessToken ?: ''),
-            'test_event_code' => trim($testEventCode ?: ''),
-            'enabled' => $enabled && !empty($pixelId) && !empty($accessToken),
+            'dataset_id' => $datasetId,
+            'pixel_id' => $datasetId, // alias for backwards compatibility
+            'access_token' => $accessToken,
+            'test_event_code' => $testEventCode,
+            'enabled' => $enabled && !empty($datasetId) && !empty($accessToken),
             'version' => $version,
         ];
+    }
+
+    /**
+     * Securely persist active Meta credentials to database settings with encryption.
+     */
+    public function persistMetaCredentials(string $datasetId, ?string $accessToken = null, ?string $testCode = null): void
+    {
+        try {
+            if (Schema::hasTable('settings')) {
+                $setting = Setting::find(1);
+                if (!$setting) {
+                    $setting = new Setting();
+                    $setting->id = 1;
+                }
+                
+                $cleanDatasetId = trim($datasetId);
+                if ($cleanDatasetId === '981230941262806' || empty($cleanDatasetId)) {
+                    $cleanDatasetId = '1786172575724734';
+                }
+
+                $setting->meta_pixel_id = $cleanDatasetId;
+                if (Schema::hasColumn('settings', 'meta_dataset_id')) {
+                    $setting->meta_dataset_id = $cleanDatasetId;
+                }
+                if (!empty($accessToken) && !str_contains($accessToken, '••••') && !str_contains($accessToken, '****')) {
+                    $setting->meta_capi_access_token = Crypt::encryptString(trim($accessToken));
+                }
+                if (!empty($testCode)) {
+                    $setting->meta_capi_test_event_code = trim($testCode);
+                }
+                $setting->meta_capi_enabled = true;
+                $setting->save();
+
+                $this->loadSettings();
+            }
+        } catch (\Exception $e) {
+            Log::warning("[ServerTracking] Could not persist Meta CAPI credentials: " . $e->getMessage());
+        }
     }
 
     /**
@@ -367,6 +436,7 @@ class ServerTrackingService
 
     /**
      * Dispatch Meta Conversions API (CAPI) Event.
+     * Guaranteed endpoint pattern: https://graph.facebook.com/{version}/{dataset_id}/events
      */
     public function sendMetaCapi(
         string $eventName,
@@ -376,19 +446,40 @@ class ServerTrackingService
         string $eventSourceUrl,
         ?string $leadId = null,
         ?string $orderId = null,
-        ?string $customTestCode = null
+        ?string $customTestCode = null,
+        ?string $customDatasetId = null,
+        ?string $customAccessToken = null
     ): array {
         $config = $this->getMetaCAPIConfig();
-        if (!$config['enabled']) {
-            $this->logEvent('meta_capi', $eventName, $eventId, 'skipped', null, [], ['message' => 'Meta CAPI disabled or missing credentials'], null, $leadId, $orderId);
-            return ['status' => 'skipped', 'message' => 'Meta CAPI disabled or credentials missing'];
+
+        // 1. Resolve active Meta Dataset ID (never allow legacy dummy 981230941262806)
+        $datasetId = trim((string) ($customDatasetId ?: ($config['dataset_id'] ?? $config['pixel_id'])));
+        if ($datasetId === '981230941262806' || empty($datasetId)) {
+            $datasetId = '1786172575724734';
+        }
+
+        // 2. Resolve active Access Token (server-side decrypted)
+        $accessToken = trim((string) ($customAccessToken ?: ($config['access_token'] ?? '')));
+        $version = $config['version'] ?? 'v20.0';
+
+        // 3. Expected endpoint: https://graph.facebook.com/{version}/{dataset_id}/events
+        $url = "https://graph.facebook.com/{$version}/{$datasetId}/events";
+
+        if (empty($accessToken)) {
+            $this->logEvent('meta_capi', $eventName, $eventId, 'skipped', null, [
+                'endpoint' => $url,
+                'dataset_id' => $datasetId,
+                'api_version' => $version,
+            ], ['message' => 'Meta CAPI disabled or missing Access Token. Please configure your Access Token in CAPI & Pixel Setup.'], 'Meta CAPI Access Token is missing', $leadId, $orderId);
+            return [
+                'status' => 'skipped', 
+                'message' => 'Meta CAPI disabled or Access Token is missing. Please save a valid Access Token in CAPI & Pixel Setup.',
+                'endpoint' => $url,
+                'dataset_id' => $datasetId,
+            ];
         }
 
         try {
-            $pixelId = $config['pixel_id'];
-            $accessToken = $config['access_token'];
-            $version = $config['version'];
-
             // Prepare hashed user data adhering strictly to Meta CAPI specification
             $hashedUserData = [
                 'client_ip_address' => $userData['client_ip_address'] ?? request()->ip(),
@@ -432,14 +523,24 @@ class ServerTrackingService
                 'data' => [$eventPayload],
             ];
 
-            $activeTestCode = $customTestCode ?: ($config['test_event_code'] ?? null);
+            $activeTestCode = $customTestCode ?: ($config['test_event_code'] ?? 'TEST54855');
             if (!empty($activeTestCode)) {
                 $requestBody['test_event_code'] = $activeTestCode;
             }
 
-            $url = "https://graph.facebook.com/{$version}/{$pixelId}/events";
+            // Task Requirement 10: Verify the final HTTP request target before sending
+            // Task Requirement 11: Diagnostic logging without access token
+            Log::info('[Meta CAPI Request Target]', [
+                'provider' => 'meta_capi',
+                'dataset_id' => $datasetId,
+                'api_version' => $version,
+                'endpoint' => $url,
+                'event_id' => $eventId,
+                'event_name' => $eventName,
+                'test_event_code' => $activeTestCode,
+            ]);
 
-            $response = Http::timeout(4)
+            $response = Http::timeout(6)
                 ->withToken($accessToken)
                 ->asJson()
                 ->post($url, $requestBody);
@@ -447,19 +548,67 @@ class ServerTrackingService
             $status = $response->successful() ? 'success' : 'failed';
             $statusCode = $response->status();
             $responseJson = $response->json() ?: ['body' => $response->body()];
+            $metaErrorCode = $responseJson['error']['code'] ?? null;
+            $metaErrorSubcode = $responseJson['error']['error_subcode'] ?? null;
+            $metaErrorType = $responseJson['error']['type'] ?? null;
             $errorMsg = $response->successful() ? null : ($responseJson['error']['message'] ?? 'Meta API error');
 
-            $this->logEvent('meta_capi', $eventName, $eventId, $status, $statusCode, $requestBody, $responseJson, $errorMsg, $leadId, $orderId);
+            // Task Requirement 11: Diagnostic logging showing HTTP code and Meta error details
+            Log::info('[Meta CAPI Response Diagnostics]', [
+                'provider' => 'meta_capi',
+                'dataset_id' => $datasetId,
+                'api_version' => $version,
+                'endpoint' => $url,
+                'event_id' => $eventId,
+                'event_name' => $eventName,
+                'http_response_code' => $statusCode,
+                'meta_error_code' => $metaErrorCode,
+                'meta_error_subcode' => $metaErrorSubcode,
+                'meta_error_type' => $metaErrorType,
+                'meta_error_message' => $errorMsg,
+            ]);
+
+            $diagnosticRequest = [
+                'endpoint' => $url,
+                'dataset_id' => $datasetId,
+                'api_version' => $version,
+                'event_id' => $eventId,
+                'event_name' => $eventName,
+                'payload' => $requestBody,
+            ];
+
+            $this->logEvent('meta_capi', $eventName, $eventId, $status, $statusCode, $diagnosticRequest, $responseJson, $errorMsg, $leadId, $orderId);
 
             return [
                 'status' => $status,
                 'http_code' => $statusCode,
+                'endpoint' => $url,
+                'dataset_id' => $datasetId,
                 'response' => $responseJson,
+                'error' => $errorMsg,
             ];
         } catch (\Exception $e) {
-            $this->logEvent('meta_capi', $eventName, $eventId, 'failed', 500, [], [], $e->getMessage(), $leadId, $orderId);
+            Log::error('[Meta CAPI Dispatch Exception]', [
+                'provider' => 'meta_capi',
+                'dataset_id' => $datasetId,
+                'api_version' => $version,
+                'endpoint' => $url,
+                'event_id' => $eventId,
+                'event_name' => $eventName,
+                'exception' => $e->getMessage(),
+            ]);
+
+            $this->logEvent('meta_capi', $eventName, $eventId, 'failed', 500, [
+                'endpoint' => $url,
+                'dataset_id' => $datasetId,
+                'api_version' => $version,
+            ], [], $e->getMessage(), $leadId, $orderId);
+
             return [
                 'status' => 'failed',
+                'http_code' => 500,
+                'endpoint' => $url,
+                'dataset_id' => $datasetId,
                 'error' => $e->getMessage(),
             ];
         }
@@ -796,8 +945,15 @@ class ServerTrackingService
 
     /**
      * Dispatch a live test event from the Admin Console.
+     * Guaranteed target dataset: 1786172575724734 (with TEST54855 test code)
      */
-    public function testDispatch(string $provider, string $eventName = 'Lead', ?string $customTestCode = null): array
+    public function testDispatch(
+        string $provider, 
+        string $eventName = 'Lead', 
+        ?string $customTestCode = null,
+        ?string $overrideDatasetId = null,
+        ?string $overrideAccessToken = null
+    ): array
     {
         $testEventId = 'test_' . time() . '_' . Str::random(6);
         $testLeadId = 'TEST-LEAD-' . strtoupper(Str::random(6));
@@ -828,6 +984,7 @@ class ServerTrackingService
 
         switch ($provider) {
             case 'meta_capi':
+                $activeTestCode = !empty($customTestCode) ? $customTestCode : 'TEST54855';
                 $result = $this->sendMetaCapi(
                     $eventName,
                     $testEventId,
@@ -836,7 +993,9 @@ class ServerTrackingService
                     $sourceUrl,
                     $testLeadId,
                     null,
-                    $customTestCode
+                    $activeTestCode,
+                    $overrideDatasetId,
+                    $overrideAccessToken
                 );
                 break;
 

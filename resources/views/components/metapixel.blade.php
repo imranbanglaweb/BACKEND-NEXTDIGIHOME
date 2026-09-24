@@ -4,7 +4,7 @@
     $isAdmin = auth()->check() && (auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('Admin'));
     $shouldTrackAdmin = $metapixelConfig['track_admin'] ?? true;
     $trackUserDetails = $metapixelConfig['track_user_details'] ?? true;
-    $pixelId = $metapixelConfig['pixel_id'] ?? env('META_PIXEL_ID', '981230941262806');
+    $pixelId = $metapixelConfig['pixel_id'] ?? env('META_DATASET_ID', env('META_PIXEL_ID', '1786172575724734'));
     $isEnabled = $metapixelConfig['enabled'] ?? true;
     
     // Determine if we should track this page

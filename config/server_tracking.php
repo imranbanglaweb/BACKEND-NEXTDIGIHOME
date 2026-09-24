@@ -32,9 +32,10 @@ return [
     */
     'meta_capi' => [
         'enabled' => env('META_CAPI_ENABLED', true),
-        'pixel_id' => env('META_PIXEL_ID', '981230941262806'),
+        'dataset_id' => env('META_DATASET_ID', env('META_PIXEL_ID', '1786172575724734')),
+        'pixel_id' => env('META_DATASET_ID', env('META_PIXEL_ID', '1786172575724734')),
         'access_token' => env('META_CAPI_ACCESS_TOKEN', ''),
-        'test_event_code' => env('META_CAPI_TEST_EVENT_CODE', ''),
+        'test_event_code' => env('META_CAPI_TEST_EVENT_CODE', 'TEST54855'),
         'api_version' => env('META_GRAPH_API_VERSION', 'v20.0'),
     ],
 

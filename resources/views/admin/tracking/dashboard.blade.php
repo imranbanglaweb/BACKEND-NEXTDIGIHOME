@@ -1419,18 +1419,18 @@
                     <div class="st-id-preview-box">
                         <div class="st-id-preview-label">
                             <span>Pixel / Dataset ID</span>
-                            @if(!empty($metaConfig['pixel_id']))
+                            @if(!empty($metaConfig['dataset_id']) || !empty($metaConfig['pixel_id']))
                             <span class="text-success"><i class="fas fa-shield-alt"></i> Configured</span>
                             @else
                             <span class="text-muted">Not Set</span>
                             @endif
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="st-id-preview-val font-mono" title="{{ $metaConfig['pixel_id'] ?? '' }}">
-                                {{ !empty($metaConfig['pixel_id']) ? $metaConfig['pixel_id'] : '—' }}
+                            <span class="st-id-preview-val font-mono" title="{{ $metaConfig['dataset_id'] ?? $metaConfig['pixel_id'] ?? '' }}">
+                                {{ $metaConfig['dataset_id'] ?? $metaConfig['pixel_id'] ?? '—' }}
                             </span>
-                            @if(!empty($metaConfig['pixel_id']))
-                            <button type="button" class="st-copy-btn" onclick="copyToClipboard('{{ $metaConfig['pixel_id'] }}', 'Meta Pixel ID copied')">
+                            @if(!empty($metaConfig['dataset_id']) || !empty($metaConfig['pixel_id']))
+                            <button type="button" class="st-copy-btn" onclick="copyToClipboard('{{ $metaConfig['dataset_id'] ?? $metaConfig['pixel_id'] }}', 'Meta Dataset ID copied')">
                                 <i class="fas fa-copy"></i>
                             </button>
                             @endif
@@ -1858,7 +1858,7 @@
                         <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">
                             Ad Manager Test Event Code <span class="text-muted font-weight-normal">(Optional Override)</span>
                         </label>
-                        <input type="text" class="form-control font-mono font-weight-bold" id="modal-test-code" placeholder="e.g. TEST12345 (Leave empty to use saved setting)" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
+                        <input type="text" class="form-control font-mono font-weight-bold" id="modal-test-code" placeholder="e.g. TEST54855 (Leave empty to use saved setting: {{ $metaConfig['test_event_code'] ?? 'TEST54855' }})" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
                         <small class="text-muted font-weight-500 mt-1 d-block" style="font-size: 13.5px;">Matches the real-time test event screen in Meta or TikTok Events Manager.</small>
                     </div>
 

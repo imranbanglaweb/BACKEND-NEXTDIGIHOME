@@ -540,7 +540,7 @@
                                         <span id="meta_pixel_feedback" class="small text-muted font-mono" style="font-size: 12px;"></span>
                                     </label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control st-form-control font-mono form-tracker" name="meta_pixel_id" id="meta_pixel_id" value="{{ old('meta_pixel_id', $settings->meta_pixel_id ?? $metaConfig['pixel_id']) }}" placeholder="e.g. 981230941262806" oninput="validateMetaPixel(this)">
+                                        <input type="text" class="form-control st-form-control font-mono form-tracker" name="meta_pixel_id" id="meta_pixel_id" value="{{ old('meta_pixel_id', $settings->meta_dataset_id ?? $settings->meta_pixel_id ?? $metaConfig['dataset_id'] ?? $metaConfig['pixel_id']) }}" placeholder="e.g. 1786172575724734" oninput="validateMetaPixel(this)">
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary font-weight-bold px-3" type="button" onclick="copyInput('meta_pixel_id')" title="Copy to clipboard"><i class="fas fa-copy"></i></button>
                                         </div>
@@ -1127,10 +1127,17 @@ function runInPlaceTest(provider, eventName) {
     if (!resultBox) return;
 
     let testCode = '';
+    let datasetId = '';
+    let accessToken = '';
+
     if (provider === 'meta_capi') {
-        testCode = document.getElementById('meta_capi_test_event_code')?.value || '';
+        testCode = document.getElementById('meta_capi_test_event_code')?.value || 'TEST54855';
+        datasetId = document.getElementById('meta_pixel_id')?.value || '';
+        accessToken = document.getElementById('meta_token_field')?.value || '';
     } else if (provider === 'tiktok') {
         testCode = document.getElementById('tiktok_test_event_code')?.value || '';
+        datasetId = document.getElementById('tiktok_pixel_code')?.value || '';
+        accessToken = document.getElementById('tiktok_access_token')?.value || '';
     }
 
     resultBox.style.display = 'block';
@@ -1153,7 +1160,10 @@ function runInPlaceTest(provider, eventName) {
         body: JSON.stringify({
             provider: provider,
             event_name: eventName,
-            test_event_code: testCode
+            test_event_code: testCode,
+            dataset_id: datasetId,
+            pixel_id: datasetId,
+            access_token: accessToken
         })
     })
     .then(res => res.json())

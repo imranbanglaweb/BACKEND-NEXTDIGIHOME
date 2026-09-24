@@ -78,6 +78,7 @@ class Setting extends Model
         'ga4_api_secret',
         'ga4_server_enabled',
         'meta_pixel_id',
+        'meta_dataset_id',
         'meta_capi_access_token',
         'meta_capi_test_event_code',
         'meta_capi_enabled',
