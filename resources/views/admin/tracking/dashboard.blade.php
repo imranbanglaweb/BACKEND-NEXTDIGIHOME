@@ -1730,22 +1730,26 @@
                                     {{ $log->error_message ?: '200 OK — Successfully delivered' }}
                                 </div>
                             </td>
-                            <td class="text-right">
+                            <td class="text-right" style="white-space: nowrap;">
                                 <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold inspect-payload-btn"
                                         style="border-radius: 9px; font-size: 13.5px; padding: 6px 14px;"
+                                        data-toggle="modal"
+                                        data-target="#payloadInspectModal"
                                         data-log-id="{{ $log->id }}"
-                                        data-provider="{{ strtoupper($log->provider) }}"
-                                        data-event="{{ $log->event_name }}"
-                                        data-event-id="{{ $log->event_id }}"
-                                        data-status="{{ $log->status }}"
-                                        data-http="{{ $log->http_code }}"
+                                        data-provider="{{ strtoupper($log->provider ?? 'API') }}"
+                                        data-event="{{ $log->event_name ?? 'Event' }}"
+                                        data-event-id="{{ $log->event_id ?? 'N/A' }}"
+                                        data-status="{{ $log->status ?? 'unknown' }}"
+                                        data-http="{{ $log->http_code ?: '—' }}"
                                         data-ip="{{ $log->ip_address ?? 'N/A' }}"
                                         data-time="{{ $log->created_at ? $log->created_at->format('Y-m-d H:i:s') : 'N/A' }}"
-                                        data-request='@json($log->request_payload)'
-                                        data-response='@json($log->response_payload)'
-                                        data-error="{{ $log->error_message }}">
+                                        data-request="{{ json_encode($log->request_payload ?? []) }}"
+                                        data-response="{{ json_encode($log->response_payload ?? []) }}"
+                                        data-error="{{ $log->error_message ?? '' }}">
                                     <i class="fas fa-search mr-1"></i> Inspect
                                 </button>
+                                <script type="application/json" id="payload-req-{{ $log->id }}">{!! json_encode($log->request_payload ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+                                <script type="application/json" id="payload-res-{{ $log->id }}">{!! json_encode($log->response_payload ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
                             </td>
                         </tr>
                         @empty
@@ -1842,7 +1846,7 @@
 <!-- ============================================================================
      9. PAYLOAD INSPECTOR MODAL
      ============================================================================ -->
-<div class="modal fade" id="payloadInspectModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="payloadInspectModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 10500;">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content" style="border: 1px solid #cbd5e1; border-radius: 18px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.3); overflow: hidden;">
             <div class="modal-header py-3 px-4" style="background: #0f172a; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.12);">
@@ -1857,30 +1861,33 @@
                         <small class="text-white-50" id="inspectModalSubtitle" style="font-size: 14px;">Full cloud payload inspection</small>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85; font-size: 24px; line-height: 1;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4" style="background: #ffffff;">
+                <!-- Error Diagnostic Alert (shown if error is returned by provider) -->
+                <div id="inspectModalErrorBox" class="alert alert-danger d-none mb-3 font-weight-500" style="background: #fff1f2; border: 1.5px solid #fecdd3; color: #be123c; border-radius: 10px; font-size: 13.5px; line-height: 1.5;"></div>
+
                 <!-- Summary Chips -->
                 <div class="d-flex flex-wrap gap-2 mb-3" id="inspectModalChips"></div>
 
                 <!-- Tabs: Request vs Response -->
                 <ul class="nav nav-pills mb-3" id="inspectTab" role="tablist" style="gap: 10px;">
-                    <li class="nav-item">
-                        <a class="nav-link active font-weight-bold" id="tab-request-link" data-toggle="pill" href="#tab-request" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px;">
+                    <li class="active" id="tab-request-li">
+                        <a class="font-weight-bold" id="tab-request-link" data-toggle="pill" href="#tab-request" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px; cursor: pointer;">
                             <i class="fas fa-arrow-up mr-1 text-primary"></i> Outgoing Request Payload
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link font-weight-bold" id="tab-response-link" data-toggle="pill" href="#tab-response" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px;">
+                    <li id="tab-response-li">
+                        <a class="font-weight-bold" id="tab-response-link" data-toggle="pill" href="#tab-response" role="tab" style="border-radius: 9px; font-size: 14.5px; padding: 8px 18px; cursor: pointer;">
                             <i class="fas fa-arrow-down mr-1 text-success"></i> Cloud API Response
                         </a>
                     </li>
                 </ul>
 
                 <div class="tab-content" id="inspectTabContent">
-                    <div class="tab-pane fade show active" id="tab-request" role="tabpanel">
+                    <div class="tab-pane fade in active show" id="tab-request" role="tabpanel">
                         <div class="position-relative">
                             <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold position-absolute" style="top: 12px; right: 12px; z-index: 5; font-size: 13px;" onclick="copyInspectRequest()">
                                 <i class="fas fa-copy mr-1"></i> Copy
@@ -1888,7 +1895,7 @@
                             <pre id="inspectRequestPre" class="p-3 mb-0 font-mono text-dark" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 14px; max-height: 380px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6;"></pre>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="tab-response" role="tabpanel">
+                    <div class="tab-pane fade in show" id="tab-response" role="tabpanel" style="display: none;">
                         <div class="position-relative">
                             <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold position-absolute" style="top: 12px; right: 12px; z-index: 5; font-size: 13px;" onclick="copyInspectResponse()">
                                 <i class="fas fa-copy mr-1"></i> Copy
@@ -2062,44 +2069,197 @@ filterPills.forEach(pill => {
 let currentInspectRequest = '';
 let currentInspectResponse = '';
 
-document.querySelectorAll('.inspect-payload-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const provider = this.getAttribute('data-provider');
-        const eventName = this.getAttribute('data-event');
-        const eventId = this.getAttribute('data-event-id');
-        const status = this.getAttribute('data-status');
-        const http = this.getAttribute('data-http');
-        const ip = this.getAttribute('data-ip');
-        const time = this.getAttribute('data-time');
+// Tab switching handlers for the Inspect Modal
+function switchInspectTab(tab) {
+    if (tab === 'request') {
+        const reqLi = document.getElementById('tab-request-li');
+        const resLi = document.getElementById('tab-response-li');
+        const reqPane = document.getElementById('tab-request');
+        const resPane = document.getElementById('tab-response');
 
-        let reqData = this.getAttribute('data-request');
-        let resData = this.getAttribute('data-response');
+        if (reqLi) reqLi.classList.add('active');
+        if (resLi) resLi.classList.remove('active');
+        if (reqPane) {
+            reqPane.classList.add('active', 'in', 'show');
+            reqPane.style.display = 'block';
+        }
+        if (resPane) {
+            resPane.classList.remove('active', 'in', 'show');
+            resPane.style.display = 'none';
+        }
+    } else if (tab === 'response') {
+        const reqLi = document.getElementById('tab-request-li');
+        const resLi = document.getElementById('tab-response-li');
+        const reqPane = document.getElementById('tab-request');
+        const resPane = document.getElementById('tab-response');
 
-        try { reqData = JSON.parse(reqData); } catch (e) {}
-        try { resData = JSON.parse(resData); } catch (e) {}
+        if (resLi) resLi.classList.add('active');
+        if (reqLi) reqLi.classList.remove('active');
+        if (resPane) {
+            resPane.classList.add('active', 'in', 'show');
+            resPane.style.display = 'block';
+        }
+        if (reqPane) {
+            reqPane.classList.remove('active', 'in', 'show');
+            reqPane.style.display = 'none';
+        }
+    }
+}
 
+document.addEventListener('DOMContentLoaded', function() {
+    const reqLink = document.getElementById('tab-request-link');
+    const resLink = document.getElementById('tab-response-link');
+    if (reqLink) {
+        reqLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchInspectTab('request');
+        });
+    }
+    if (resLink) {
+        resLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchInspectTab('response');
+        });
+    }
+});
+
+function openInspectModal(btn) {
+    if (!btn) return;
+
+    const logId = btn.getAttribute('data-log-id') || '';
+    const provider = btn.getAttribute('data-provider') || 'API';
+    const eventName = btn.getAttribute('data-event') || 'Event';
+    const eventId = btn.getAttribute('data-event-id') || '';
+    const status = (btn.getAttribute('data-status') || '').toLowerCase();
+    const http = btn.getAttribute('data-http') || '—';
+    const ip = btn.getAttribute('data-ip') || 'N/A';
+    const time = btn.getAttribute('data-time') || 'N/A';
+    const errorMsg = btn.getAttribute('data-error') || '';
+
+    // Retrieve payload data: 1) JSON script tags first, 2) data attributes fallback
+    let reqData = null;
+    let resData = null;
+
+    const reqScript = document.getElementById('payload-req-' + logId);
+    if (reqScript && reqScript.textContent.trim()) {
+        try { reqData = JSON.parse(reqScript.textContent); } catch (e) {}
+    }
+    if (!reqData) {
+        const rawReq = btn.getAttribute('data-request');
+        if (rawReq) {
+            try { reqData = JSON.parse(rawReq); } catch (e) { reqData = rawReq; }
+        }
+    }
+
+    const resScript = document.getElementById('payload-res-' + logId);
+    if (resScript && resScript.textContent.trim()) {
+        try { resData = JSON.parse(resScript.textContent); } catch (e) {}
+    }
+    if (!resData) {
+        const rawRes = btn.getAttribute('data-response');
+        if (rawRes) {
+            try { resData = JSON.parse(rawRes); } catch (e) { resData = rawRes; }
+        }
+    }
+
+    // Format request
+    if (reqData && typeof reqData === 'object') {
         currentInspectRequest = JSON.stringify(reqData, null, 2);
+    } else if (typeof reqData === 'string' && reqData.trim()) {
+        try {
+            currentInspectRequest = JSON.stringify(JSON.parse(reqData), null, 2);
+        } catch (e) {
+            currentInspectRequest = reqData;
+        }
+    } else {
+        currentInspectRequest = 'No request payload recorded.';
+    }
+
+    // Format response
+    if (resData && typeof resData === 'object' && Object.keys(resData).length > 0) {
         currentInspectResponse = JSON.stringify(resData, null, 2);
+    } else if (typeof resData === 'string' && resData.trim() && resData !== '[]' && resData !== '{}') {
+        try {
+            currentInspectResponse = JSON.stringify(JSON.parse(resData), null, 2);
+        } catch (e) {
+            currentInspectResponse = resData;
+        }
+    } else if (errorMsg && errorMsg.trim()) {
+        currentInspectResponse = errorMsg;
+    } else {
+        currentInspectResponse = (resData && Object.keys(resData).length === 0) ? '200 OK — Empty or standard confirmation payload.' : 'No response payload recorded.';
+    }
 
-        document.getElementById('inspectModalTitle').textContent = `${provider} - ${eventName}`;
-        document.getElementById('inspectModalSubtitle').textContent = `Event ID: ${eventId || 'N/A'} • Timestamp: ${time}`;
+    // Title & Subtitle
+    const titleEl = document.getElementById('inspectModalTitle');
+    if (titleEl) titleEl.textContent = `${provider} - ${eventName}`;
 
-        const chipsContainer = document.getElementById('inspectModalChips');
+    const subEl = document.getElementById('inspectModalSubtitle');
+    if (subEl) subEl.textContent = `Event ID: ${eventId || 'N/A'} • Timestamp: ${time}`;
+
+    // Error Diagnostic alert banner
+    const errBox = document.getElementById('inspectModalErrorBox');
+    if (errBox) {
+        if (errorMsg && errorMsg.trim()) {
+            errBox.classList.remove('d-none');
+            errBox.innerHTML = `<strong><i class="fas fa-exclamation-triangle mr-1"></i> Cloud Delivery Diagnostic:</strong> ${errorMsg}`;
+        } else {
+            errBox.classList.add('d-none');
+            errBox.innerHTML = '';
+        }
+    }
+
+    // Chips
+    const chipsContainer = document.getElementById('inspectModalChips');
+    if (chipsContainer) {
+        const isSuccess = (status === 'success' || status === 'delivered');
+        const isFailed = (status === 'failed' || status === 'dropped' || status === 'error');
+        const badgeColor = isSuccess ? 'badge-success' : (isFailed ? 'badge-danger' : 'badge-secondary');
+        const displayStatus = status ? status.toUpperCase() : 'RECORDED';
+
         chipsContainer.innerHTML = `
             <span class="badge badge-primary px-3 py-1 font-mono" style="font-size: 13px; font-weight: 700;">${provider}</span>
             <span class="badge badge-info px-3 py-1 font-mono" style="font-size: 13px; font-weight: 700;">${eventName}</span>
-            <span class="badge ${status === 'success' ? 'badge-success' : (status === 'failed' ? 'badge-danger' : 'badge-secondary')} px-3 py-1" style="font-size: 13px; font-weight: 700;">${status.toUpperCase()}</span>
+            <span class="badge ${badgeColor} px-3 py-1" style="font-size: 13px; font-weight: 700;">${displayStatus}</span>
             <span class="badge badge-light border px-3 py-1 font-mono font-weight-bold" style="font-size: 13px;">HTTP ${http || '—'}</span>
             <span class="badge badge-light border px-3 py-1 font-mono font-weight-bold" style="font-size: 13px;">IP: ${ip}</span>
         `;
+    }
 
-        document.getElementById('inspectRequestPre').textContent = currentInspectRequest || 'No request payload recorded.';
-        document.getElementById('inspectResponsePre').textContent = currentInspectResponse || 'No response payload recorded.';
+    // Populate pre tags
+    const reqPre = document.getElementById('inspectRequestPre');
+    if (reqPre) reqPre.textContent = currentInspectRequest;
 
-        if (typeof $ !== 'undefined' && $('#payloadInspectModal').modal) {
-            $('#payloadInspectModal').modal('show');
-        }
-    });
+    const resPre = document.getElementById('inspectResponsePre');
+    if (resPre) resPre.textContent = currentInspectResponse;
+
+    // If failed or error exists, default to Response tab for instant troubleshooting
+    if (status === 'failed' || (errorMsg && errorMsg.trim())) {
+        switchInspectTab('response');
+    } else {
+        switchInspectTab('request');
+    }
+
+    // Show modal via Bootstrap / jQuery / fallback
+    const modalEl = document.getElementById('payloadInspectModal');
+    if (typeof $ !== 'undefined' && $('#payloadInspectModal').modal) {
+        $('#payloadInspectModal').modal('show');
+    } else if (window.bootstrap && window.bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    } else if (modalEl) {
+        modalEl.classList.add('in', 'show');
+        modalEl.style.display = 'block';
+        document.body.classList.add('modal-open');
+    }
+}
+
+// Bind click event with delegation (works for both current and filtered rows)
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.inspect-payload-btn');
+    if (btn) {
+        e.preventDefault();
+        openInspectModal(btn);
+    }
 });
 
 function copyInspectRequest() {

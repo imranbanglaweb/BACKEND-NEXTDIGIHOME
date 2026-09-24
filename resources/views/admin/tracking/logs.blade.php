@@ -223,18 +223,22 @@
                             </td>
                             <td class="text-right">
                                 <button type="button" class="btn btn-outline-primary view-payload-btn" 
+                                    data-toggle="modal"
+                                    data-target="#payloadModal"
                                     data-log-id="{{ $log->id }}"
-                                    data-provider="{{ strtoupper($log->provider) }}"
-                                    data-event="{{ $log->event_name }}"
-                                    data-status="{{ strtoupper($log->status) }}"
-                                    data-http="{{ $log->http_code }}"
-                                    data-ip="{{ $log->ip_address }}"
-                                    data-request="{{ json_encode($log->request_payload) }}"
-                                    data-response="{{ json_encode($log->response_payload) }}"
-                                    data-error="{{ $log->error_message }}"
+                                    data-provider="{{ strtoupper($log->provider ?? 'API') }}"
+                                    data-event="{{ $log->event_name ?? 'Event' }}"
+                                    data-status="{{ strtoupper($log->status ?? 'UNKNOWN') }}"
+                                    data-http="{{ $log->http_code ?: '—' }}"
+                                    data-ip="{{ $log->ip_address ?? 'N/A' }}"
+                                    data-request="{{ json_encode($log->request_payload ?? []) }}"
+                                    data-response="{{ json_encode($log->response_payload ?? []) }}"
+                                    data-error="{{ $log->error_message ?? '' }}"
                                     style="border-radius: 8px; font-size: 13.5px; padding: 6px 14px; font-weight: 700;">
                                     <i class="fas fa-code mr-1"></i> Inspect
                                 </button>
+                                <script type="application/json" id="log-page-req-{{ $log->id }}">{!! json_encode($log->request_payload ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+                                <script type="application/json" id="log-page-res-{{ $log->id }}">{!! json_encode($log->response_payload ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
                             </td>
                         </tr>
                         @empty
@@ -352,44 +356,107 @@
 </div>
 
 <script>
-document.querySelectorAll('.view-payload-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const id = this.getAttribute('data-log-id');
-        const provider = this.getAttribute('data-provider');
-        const event = this.getAttribute('data-event');
-        const status = this.getAttribute('data-status');
-        const http = this.getAttribute('data-http');
-        const reqStr = this.getAttribute('data-request');
-        const resStr = this.getAttribute('data-response');
-        const errStr = this.getAttribute('data-error');
+function openLogPayloadModal(btn) {
+    if (!btn) return;
 
-        document.getElementById('payloadModalTitle').innerHTML = `Log #${id}: [${provider}] &rarr; ${event}`;
-        document.getElementById('payloadModalSubtitle').innerHTML = `Status: ${status} | HTTP: ${http || 'N/A'}`;
+    const id = btn.getAttribute('data-log-id') || '';
+    const provider = btn.getAttribute('data-provider') || 'API';
+    const event = btn.getAttribute('data-event') || 'Event';
+    const status = btn.getAttribute('data-status') || 'UNKNOWN';
+    const http = btn.getAttribute('data-http') || 'N/A';
+    const errStr = btn.getAttribute('data-error') || '';
 
-        const errorBox = document.getElementById('modal-error-box');
+    let reqData = null;
+    let resData = null;
+
+    const reqScript = document.getElementById('log-page-req-' + id);
+    if (reqScript && reqScript.textContent.trim()) {
+        try { reqData = JSON.parse(reqScript.textContent); } catch (e) {}
+    }
+    if (!reqData) {
+        const rawReq = btn.getAttribute('data-request');
+        if (rawReq) {
+            try { reqData = JSON.parse(rawReq); } catch (e) { reqData = rawReq; }
+        }
+    }
+
+    const resScript = document.getElementById('log-page-res-' + id);
+    if (resScript && resScript.textContent.trim()) {
+        try { resData = JSON.parse(resScript.textContent); } catch (e) {}
+    }
+    if (!resData) {
+        const rawRes = btn.getAttribute('data-response');
+        if (rawRes) {
+            try { resData = JSON.parse(rawRes); } catch (e) { resData = rawRes; }
+        }
+    }
+
+    const titleEl = document.getElementById('payloadModalTitle');
+    if (titleEl) titleEl.innerHTML = `Log #${id}: [${provider}] &rarr; ${event}`;
+
+    const subEl = document.getElementById('payloadModalSubtitle');
+    if (subEl) subEl.innerHTML = `Status: ${status} | HTTP: ${http}`;
+
+    const errorBox = document.getElementById('modal-error-box');
+    if (errorBox) {
         if (errStr && errStr.trim() !== '') {
             errorBox.classList.remove('d-none');
             errorBox.innerHTML = `<strong>Error Diagnostic:</strong> ${errStr}`;
         } else {
             errorBox.classList.add('d-none');
         }
+    }
 
-        try {
-            document.getElementById('modal-request-content').textContent = JSON.stringify(JSON.parse(reqStr), null, 2);
-        } catch {
-            document.getElementById('modal-request-content').textContent = reqStr || '(Empty Payload)';
+    const reqContentEl = document.getElementById('modal-request-content');
+    if (reqContentEl) {
+        if (reqData && typeof reqData === 'object') {
+            reqContentEl.textContent = JSON.stringify(reqData, null, 2);
+        } else if (typeof reqData === 'string' && reqData.trim()) {
+            try {
+                reqContentEl.textContent = JSON.stringify(JSON.parse(reqData), null, 2);
+            } catch {
+                reqContentEl.textContent = reqData;
+            }
+        } else {
+            reqContentEl.textContent = '(Empty Request Payload)';
         }
+    }
 
-        try {
-            document.getElementById('modal-response-content').textContent = JSON.stringify(JSON.parse(resStr), null, 2);
-        } catch {
-            document.getElementById('modal-response-content').textContent = resStr || '(Empty Response)';
+    const resContentEl = document.getElementById('modal-response-content');
+    if (resContentEl) {
+        if (resData && typeof resData === 'object' && Object.keys(resData).length > 0) {
+            resContentEl.textContent = JSON.stringify(resData, null, 2);
+        } else if (typeof resData === 'string' && resData.trim() && resData !== '[]' && resData !== '{}') {
+            try {
+                resContentEl.textContent = JSON.stringify(JSON.parse(resData), null, 2);
+            } catch {
+                resContentEl.textContent = resData;
+            }
+        } else if (errStr && errStr.trim()) {
+            resContentEl.textContent = errStr;
+        } else {
+            resContentEl.textContent = '(Empty Response)';
         }
+    }
 
-        if (typeof $ !== 'undefined' && $('#payloadModal').modal) {
-            $('#payloadModal').modal('show');
-        }
-    });
+    const modalEl = document.getElementById('payloadModal');
+    if (typeof $ !== 'undefined' && $('#payloadModal').modal) {
+        $('#payloadModal').modal('show');
+    } else if (window.bootstrap && window.bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    } else if (modalEl) {
+        modalEl.classList.add('in', 'show');
+        modalEl.style.display = 'block';
+        document.body.classList.add('modal-open');
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.view-payload-btn');
+    if (btn) {
+        e.preventDefault();
+        openLogPayloadModal(btn);
+    }
 });
 
 function copyModalContent(elementId) {
