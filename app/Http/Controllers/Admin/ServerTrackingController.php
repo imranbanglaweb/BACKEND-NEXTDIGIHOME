@@ -47,6 +47,13 @@ class ServerTrackingController extends Controller
 
         $ga4Config = $this->trackingService->getGA4Config();
         $metaConfig = $this->trackingService->getMetaCAPIConfig();
+        $hasMetaToken = !empty($metaConfig['access_token']);
+        if ($hasMetaToken) {
+            $rawToken = $metaConfig['access_token'];
+            $metaConfig['access_token'] = strlen($rawToken) > 12 
+                ? substr($rawToken, 0, 5) . '••••••••••••••••••••••••••••••••' . substr($rawToken, -4) 
+                : '••••••••••••••••';
+        }
         $tiktokConfig = $this->trackingService->getTikTokConfig();
         $webhookConfig = $this->trackingService->getWebhookConfig();
 
@@ -63,6 +70,7 @@ class ServerTrackingController extends Controller
             'recentLogs',
             'ga4Config',
             'metaConfig',
+            'hasMetaToken',
             'tiktokConfig',
             'webhookConfig'
         ));

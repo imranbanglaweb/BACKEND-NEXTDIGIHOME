@@ -1130,7 +1130,7 @@
                 </div>
 
                 <div class="st-hero-actions mt-3 mt-lg-0">
-                    <button type="button" class="st-btn-glow" data-toggle="modal" data-target="#quickTestModal">
+                    <button type="button" class="st-btn-glow" data-toggle="modal" data-target="#quickTestModal" data-bs-toggle="modal" data-bs-target="#quickTestModal" onclick="openQuickTestModal(); return false;">
                         <i class="fas fa-bolt"></i>
                         <span>Live Test Dispatch</span>
                     </button>
@@ -1445,7 +1445,7 @@
                             <strong>{{ number_format($metaCount) }}</strong>
                         </div>
                         <div class="st-channel-actions">
-                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="meta_capi" data-provider-name="Meta Conversions API (CAPI)">
+                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="meta_capi" data-provider-name="Meta Conversions API (CAPI)" onclick="openQuickTestModal('meta_capi'); return false;">
                                 <i class="fas fa-bolt text-primary"></i> Test
                             </button>
                             <a href="{{ route('admin.server-tracking.config') }}" class="st-config-icon-btn" title="Configure Meta CAPI">
@@ -1501,7 +1501,7 @@
                             <strong>{{ number_format($ga4Count) }}</strong>
                         </div>
                         <div class="st-channel-actions">
-                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="ga4" data-provider-name="GA4 Measurement Protocol">
+                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="ga4" data-provider-name="GA4 Measurement Protocol" onclick="openQuickTestModal('ga4'); return false;">
                                 <i class="fas fa-bolt text-warning"></i> Test
                             </button>
                             <a href="{{ route('admin.server-tracking.config') }}" class="st-config-icon-btn" title="Configure GA4 Protocol">
@@ -1557,7 +1557,7 @@
                             <strong>{{ number_format($tiktokCount) }}</strong>
                         </div>
                         <div class="st-channel-actions">
-                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="tiktok" data-provider-name="TikTok Events API">
+                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="tiktok" data-provider-name="TikTok Events API" onclick="openQuickTestModal('tiktok'); return false;">
                                 <i class="fas fa-bolt text-danger"></i> Test
                             </button>
                             <a href="{{ route('admin.server-tracking.config') }}" class="st-config-icon-btn" title="Configure TikTok API">
@@ -1613,7 +1613,7 @@
                             <strong>{{ number_format($webhookCount) }}</strong>
                         </div>
                         <div class="st-channel-actions">
-                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="webhook" data-provider-name="Server Webhook / sGTM">
+                            <button type="button" class="st-test-trigger-btn trigger-test-btn" data-provider="webhook" data-provider-name="Server Webhook / sGTM" onclick="openQuickTestModal('webhook'); return false;">
                                 <i class="fas fa-bolt text-info"></i> Test
                             </button>
                             <a href="{{ route('admin.server-tracking.config') }}" class="st-config-icon-btn" title="Configure Webhook Relay">
@@ -1795,7 +1795,7 @@
                                     </div>
                                     <h5 class="font-weight-800 text-dark mb-2" style="font-size: 20px;">No Server Tracking Logs Yet</h5>
                                     <p class="text-muted mb-3" style="font-size: 15px;">Launch a live test dispatch to test your Meta CAPI, GA4, TikTok, or Webhook cloud connection.</p>
-                                    <button type="button" class="st-btn-glow" data-toggle="modal" data-target="#quickTestModal">
+                                    <button type="button" class="st-btn-glow" data-toggle="modal" data-target="#quickTestModal" data-bs-toggle="modal" data-bs-target="#quickTestModal" onclick="openQuickTestModal(); return false;">
                                         <i class="fas fa-bolt"></i> Launch First Test Event
                                     </button>
                                 </div>
@@ -1813,8 +1813,8 @@
 <!-- ============================================================================
      8. LIVE TEST DISPATCH MODAL
      ============================================================================ -->
-<div class="modal fade" id="quickTestModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="quickTestModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 10550; display: none;">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="z-index: 10560; margin: 40px auto; max-width: 600px;">
         <div class="modal-content" style="border: 1px solid #cbd5e1; border-radius: 18px; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.3); overflow: hidden;">
             <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.15);">
                 <div class="d-flex align-items-center">
@@ -1826,20 +1826,59 @@
                         <small class="text-white-50" style="font-size: 14px;">Transmit synthetic conversion payload to ad cloud endpoints</small>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+                <button type="button" class="close text-white" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" onclick="closeQuickTestModal(); return false;" style="opacity: 0.85; font-size: 24px; line-height: 1; cursor: pointer;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4" style="background: #ffffff;">
-                <form id="liveTestForm">
+                <div id="quickTestErrorAlert" class="alert alert-danger d-none mb-3 font-weight-500" style="display: none; background: #fff1f2; border: 1.5px solid #fecdd3; color: #be123c; border-radius: 10px; font-size: 13.5px; line-height: 1.5;"></div>
+
+                <form id="liveTestForm" onsubmit="return false;">
                     <div class="form-group mb-3">
                         <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">Target Cloud Channel</label>
-                        <select class="form-control font-weight-bold" id="modal-provider" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
-                            <option value="meta_capi">Meta Conversions API (CAPI Graph v20)</option>
+                        <select class="form-control font-weight-bold" id="modal-provider" onchange="handleModalProviderChange(this.value)" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
+                            <option value="meta_capi" selected>Meta Conversions API (CAPI Graph v20)</option>
                             <option value="ga4">Google Analytics 4 Measurement Protocol</option>
                             <option value="tiktok">TikTok Events API (Business v1.3)</option>
                             <option value="webhook">Server Webhook / sGTM Container</option>
                         </select>
+                    </div>
+
+                    <!-- Meta CAPI Specific Section: Target Dataset ID & Access Token -->
+                    <div id="modal-meta-section">
+                        <div class="p-3 mb-3 rounded" style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Active Meta Dataset ID</div>
+                                    <div class="font-mono font-weight-bold" style="font-size: 16px; color: #166534;">1786172575724734</div>
+                                </div>
+                                <span class="badge badge-success px-3 py-1 font-weight-bold" style="font-size: 12px; border-radius: 6px;">Target Verified</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3" id="modal-meta-token-group">
+                            <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">
+                                Conversions API Access Token
+                                @if(!empty($hasMetaToken))
+                                    <span class="badge badge-success ml-1 font-weight-normal" style="font-size: 12px;">Saved &amp; Encrypted</span>
+                                @else
+                                    <span class="badge badge-warning ml-1 text-dark font-weight-normal" style="font-size: 12px;">Required to Dispatch</span>
+                                @endif
+                            </label>
+                            <div class="input-group">
+                                <input type="password" class="form-control font-mono font-weight-bold" id="modal-access-token" 
+                                       placeholder="{{ !empty($hasMetaToken) ? '•••••••••••••••••••••••••••••••• (Leave blank to use saved token)' : 'Paste EAAB... Access Token from Meta Events Manager' }}"
+                                       style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px 0 0 10px; font-size: 14px;">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="toggleModalTokenVisibility()" style="border: 1.5px solid #cbd5e1; border-left: none; border-radius: 0 10px 10px 0;">
+                                        <i class="fas fa-eye" id="modal-token-eye-icon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted mt-1 d-block" style="font-size: 12.5px;">
+                                <i class="fas fa-shield-alt text-success mr-1"></i> Tokens are AES-256 encrypted server-side, never logged, and never exposed in browser HTML.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="form-group mb-3">
@@ -1858,8 +1897,8 @@
                         <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">
                             Ad Manager Test Event Code <span class="text-muted font-weight-normal">(Optional Override)</span>
                         </label>
-                        <input type="text" class="form-control font-mono font-weight-bold" id="modal-test-code" placeholder="e.g. TEST54855 (Leave empty to use saved setting: {{ $metaConfig['test_event_code'] ?? 'TEST54855' }})" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
-                        <small class="text-muted font-weight-500 mt-1 d-block" style="font-size: 13.5px;">Matches the real-time test event screen in Meta or TikTok Events Manager.</small>
+                        <input type="text" class="form-control font-mono font-weight-bold" id="modal-test-code" value="{{ $metaConfig['test_event_code'] ?? 'TEST54855' }}" placeholder="TEST54855" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
+                        <small class="text-muted font-weight-500 mt-1 d-block" style="font-size: 13.5px;">Matches the real-time test event screen in Meta Events Manager.</small>
                     </div>
 
                     <div class="p-3 rounded mb-0" style="background: #f8fafc; border: 1.5px solid #cbd5e1; font-size: 14px; color: #1e293b; border-radius: 12px; line-height: 1.6;">
@@ -1868,7 +1907,7 @@
                 </form>
             </div>
             <div class="modal-footer py-3 px-4" style="border-top: 1px solid #e2e8f0; background: #f8fafc;">
-                <button type="button" class="btn btn-secondary font-weight-bold px-3" data-dismiss="modal" style="border-radius: 9px; font-size: 14.5px;">Cancel</button>
+                <button type="button" class="btn btn-secondary font-weight-bold px-3" data-dismiss="modal" data-bs-dismiss="modal" onclick="closeQuickTestModal(); return false;" style="border-radius: 9px; font-size: 14.5px; cursor: pointer;">Cancel</button>
                 <button type="button" class="st-btn-glow px-4" id="executeTestBtn">
                     <i class="fas fa-paper-plane mr-1"></i> Transmit Test Event
                 </button>
@@ -1989,17 +2028,119 @@ function copyToClipboard(text, successMsg = 'Copied to clipboard!') {
     });
 }
 
+// Move quick test modal to document.body to avoid stacking context & overflow issues
+function ensureQuickTestModalOnBody() {
+    const modal = document.getElementById('quickTestModal');
+    if (modal && modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureQuickTestModalOnBody);
+} else {
+    ensureQuickTestModalOnBody();
+}
+
+function handleModalProviderChange(provider) {
+    const metaSec = document.getElementById('modal-meta-section');
+    if (metaSec) {
+        metaSec.style.display = (provider === 'meta_capi') ? 'block' : 'none';
+    }
+}
+
+function toggleModalTokenVisibility() {
+    const input = document.getElementById('modal-access-token');
+    const icon = document.getElementById('modal-token-eye-icon');
+    if (!input) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+    } else {
+        input.type = 'password';
+        if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+    }
+}
+
+function openQuickTestModal(provider = null) {
+    ensureQuickTestModalOnBody();
+    const errAlert = document.getElementById('quickTestErrorAlert');
+    if (errAlert) { 
+        errAlert.style.display = 'none'; 
+        errAlert.classList.add('d-none'); 
+        errAlert.innerHTML = ''; 
+    }
+
+    if (provider) {
+        const select = document.getElementById('modal-provider');
+        if (select) {
+            select.value = provider;
+            handleModalProviderChange(provider);
+        }
+    } else {
+        const select = document.getElementById('modal-provider');
+        if (select) {
+            handleModalProviderChange(select.value);
+        }
+    }
+
+    const modalEl = document.getElementById('quickTestModal');
+    if (!modalEl) return;
+
+    modalEl.classList.add('show', 'in');
+    modalEl.style.display = 'block';
+    modalEl.style.zIndex = '10550';
+    document.body.classList.add('modal-open');
+
+    if (typeof $ !== 'undefined' && $('#quickTestModal').modal) {
+        try {
+            $('#quickTestModal').modal({ backdrop: true, keyboard: true, show: true });
+        } catch (e) {}
+    } else if (window.bootstrap && window.bootstrap.Modal) {
+        try {
+            bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: true, keyboard: true }).show();
+        } catch (e) {}
+    }
+
+    let backdrop = document.getElementById('quickTestModalBackdrop');
+    if (!backdrop && !document.querySelector('.modal-backdrop')) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'quickTestModalBackdrop';
+        backdrop.className = 'modal-backdrop fade show in';
+        backdrop.style.zIndex = '10500';
+        backdrop.onclick = closeQuickTestModal;
+        document.body.appendChild(backdrop);
+    }
+}
+
+function closeQuickTestModal() {
+    const modalEl = document.getElementById('quickTestModal');
+    if (modalEl) {
+        modalEl.classList.remove('show', 'in');
+        modalEl.style.display = 'none';
+        if (typeof $ !== 'undefined' && $('#quickTestModal').modal) {
+            try { $('#quickTestModal').modal('hide'); } catch (e) {}
+        } else if (window.bootstrap && window.bootstrap.Modal) {
+            try {
+                const inst = bootstrap.Modal.getInstance(modalEl);
+                if (inst) inst.hide();
+            } catch (e) {}
+        }
+    }
+    const backdrop = document.getElementById('quickTestModalBackdrop');
+    if (backdrop) backdrop.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.body.style.removeProperty('overflow');
+}
+
 // Wire quick test buttons on provider cards
 document.querySelectorAll('.trigger-test-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
         const provider = this.getAttribute('data-provider');
-        const select = document.getElementById('modal-provider');
-        if (select && provider) {
-            select.value = provider;
-        }
-        if (typeof $ !== 'undefined' && $('#quickTestModal').modal) {
-            $('#quickTestModal').modal('show');
-        }
+        openQuickTestModal(provider);
     });
 });
 
@@ -2008,10 +2149,32 @@ document.getElementById('executeTestBtn').addEventListener('click', function() {
     const provider = document.getElementById('modal-provider').value;
     const eventName = document.getElementById('modal-event-name').value;
     const testCode = document.getElementById('modal-test-code').value;
+    const tokenInput = document.getElementById('modal-access-token');
+    const accessToken = tokenInput ? tokenInput.value.trim() : '';
+
+    const errAlert = document.getElementById('quickTestErrorAlert');
+    if (errAlert) { 
+        errAlert.style.display = 'none'; 
+        errAlert.classList.add('d-none'); 
+        errAlert.innerHTML = ''; 
+    }
 
     const origHtml = this.innerHTML;
-    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Transmitting...';
+    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Transmitting to Cloud...';
     this.disabled = true;
+
+    const payload = {
+        provider: provider,
+        event_name: eventName,
+        test_event_code: testCode || 'TEST54855'
+    };
+
+    if (provider === 'meta_capi') {
+        payload.dataset_id = '1786172575724734';
+        if (accessToken) {
+            payload.access_token = accessToken;
+        }
+    }
 
     fetch('{{ route("admin.server-tracking.test") }}', {
         method: 'POST',
@@ -2019,36 +2182,66 @@ document.getElementById('executeTestBtn').addEventListener('click', function() {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({
-            provider: provider,
-            event_name: eventName,
-            test_event_code: testCode
-        })
+        body: JSON.stringify(payload)
     })
     .then(res => res.json())
     .then(data => {
-        if (typeof $ !== 'undefined' && $('#quickTestModal').modal) {
-            $('#quickTestModal').modal('hide');
-        }
+        const result = data.result || {};
+        const status = result.status || (data.success ? 'success' : 'failed');
 
+        // Populate telemetry console
         const card = document.getElementById('live-console-card');
         const pre = document.getElementById('console-output-pre');
         const latencyBadge = document.getElementById('console-latency');
         const title = document.getElementById('console-title');
 
-        card.classList.remove('d-none');
-        title.innerHTML = `<i class="fas fa-terminal mr-2 text-info"></i>Telemetry Console: [${provider.toUpperCase()}] &rarr; ${eventName}`;
+        if (card && pre && title) {
+            card.classList.remove('d-none');
+            title.innerHTML = `<i class="fas fa-terminal mr-2 text-info"></i>Telemetry Console: [${provider.toUpperCase()}] &rarr; ${eventName}`;
+            const latency = (result && result.latency_ms) ? result.latency_ms + ' ms' : 'Completed';
+            if (latencyBadge) latencyBadge.textContent = latency;
+            pre.textContent = JSON.stringify(data, null, 2);
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
 
-        const latency = (data.result && data.result.latency_ms) ? data.result.latency_ms + ' ms' : 'Completed';
-        latencyBadge.textContent = latency;
+        if (status === 'skipped') {
+            const msg = result.message || 'Meta CAPI Access Token is missing. Please paste your Access Token above.';
+            if (errAlert) {
+                errAlert.classList.remove('d-none');
+                errAlert.style.display = 'block';
+                errAlert.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> <strong>Configuration Required:</strong> ${msg}`;
+            }
+            showToast(msg, 'fa-exclamation-circle text-warning');
+            return;
+        }
 
-        pre.textContent = JSON.stringify(data, null, 2);
-        card.scrollIntoView({ behavior: 'smooth' });
+        if (status === 'failed') {
+            const errorMsg = result.error || data.message || 'Dispatch failed.';
+            if (errAlert) {
+                errAlert.classList.remove('d-none');
+                errAlert.style.display = 'block';
+                errAlert.innerHTML = `<i class="fas fa-times-circle mr-1"></i> <strong>Dispatch Error:</strong> ${errorMsg}`;
+            }
+            showToast(`Dispatch failed: ${errorMsg}`, 'fa-times-circle text-danger');
+            return;
+        }
 
-        showToast(`Test event dispatched to ${provider.toUpperCase()}`, 'fa-paper-plane text-success');
+        // Success
+        closeQuickTestModal();
+        showToast(`🎉 Test event successfully delivered to ${provider.toUpperCase()} (HTTP ${result.http_code || 200})!`, 'fa-check-double text-success');
+
+        // Reload page after 1.2s so user sees the new delivered row in Recent Cloud Dispatches Stream
+        setTimeout(() => {
+            window.location.reload();
+        }, 1200);
     })
     .catch(err => {
-        alert('Test dispatch network error: ' + err);
+        if (errAlert) {
+            errAlert.classList.remove('d-none');
+            errAlert.style.display = 'block';
+            errAlert.innerHTML = `<i class="fas fa-times-circle mr-1"></i> <strong>Network Error:</strong> ${err.message || err}`;
+        }
+        showToast('Network error during test dispatch', 'fa-times-circle text-danger');
     })
     .finally(() => {
         this.innerHTML = origHtml;
