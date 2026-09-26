@@ -811,24 +811,19 @@
         <!-- ====================================================================
              2. NAVIGATION BAR (MATCHES DASHBOARD CONSOLE)
              ==================================================================== -->
-        <div class="st-nav-bar">
-            <div class="st-nav-links">
-                <a href="{{ route('admin.server-tracking.dashboard') }}" class="st-nav-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard Overview</span>
-                </a>
-                <a href="{{ route('admin.server-tracking.config') }}" class="st-nav-link active">
-                    <i class="fas fa-sliders-h"></i>
-                    <span>Pipeline Credentials</span>
-                </a>
-                <a href="{{ route('admin.server-tracking.logs') }}" class="st-nav-link">
-                    <i class="fas fa-stream"></i>
-                    <span>Audit Logs &amp; Inspector</span>
-                </a>
-            </div>
-            <div class="st-nav-status">
-                <span class="st-radar-dot" style="width: 8px; height: 8px;"></span>
-                <span>Dual-Tagging Hybrid Active &bull; v2.6 Enterprise</span>
+        <div class="premium-nav">
+            <a href="{{ route('admin.server-tracking.dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+            </a>
+            <a href="{{ route('admin.server-tracking.config') }}" class="active">
+                <i class="fas fa-sliders-h"></i> Pipeline Credentials
+            </a>
+            <a href="{{ route('admin.server-tracking.logs') }}">
+                <i class="fas fa-list-alt"></i> Audit Logs &amp; Inspector
+            </a>
+            <div class="ml-auto d-none d-md-flex align-items-center pr-2" style="font-size: 13px; font-weight: 600; color: #64748b;">
+                <span class="st-radar-dot mr-2" style="width: 8px; height: 8px;"></span>
+                <span>Dual-Tagging Hybrid Active &bull; Zero Data Loss</span>
             </div>
         </div>
 
