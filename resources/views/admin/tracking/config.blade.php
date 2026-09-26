@@ -1680,6 +1680,7 @@ function runInPlaceTest(provider, eventName) {
     let testCode = '';
     let datasetId = '';
     let accessToken = '';
+    let webhookUrl = '';
 
     if (provider === 'meta_capi') {
         testCode = document.getElementById('meta_capi_test_event_code')?.value || 'TEST54855';
@@ -1689,6 +1690,8 @@ function runInPlaceTest(provider, eventName) {
         testCode = document.getElementById('tiktok_test_event_code')?.value || '';
         datasetId = document.getElementById('tiktok_pixel_code')?.value || '';
         accessToken = document.getElementById('tiktok_token_field')?.value || '';
+    } else if (provider === 'webhook') {
+        webhookUrl = document.getElementById('server_tracking_webhook_url')?.value || '';
     }
 
     resultBox.style.display = 'block';
@@ -1714,7 +1717,8 @@ function runInPlaceTest(provider, eventName) {
             test_event_code: testCode,
             dataset_id: datasetId,
             pixel_id: datasetId,
-            access_token: accessToken
+            access_token: accessToken,
+            webhook_url: webhookUrl
         })
     })
     .then(res => res.json())

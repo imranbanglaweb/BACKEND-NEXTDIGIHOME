@@ -773,17 +773,25 @@ class ServerTrackingService
     /**
      * Dispatch Custom Server Webhook / Server GTM.
      */
-    public function sendWebhook(string $eventName, array $payload, ?string $leadId = null, ?string $orderId = null): array
+    public function sendWebhook(string $eventName, array $payload, ?string $leadId = null, ?string $orderId = null, ?string $customUrl = null): array
     {
         $config = $this->getWebhookConfig();
-        if (!$config['enabled']) {
-            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, 'skipped', null, $payload, ['message' => 'Webhook disabled or missing URL'], null, $leadId, $orderId);
-            return ['status' => 'skipped', 'message' => 'Webhook disabled'];
+        $url = trim((string) ($customUrl ?: $config['url']));
+
+        if (empty($url) || (!$config['enabled'] && empty($customUrl))) {
+            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, 'skipped', null, [
+                'endpoint' => $url ?: 'Not configured',
+                'payload' => $payload,
+            ], ['message' => 'Webhook disabled or missing URL. Please configure Webhook URL in CAPI & Pixel Setup.'], 'Webhook URL is not configured', $leadId, $orderId);
+            return [
+                'status' => 'skipped', 
+                'message' => 'Webhook disabled or missing URL. Please configure Webhook URL in CAPI & Pixel Setup.',
+                'endpoint' => $url,
+            ];
         }
 
         try {
-            $url = $config['url'];
-            $request = Http::timeout(4);
+            $request = Http::timeout(6);
 
             if (!empty($config['secret'])) {
                 $request = $request->withHeaders(['X-Webhook-Secret' => $config['secret']]);
@@ -795,21 +803,49 @@ class ServerTrackingService
                 'data' => $payload,
             ];
 
+            $requestLog = [
+                'endpoint' => $url,
+                'payload' => $body,
+            ];
+
             $response = $request->post($url, $body);
 
             $status = $response->successful() ? 'success' : 'failed';
             $statusCode = $response->status();
 
-            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, $status, $statusCode, $body, ['status' => $statusCode], null, $leadId, $orderId);
+            $responseBody = $response->json();
+            if ($responseBody === null) {
+                $rawText = trim($response->body());
+                $responseBody = !empty($rawText) ? ['body' => $rawText, 'status' => $statusCode] : ['status' => $statusCode];
+            }
+
+            $errorMessage = null;
+            if (!$response->successful()) {
+                $errorMessage = $responseBody['error']['message'] 
+                    ?? $responseBody['message'] 
+                    ?? (is_string($responseBody['error'] ?? null) ? $responseBody['error'] : null)
+                    ?? (is_string($responseBody['body'] ?? null) && strlen($responseBody['body']) < 300 ? $responseBody['body'] : null)
+                    ?? "HTTP {$statusCode} Bad Request returned by endpoint: {$url}";
+            }
+
+            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, $status, $statusCode, $requestLog, $responseBody, $errorMessage, $leadId, $orderId);
 
             return [
                 'status' => $status,
                 'http_code' => $statusCode,
+                'endpoint' => $url,
+                'response' => $responseBody,
+                'error' => $errorMessage,
             ];
         } catch (\Exception $e) {
-            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, 'failed', 500, [], [], $e->getMessage(), $leadId, $orderId);
+            $this->logEvent('webhook', $eventName, $payload['event_id'] ?? null, 'failed', 500, [
+                'endpoint' => $url,
+                'payload' => $body ?? $payload,
+            ], ['error' => $e->getMessage()], $e->getMessage(), $leadId, $orderId);
             return [
                 'status' => 'failed',
+                'http_code' => 500,
+                'endpoint' => $url,
                 'error' => $e->getMessage(),
             ];
         }
@@ -952,7 +988,8 @@ class ServerTrackingService
         string $eventName = 'Lead', 
         ?string $customTestCode = null,
         ?string $overrideDatasetId = null,
-        ?string $overrideAccessToken = null
+        ?string $overrideAccessToken = null,
+        ?string $overrideWebhookUrl = null
     ): array
     {
         $testEventId = 'test_' . time() . '_' . Str::random(6);
@@ -1038,7 +1075,9 @@ class ServerTrackingService
                         'timestamp' => now()->toIso8601String(),
                         'tester' => auth()->user() ? auth()->user()->name : 'Admin',
                     ]),
-                    $testLeadId
+                    $testLeadId,
+                    null,
+                    $overrideWebhookUrl
                 );
                 break;
 

@@ -238,6 +238,7 @@ class ServerTrackingController extends Controller
             'dataset_id' => 'nullable|string|max:100',
             'pixel_id' => 'nullable|string|max:100',
             'access_token' => 'nullable|string',
+            'webhook_url' => 'nullable|string|max:255',
         ]);
 
         $provider = $request->input('provider');
@@ -263,7 +264,8 @@ class ServerTrackingController extends Controller
             $eventName, 
             $testEventCode, 
             $datasetId, 
-            $accessToken
+            $accessToken,
+            $request->input('webhook_url')
         );
 
         return response()->json([

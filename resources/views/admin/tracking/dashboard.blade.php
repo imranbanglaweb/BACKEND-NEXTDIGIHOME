@@ -1881,6 +1881,22 @@
                         </div>
                     </div>
 
+                    <!-- Webhook Specific Section -->
+                    <div id="modal-webhook-section" style="display: none;">
+                        <div class="form-group mb-3">
+                            <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">
+                                Target Webhook Endpoint URL
+                            </label>
+                            <input type="url" class="form-control font-mono font-weight-bold" id="modal-webhook-url" 
+                                   value="{{ $webhookConfig['url'] ?? '' }}" 
+                                   placeholder="https://sgtm.yourdomain.com/data"
+                                   style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 14px;">
+                            <small class="text-muted mt-1 d-block" style="font-size: 12.5px;">
+                                <i class="fas fa-info-circle text-primary mr-1"></i> Specify the live HTTP/HTTPS webhook or sGTM endpoint to ping.
+                            </small>
+                        </div>
+                    </div>
+
                     <div class="form-group mb-3">
                         <label class="text-dark font-weight-bold mb-2" style="font-size: 15px;">Standard Conversion Event</label>
                         <select class="form-control font-weight-bold" id="modal-event-name" style="border: 1.5px solid #cbd5e1; height: 48px; border-radius: 10px; font-size: 15px; color: #0f172a;">
@@ -2047,6 +2063,10 @@ function handleModalProviderChange(provider) {
     if (metaSec) {
         metaSec.style.display = (provider === 'meta_capi') ? 'block' : 'none';
     }
+    const webhookSec = document.getElementById('modal-webhook-section');
+    if (webhookSec) {
+        webhookSec.style.display = (provider === 'webhook') ? 'block' : 'none';
+    }
 }
 
 function toggleModalTokenVisibility() {
@@ -2173,6 +2193,11 @@ document.getElementById('executeTestBtn').addEventListener('click', function() {
         payload.dataset_id = '1786172575724734';
         if (accessToken) {
             payload.access_token = accessToken;
+        }
+    } else if (provider === 'webhook') {
+        const webhookUrlInput = document.getElementById('modal-webhook-url');
+        if (webhookUrlInput && webhookUrlInput.value.trim()) {
+            payload.webhook_url = webhookUrlInput.value.trim();
         }
     }
 
