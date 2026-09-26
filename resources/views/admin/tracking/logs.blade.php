@@ -52,6 +52,12 @@
                 <p>Inspect real-time server-side tracking dispatches, API status codes, and payloads</p>
             </div>
             <div class="premium-actions">
+                <a href="{{ route('admin.server-tracking.export', ['format' => 'csv']) }}" class="btn btn-outline-light mr-2" title="Export Audit Logs as CSV">
+                    <i class="fas fa-file-csv mr-1"></i> Export CSV
+                </a>
+                <a href="{{ route('admin.server-tracking.export', ['format' => 'json']) }}" class="btn btn-outline-light mr-2" title="Export Audit Logs as JSON">
+                    <i class="fas fa-file-code mr-1"></i> Export JSON
+                </a>
                 <button type="button" class="btn btn-outline-light text-danger mr-2" data-toggle="modal" data-target="#clearLogsModal" style="border-color: rgba(239, 68, 68, 0.4) !important;">
                     <i class="fas fa-trash-alt"></i> Clear Logs
                 </button>
@@ -118,7 +124,6 @@
                             <option value="">All Channels</option>
                             <option value="meta_capi" {{ request('provider') === 'meta_capi' ? 'selected' : '' }}>Meta CAPI</option>
                             <option value="ga4" {{ request('provider') === 'ga4' ? 'selected' : '' }}>Google Analytics 4</option>
-                            <option value="tiktok" {{ request('provider') === 'tiktok' ? 'selected' : '' }}>TikTok Events API</option>
                             <option value="webhook" {{ request('provider') === 'webhook' ? 'selected' : '' }}>Server Webhook / sGTM</option>
                         </select>
                     </div>
@@ -338,7 +343,6 @@
                             <option value="">Clear All Channels (Entire Log Table)</option>
                             <option value="meta_capi">Meta CAPI Only</option>
                             <option value="ga4">Google Analytics 4 Only</option>
-                            <option value="tiktok">TikTok Events API Only</option>
                             <option value="webhook">Server Webhooks Only</option>
                         </select>
                     </div>

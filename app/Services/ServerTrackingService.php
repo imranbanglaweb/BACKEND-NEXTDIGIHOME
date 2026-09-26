@@ -994,6 +994,7 @@ class ServerTrackingService
     {
         $testEventId = 'test_' . time() . '_' . Str::random(6);
         $testLeadId = 'TEST-LEAD-' . strtoupper(Str::random(6));
+        $testOrderId = 'TXN-' . strtoupper(Str::random(8));
         $sourceUrl = url('/admin/server-tracking');
 
         $testUserData = [
@@ -1001,21 +1002,97 @@ class ServerTrackingService
             'phone' => '+15550192834',
             'name' => 'NextDigiHome Live Tester',
             'client_ip_address' => request()->ip() ?: '127.0.0.1',
-            'client_user_agent' => request()->userAgent() ?: 'NextDigiHome Server Tracking Tester/2.6',
+            'client_user_agent' => request()->userAgent() ?: 'NextDigiHome Server Tracking Suite/3.0',
             'fbp' => 'fb.1.' . time() . '.987654321',
             'fbc' => 'fb.1.' . time() . '.IwAR0TestClickIdForCAPI',
         ];
 
-        $testCustomData = [
-            'lead_id' => $testLeadId,
-            'service' => 'Web Development & CAPI Integration',
-            'priority' => 'HIGH',
-            'value' => 750.00,
-            'currency' => 'USD',
-            'utm_source' => 'nextdigihome_admin',
-            'utm_medium' => 'test_console',
-            'utm_campaign' => 'server_tracking_verification',
-        ];
+        $currency = 'USD';
+        switch ($eventName) {
+            case 'Purchase':
+                $value = 1250.00;
+                $testCustomData = [
+                    'transaction_id' => $testOrderId,
+                    'value' => $value,
+                    'currency' => $currency,
+                    'num_items' => 2,
+                    'content_type' => 'product',
+                    'contents' => [
+                        ['id' => 'PROD-SVC-01', 'name' => 'Full-Stack Web Development', 'quantity' => 1, 'item_price' => 750.00],
+                        ['id' => 'PROD-CAPI-02', 'name' => 'Server CAPI Enterprise Engine', 'quantity' => 1, 'item_price' => 500.00],
+                    ],
+                    'utm_source' => 'nextdigihome_admin',
+                    'utm_medium' => 'test_console',
+                    'utm_campaign' => 'conversion_audit',
+                ];
+                $ga4EventName = 'purchase';
+                break;
+
+            case 'AddToCart':
+                $value = 299.00;
+                $testCustomData = [
+                    'content_name' => 'NextDigiHome Enterprise Package',
+                    'content_category' => 'Web Services',
+                    'content_ids' => ['PKG-ENT-2026'],
+                    'content_type' => 'product',
+                    'value' => $value,
+                    'currency' => $currency,
+                ];
+                $ga4EventName = 'add_to_cart';
+                break;
+
+            case 'InitiateCheckout':
+                $value = 1250.00;
+                $testCustomData = [
+                    'num_items' => 2,
+                    'value' => $value,
+                    'currency' => $currency,
+                    'content_category' => 'Web Services & Hosting',
+                ];
+                $ga4EventName = 'begin_checkout';
+                break;
+
+            case 'ViewContent':
+                $value = 150.00;
+                $testCustomData = [
+                    'content_name' => 'CAPI Integration & Server Tracking',
+                    'content_category' => 'Enterprise Services',
+                    'content_ids' => ['CAPI-SVC-01'],
+                    'content_type' => 'product_group',
+                    'value' => $value,
+                    'currency' => $currency,
+                ];
+                $ga4EventName = 'view_item';
+                break;
+
+            case 'Contact':
+                $testCustomData = [
+                    'contact_method' => 'admin_console_inquiry',
+                    'service' => 'Enterprise CAPI Audit',
+                    'lead_id' => $testLeadId,
+                    'value' => 0.00,
+                    'currency' => $currency,
+                ];
+                $ga4EventName = 'contact';
+                break;
+
+            case 'Lead':
+            default:
+                $eventName = 'Lead';
+                $value = 750.00;
+                $testCustomData = [
+                    'lead_id' => $testLeadId,
+                    'service' => 'Web Development & CAPI Integration',
+                    'priority' => 'HIGH',
+                    'value' => $value,
+                    'currency' => $currency,
+                    'utm_source' => 'nextdigihome_admin',
+                    'utm_medium' => 'test_console',
+                    'utm_campaign' => 'server_tracking_verification',
+                ];
+                $ga4EventName = 'generate_lead';
+                break;
+        }
 
         $startTime = microtime(true);
 
@@ -1029,7 +1106,7 @@ class ServerTrackingService
                     $testCustomData,
                     $sourceUrl,
                     $testLeadId,
-                    null,
+                    $eventName === 'Purchase' ? $testOrderId : null,
                     $activeTestCode,
                     $overrideDatasetId,
                     $overrideAccessToken
@@ -1037,38 +1114,28 @@ class ServerTrackingService
                 break;
 
             case 'ga4':
-                $result = $this->sendGA4(
-                    $eventName === 'Lead' ? 'generate_lead' : strtolower($eventName),
-                    'GA1.1.' . rand(100000000, 999999999) . '.' . time(),
-                    [
-                        'currency' => 'USD',
-                        'value' => 750.00,
-                        'transaction_id' => $testLeadId,
-                        'source' => 'admin_console',
-                        'medium' => 'test',
-                        'campaign' => 'ga4_measurement_protocol_test',
-                    ],
-                    null,
-                    $testLeadId
-                );
-                break;
+                $gaParams = array_merge([
+                    'currency' => $currency,
+                    'value' => $testCustomData['value'] ?? 750.00,
+                    'transaction_id' => $testCustomData['transaction_id'] ?? $testLeadId,
+                    'source' => 'admin_console',
+                    'medium' => 'test',
+                    'campaign' => 'ga4_measurement_protocol_test',
+                ], $testCustomData);
 
-            case 'tiktok':
-                $result = $this->sendTikTok(
-                    $eventName === 'Lead' ? 'SubmitForm' : $eventName,
-                    $testEventId,
-                    $testUserData,
-                    $testCustomData,
-                    $sourceUrl,
-                    $testLeadId,
+                $result = $this->sendGA4(
+                    $ga4EventName,
+                    'GA1.1.' . rand(100000000, 999999999) . '.' . time(),
+                    $gaParams,
                     null,
-                    $customTestCode
+                    $testLeadId,
+                    $eventName === 'Purchase' ? $testOrderId : null
                 );
                 break;
 
             case 'webhook':
                 $result = $this->sendWebhook(
-                    'test_event_dispatch',
+                    $eventName,
                     array_merge($testCustomData, [
                         'event_id' => $testEventId,
                         'event_name' => $eventName,
@@ -1076,7 +1143,7 @@ class ServerTrackingService
                         'tester' => auth()->user() ? auth()->user()->name : 'Admin',
                     ]),
                     $testLeadId,
-                    null,
+                    $eventName === 'Purchase' ? $testOrderId : null,
                     $overrideWebhookUrl
                 );
                 break;

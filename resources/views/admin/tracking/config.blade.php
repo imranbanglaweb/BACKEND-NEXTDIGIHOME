@@ -840,7 +840,6 @@
                 $activeCount = 0;
                 if (!empty($metaConfig['enabled'])) $activeCount++;
                 if (!empty($ga4Config['enabled'])) $activeCount++;
-                if (!empty($tiktokConfig['enabled'])) $activeCount++;
                 if (!empty($webhookConfig['enabled'])) $activeCount++;
             @endphp
             <div class="st-telemetry-item">
@@ -850,7 +849,7 @@
                 <div>
                     <div class="st-telemetry-label">Active Cloud Relays</div>
                     <div class="st-telemetry-val">
-                        <span>{{ $activeCount }} of 4 Ready</span>
+                        <span>{{ $activeCount }} of 3 Ready</span>
                         <span class="badge {{ $activeCount > 0 ? 'badge-success' : 'badge-warning' }}" style="font-size: 11.5px; padding: 4px 8px; border-radius: 6px;">
                             {{ $activeCount > 0 ? 'ONLINE' : 'SETUP NEEDED' }}
                         </span>
@@ -1179,109 +1178,7 @@
                 </div>
 
                 <!-- ==========================================
-                     3. TIKTOK EVENTS API
-                     ========================================== -->
-                <div class="st-provider-card card-tiktok">
-                    <div>
-                        <div class="st-provider-header">
-                            <div class="d-flex align-items-center">
-                                <div class="st-provider-badge-icon mr-3" style="background: #ffe4e6; color: #e11d48;">
-                                    <i class="fab fa-tiktok"></i>
-                                </div>
-                                <div>
-                                    <div class="st-provider-title">
-                                        TikTok Events API
-                                        <span class="badge badge-light border font-mono ml-1" style="font-size: 11.5px; padding: 4px 8px; font-weight: 700;">v1.3</span>
-                                    </div>
-                                    <div class="st-provider-subtitle">Business API Server-to-Server Endpoint</div>
-                                </div>
-                            </div>
-                            <div class="custom-control custom-switch custom-switch-lg">
-                                <input type="checkbox" class="custom-control-input form-tracker" id="tiktok_server_enabled" name="tiktok_server_enabled" value="1" {{ old('tiktok_server_enabled', $settings->tiktok_server_enabled ?? $tiktokConfig['enabled']) ? 'checked' : '' }}>
-                                <label class="custom-control-label font-weight-bold" for="tiktok_server_enabled" style="font-size: 14.5px; cursor: pointer;">
-                                    {{ !empty($tiktokConfig['enabled']) ? 'Active' : 'Disabled' }}
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="st-provider-body">
-                            <div>
-                                <!-- Pixel Code -->
-                                <div class="st-form-group">
-                                    <label class="st-form-label" for="tiktok_pixel_code">
-                                        <span>TikTok Pixel Code / ID <span class="text-danger">*</span></span>
-                                        <span id="tiktok_pixel_feedback" class="small text-muted font-mono" style="font-size: 12.5px;"></span>
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control st-form-control font-mono font-weight-bold form-tracker" 
-                                               name="tiktok_pixel_code" id="tiktok_pixel_code" 
-                                               value="{{ old('tiktok_pixel_code', $settings->tiktok_pixel_code ?? $tiktokConfig['pixel_code']) }}" 
-                                               placeholder="e.g. CXXXXXXXXXX" oninput="validateTikTokPixel(this)">
-                                        <div class="input-group-append">
-                                            <button class="btn st-copy-btn" type="button" onclick="copyInput('tiktok_pixel_code')" title="Copy Pixel Code">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="st-form-help">
-                                        <span>Found in TikTok Ads Manager &gt; Assets &gt; Events &gt; Web Events &gt; Pixel ID.</span>
-                                        <a href="https://ads.tiktok.com/" target="_blank" rel="noopener noreferrer" class="st-link-helper">
-                                            TikTok Ads <i class="fas fa-external-link-alt" style="font-size: 11px;"></i>
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <!-- Access Token -->
-                                <div class="st-form-group">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label for="tiktok_token_field" class="st-form-label mb-0">
-                                            <span>TikTok Long-Term Access Token <span class="text-danger">*</span></span>
-                                        </label>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span id="tiktok_token_len" class="small text-muted font-mono mr-2" style="font-size: 12px;"></span>
-                                            <button type="button" class="btn btn-link text-primary p-0 font-weight-bold" style="font-size: 13.5px;" onclick="toggleSecretMask('tiktok_token_field', this)">
-                                                <i class="fas fa-eye mr-1"></i> Show Token
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <textarea class="form-control st-form-control st-form-textarea font-mono form-tracker" 
-                                              id="tiktok_token_field" name="tiktok_access_token" rows="2" 
-                                              placeholder="Enter TikTok Events API Access Token" 
-                                              oninput="updateTokenCount('tiktok_token_field', 'tiktok_token_len')">{{ old('tiktok_access_token', $settings->tiktok_access_token ?? $tiktokConfig['access_token']) }}</textarea>
-                                </div>
-
-                                <!-- Test Event Code -->
-                                <div class="st-form-group">
-                                    <label class="st-form-label" for="tiktok_test_event_code">
-                                        <span>Test Event Code (Optional)</span>
-                                        <span class="badge badge-secondary" style="font-size: 11.5px;">TikTok Diagnostics</span>
-                                    </label>
-                                    <input type="text" class="form-control st-form-control font-mono form-tracker" 
-                                           id="tiktok_test_event_code" name="tiktok_test_event_code" 
-                                           value="{{ old('tiktok_test_event_code', $settings->tiktok_test_event_code ?? $tiktokConfig['test_event_code']) }}" 
-                                           placeholder="e.g. TEST12345">
-                                    <div class="st-form-help">
-                                        <span>Obtained from the Test Events tab in TikTok Events Manager.</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- In-Place Live Tester -->
-                            <div class="st-test-box">
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                    <button type="button" class="btn btn-dark st-test-btn" onclick="runInPlaceTest('tiktok', 'Lead')">
-                                        <i class="fas fa-paper-plane mr-1 text-danger"></i> Dispatch TikTok Test Event
-                                    </button>
-                                    <span class="text-muted small">Emits server-side <code>SubmitForm</code></span>
-                                </div>
-                                <div id="testResult_tiktok" class="st-test-result"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ==========================================
-                     4. SERVER WEBHOOK / sGTM
+                     3. SERVER WEBHOOK / sGTM
                      ========================================== -->
                 <div class="st-provider-card card-webhook">
                     <div>
@@ -1686,10 +1583,6 @@ function runInPlaceTest(provider, eventName) {
         testCode = document.getElementById('meta_capi_test_event_code')?.value || 'TEST54855';
         datasetId = document.getElementById('meta_pixel_id')?.value || '1786172575724734';
         accessToken = document.getElementById('meta_token_field')?.value || '';
-    } else if (provider === 'tiktok') {
-        testCode = document.getElementById('tiktok_test_event_code')?.value || '';
-        datasetId = document.getElementById('tiktok_pixel_code')?.value || '';
-        accessToken = document.getElementById('tiktok_token_field')?.value || '';
     } else if (provider === 'webhook') {
         webhookUrl = document.getElementById('server_tracking_webhook_url')?.value || '';
     }

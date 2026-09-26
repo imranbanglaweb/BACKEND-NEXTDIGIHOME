@@ -1047,13 +1047,15 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('metapixel/config', [MetaPixelController::class, 'config'])->name('metapixel.config');
     // Route::post('metapixel/config', [MetaPixelController::class, 'updateConfig'])->name('metapixel.config.update');
 
-    // Server-Side Tracking & CAPI (GA4, Meta CAPI, TikTok & Webhooks)
+    // Server-Side Tracking & CAPI (GA4, Meta CAPI & Webhooks)
     Route::prefix('admin/server-tracking')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('admin.server-tracking.dashboard');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'dashboard'])->name('admin.server-tracking.dashboard.page');
         Route::get('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'config'])->name('admin.server-tracking.config');
         Route::post('/config', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'updateConfig'])->name('admin.server-tracking.config.update');
         Route::get('/logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'logs'])->name('admin.server-tracking.logs');
+        Route::get('/export', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'exportLogs'])->name('admin.server-tracking.export');
+        Route::get('/health', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'healthStatus'])->name('admin.server-tracking.health');
         Route::post('/test', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'testDispatch'])->name('admin.server-tracking.test');
         Route::post('/clear-logs', [\App\Http\Controllers\Admin\ServerTrackingController::class, 'clearLogs'])->name('admin.server-tracking.clear-logs');
     });
